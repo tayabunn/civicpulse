@@ -26,6 +26,24 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Root route for API discovery & health
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'CivicPulse Smart City Infrastructure API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      issues: '/api/issues',
+      departments: '/api/departments',
+      tasks: '/api/tasks',
+      analytics: '/api/analytics',
+    },
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Healthcheck
 const healthHandler = (req: express.Request, res: express.Response) => {
   res.json({
@@ -47,8 +65,13 @@ app.use('/api/saved-views', savedViewsRoutes);
 
 // Export for serverless or testing
 export default app;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = app;
+  (module.exports as any).default = app;
+}
 
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+const isServerless = process.env.VERCEL === '1' || Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) || Boolean(process.env.VERCEL_ENV);
+if (process.env.NODE_ENV !== 'test' && !isServerless && typeof require !== 'undefined' && require.main === module) {
   app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`🏛️ CivicPulse Backend API server running on http://localhost:${PORT}`);
   });
