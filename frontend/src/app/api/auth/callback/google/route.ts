@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   const error = searchParams.get('error');
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = rawApiUrl.startsWith('http') ? rawApiUrl : `${appUrl}${rawApiUrl}`;
 
   if (error || !code) {
     console.error('Google auth error or denied:', error);

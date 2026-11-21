@@ -27,13 +27,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Healthcheck
-app.get('/health', (req, res) => {
+const healthHandler = (req: express.Request, res: express.Response) => {
   res.json({
     status: 'online',
     service: 'CivicPulse Smart City Infrastructure API',
     timestamp: new Date().toISOString(),
   });
-});
+};
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -46,8 +48,8 @@ app.use('/api/saved-views', savedViewsRoutes);
 // Export for serverless or testing
 export default app;
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`🏛️ CivicPulse Backend API server running on http://localhost:${PORT}`);
   });
 }
