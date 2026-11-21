@@ -11,6 +11,8 @@ import departmentRoutes from './routes/departments';
 import taskRoutes from './routes/tasks';
 import analyticsRoutes from './routes/analytics';
 import savedViewsRoutes from './routes/saved-views';
+import userRoutes from './routes/users';
+import settingsRoutes from './routes/settings';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -62,6 +64,8 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/saved-views', savedViewsRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Export for serverless or testing
 export default app;

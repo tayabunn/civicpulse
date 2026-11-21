@@ -53,7 +53,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.post('/', authenticateToken, authorizeRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, code, description, managerId } = req.body;
     if (!name || !code) {
@@ -72,7 +72,7 @@ router.post('/', authenticateToken, authorizeRole(['admin']), async (req: Authen
   }
 });
 
-router.patch('/:id', authenticateToken, authorizeRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
+router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = req.params.id as string;
     const { name, description, managerId, isActive } = req.body;

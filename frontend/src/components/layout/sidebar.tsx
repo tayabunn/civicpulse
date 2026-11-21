@@ -14,6 +14,7 @@ import {
   Building2,
   Users,
   Wrench,
+  Sliders,
   ChevronLeft,
   ChevronRight,
   Flame,
@@ -56,6 +57,8 @@ export function Sidebar() {
     { label: 'City Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'Executive Analytics', href: '/admin/analytics', icon: BarChart3 },
     { label: 'Departments', href: '/admin/departments', icon: Building2 },
+    { label: 'User Directory', href: '/admin/users', icon: Users },
+    { label: 'System Settings', href: '/admin/settings', icon: Sliders },
   ];
 
   const roleLinks = {

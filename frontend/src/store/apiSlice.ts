@@ -24,7 +24,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Issues', 'Departments', 'Tasks', 'Analytics', 'SavedViews'],
+  tagTypes: ['Issues', 'Departments', 'Tasks', 'Analytics', 'SavedViews', 'Users', 'Settings'],
   endpoints: (builder) => ({
     // Issues
     getIssues: builder.query<IssuesResponse, IssueFilters | void>({
@@ -150,6 +150,76 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['SavedViews'],
     }),
+
+    // Users Management
+    getUsers: builder.query<{ users: any[]; total: number }, { role?: string; search?: string } | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.role) queryParams.append('role', params.role);
+        if (params?.search) queryParams.append('search', params.search);
+        return `/users?${queryParams.toString()}`;
+      },
+      providesTags: ['Users'],
+    }),
+
+    createUser: builder.mutation<any, any>({
+      query: (body) => ({
+        url: '/users',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Users'],
+    }),
+
+    updateUser: builder.mutation<any, { id: string; role?: string; departmentId?: string; name?: string; phone?: string }>({
+      query: ({ id, ...body }) => ({
+        url: `/users/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Users'],
+    }),
+
+    deleteUser: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Users'],
+    }),
+
+    createDepartment: builder.mutation<any, { name: string; code: string; description?: string; managerId?: string }>({
+      query: (body) => ({
+        url: '/departments',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Departments'],
+    }),
+
+    updateDepartment: builder.mutation<any, { id: string; name?: string; description?: string; managerId?: string; isActive?: boolean }>({
+      query: ({ id, ...body }) => ({
+        url: `/departments/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Departments'],
+    }),
+
+    // System Settings
+    getSettings: builder.query<{ success: boolean; settings: any }, void>({
+      query: () => '/settings',
+      providesTags: ['Settings'],
+    }),
+
+    updateSettings: builder.mutation<any, any>({
+      query: (body) => ({
+        url: '/settings',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Settings'],
+    }),
   }),
 });
 
@@ -167,4 +237,12 @@ export const {
   useGetAnalyticsQuery,
   useGetSavedViewsQuery,
   useCreateSavedViewMutation,
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useCreateDepartmentMutation,
+  useUpdateDepartmentMutation,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = apiSlice;
