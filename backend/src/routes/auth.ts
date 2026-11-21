@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import crypto from 'crypto';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
@@ -101,6 +102,56 @@ router.post('/register', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Register error:', error);
     return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/google', async (req: Request, res: Response) => {
+  try {
+    const { email, name, avatarUrl } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    let [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+    if (!user) {
+      const randomPassword = crypto.randomUUID();
+      const passwordHash = await hashPassword(randomPassword);
+      [user] = await db
+        .insert(users)
+        .values({
+          name: name || email.split('@')[0],
+          email,
+          passwordHash,
+          avatarUrl: avatarUrl || undefined,
+          role: 'citizen',
+        })
+        .returning();
+    }
+
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      departmentId: user.departmentId,
+      avatarUrl: user.avatarUrl,
+    };
+
+    const token = await createSessionToken(sessionUser);
+
+    res.cookie('civicpulse_session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ success: true, user: sessionUser, token });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    return res.status(500).json({ error: 'Failed to process Google authentication' });
   }
 });
 

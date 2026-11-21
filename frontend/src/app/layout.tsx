@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import React, { Suspense } from 'react';
 import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import { StoreProvider } from '../store/provider';
 import { ThemeProvider } from '../components/layout/theme-provider';
+import { AuthSync } from '../components/layout/auth-sync';
 
 export const metadata: Metadata = {
   title: 'CivicPulse — Smart City Infrastructure Management Platform',
@@ -18,7 +20,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-text-primary antialiased selection:bg-brand-yellow selection:text-brand-midnight">
         <StoreProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <Suspense fallback={null}>
+              <AuthSync />
+            </Suspense>
+            {children}
+          </ThemeProvider>
         </StoreProvider>
       </body>
     </html>
