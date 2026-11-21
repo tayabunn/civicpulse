@@ -8,28 +8,28 @@ export async function runSeed() {
   const data = generateSeedData();
 
   console.log(`Inserting ${data.departments.length} departments...`);
-  for (const dept of data.departments) {
-    await db.insert(departments).values(dept).onConflictDoNothing();
-  }
+  await db.insert(departments).values(data.departments).onConflictDoNothing();
 
   console.log(`Inserting ${data.users.length} users (Admins, Managers, Staff, Citizens)...`);
-  for (const user of data.users) {
-    await db.insert(users).values(user).onConflictDoNothing();
-  }
+  await db.insert(users).values(data.users).onConflictDoNothing();
 
   console.log(`Inserting ${data.issues.length} municipal infrastructure issues...`);
-  for (const issue of data.issues) {
-    await db.insert(issues).values(issue).onConflictDoNothing();
+  // Insert issues in chunks of 30
+  for (let i = 0; i < data.issues.length; i += 30) {
+    const chunk = data.issues.slice(i, i + 30);
+    await db.insert(issues).values(chunk).onConflictDoNothing();
   }
 
   console.log(`Inserting ${data.activities.length} audit trail activity records...`);
-  for (const act of data.activities) {
-    await db.insert(issueActivities).values(act).onConflictDoNothing();
+  for (let i = 0; i < data.activities.length; i += 50) {
+    const chunk = data.activities.slice(i, i + 50);
+    await db.insert(issueActivities).values(chunk).onConflictDoNothing();
   }
 
   console.log(`Inserting ${data.tasks.length} maintenance task records...`);
-  for (const task of data.tasks) {
-    await db.insert(maintenanceTasks).values(task).onConflictDoNothing();
+  for (let i = 0; i < data.tasks.length; i += 50) {
+    const chunk = data.tasks.slice(i, i + 50);
+    await db.insert(maintenanceTasks).values(chunk).onConflictDoNothing();
   }
 
   console.log('✅ Seeding complete! Database successfully populated with realistic smart city data.');

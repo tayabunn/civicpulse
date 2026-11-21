@@ -69,7 +69,7 @@ export function generateSeedData() {
   }> = [
     // 4 Primary Demo Users
     {
-      id: 'u0000000-0000-0000-0000-000000000001',
+      id: '10000000-0000-0000-0000-000000000001',
       name: 'City Administrator (Chief Operations)',
       email: 'admin@civicpulse.gov',
       passwordHash: adminHash,
@@ -77,7 +77,7 @@ export function generateSeedData() {
       phone: '+880 1711 000001',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000002',
+      id: '10000000-0000-0000-0000-000000000002',
       name: 'Tariq Rahman (Roads Dept Manager)',
       email: 'manager.roads@civicpulse.gov',
       passwordHash: managerHash,
@@ -86,7 +86,7 @@ export function generateSeedData() {
       phone: '+880 1711 000002',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000003',
+      id: '10000000-0000-0000-0000-000000000003',
       name: 'Rafiqul Islam (Senior Field Electrician)',
       email: 'staff.electric@civicpulse.gov',
       passwordHash: staffHash,
@@ -95,7 +95,7 @@ export function generateSeedData() {
       phone: '+880 1711 000003',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000004',
+      id: '10000000-0000-0000-0000-000000000004',
       name: 'Jane Citizen',
       email: 'citizen.jane@civicpulse.gov',
       passwordHash: citizenHash,
@@ -104,7 +104,7 @@ export function generateSeedData() {
     },
     // Other 4 Department Managers
     {
-      id: 'u0000000-0000-0000-0000-000000000005',
+      id: '10000000-0000-0000-0000-000000000005',
       name: 'Nusrat Jahan (Electrical Dept Manager)',
       email: 'manager.electric@civicpulse.gov',
       passwordHash: managerHash,
@@ -113,7 +113,7 @@ export function generateSeedData() {
       phone: '+880 1711 000005',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000006',
+      id: '10000000-0000-0000-0000-000000000006',
       name: 'Kamal Hossain (Water & Sewage Manager)',
       email: 'manager.water@civicpulse.gov',
       passwordHash: managerHash,
@@ -122,7 +122,7 @@ export function generateSeedData() {
       phone: '+880 1711 000006',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000007',
+      id: '10000000-0000-0000-0000-000000000007',
       name: 'Farhana Ahmed (Waste Mgmt Manager)',
       email: 'manager.waste@civicpulse.gov',
       passwordHash: managerHash,
@@ -131,7 +131,7 @@ export function generateSeedData() {
       phone: '+880 1711 000007',
     },
     {
-      id: 'u0000000-0000-0000-0000-000000000008',
+      id: '10000000-0000-0000-0000-000000000008',
       name: 'Ziaur Rahman (Infrastructure Manager)',
       email: 'manager.infra@civicpulse.gov',
       passwordHash: managerHash,
@@ -156,7 +156,7 @@ export function generateSeedData() {
     for (const name of staffNames[deptI]) {
       const email = `staff.${name.toLowerCase().replace(/[^a-z]/g, '')}@civicpulse.gov`;
       users.push({
-        id: `u0000000-0000-0000-0000-${String(staffIdx).padStart(12, '0')}`,
+        id: `10000000-0000-0000-0000-${String(staffIdx).padStart(12, '0')}`,
         name: `${name} (Crew Tech)`,
         email,
         passwordHash: staffHash,
@@ -173,7 +173,7 @@ export function generateSeedData() {
   let citizenIdx = 40;
   for (const name of citizenNames) {
     users.push({
-      id: `u0000000-0000-0000-0000-${String(citizenIdx).padStart(12, '0')}`,
+      id: `10000000-0000-0000-0000-${String(citizenIdx).padStart(12, '0')}`,
       name,
       email: `citizen.${name.toLowerCase().replace(/[^a-z]/g, '')}@example.com`,
       passwordHash: defaultHash,
@@ -309,7 +309,7 @@ export function generateSeedData() {
     const deptStaff = staffByDept[deptId] || [users[2].id];
 
     for (let i = 0; i < 18; i++) {
-      const issueId = `i0000000-0000-0000-0000-${String(issueNumber).padStart(12, '0')}`;
+      const issueId = `a0000000-0000-0000-0000-${String(issueNumber).padStart(12, '0')}`;
       const title = `${titles[i % titles.length]} #${issueNumber}`;
       const location = SAMPLE_LOCATIONS[(issueNumber * 7) % SAMPLE_LOCATIONS.length];
       const priority = priorities[i % priorities.length];
@@ -374,7 +374,7 @@ export function generateSeedData() {
       if (assignedStaff) {
         const taskStatus = status === 'in_progress' ? 'in_progress' : isResolvedOrClosed ? 'completed' : 'pending';
         tasks.push({
-          id: `t0000000-0000-0000-0000-${String(issueNumber).padStart(12, '0')}`,
+          id: `b0000000-0000-0000-0000-${String(issueNumber).padStart(12, '0')}`,
           issueId,
           staffId: assignedStaff,
           status: taskStatus,
