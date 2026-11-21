@@ -768,7 +768,7 @@ git commit -m "feat: build executive analytics dashboard with Recharts and admin
 
 ---
 
-### Task 14: Data Explorer, Advanced Search & Saved Views (DataScope Integration)
+### Task 14: Data Explorer, Advanced Search & Saved Views
 
 **Files:**
 - Create: `src/app/(dashboard)/explorer/page.tsx`

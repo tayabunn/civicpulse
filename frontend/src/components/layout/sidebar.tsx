@@ -7,7 +7,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { toggleSidebar } from '../../store/uiSlice';
 import {
-  Compass,
   FilePlus,
   Inbox,
   LayoutDashboard,
@@ -17,7 +16,6 @@ import {
   Wrench,
   ChevronLeft,
   ChevronRight,
-  ShieldAlert,
   Flame,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -37,31 +35,27 @@ export function Sidebar() {
     highlight?: boolean;
   }
 
-  // Navigation items based on role
+  // Navigation items based on role — CivicPulse 4 Core Roles
   const citizenLinks: NavLinkItem[] = [
     { label: 'Overview', href: '/citizen', icon: LayoutDashboard },
     { label: 'Report Issue', href: '/citizen/create', icon: FilePlus, highlight: true },
     { label: 'My Reports', href: '/citizen/reports', icon: Inbox },
-    { label: 'DataScope Explorer', href: '/explorer', icon: Compass },
   ];
 
   const managerLinks: NavLinkItem[] = [
     { label: 'Triage Overview', href: '/manager', icon: LayoutDashboard },
     { label: 'Department Queue', href: '/manager/issues', icon: Inbox },
     { label: 'Crew & Workload', href: '/manager/team', icon: Users },
-    { label: 'DataScope Explorer', href: '/explorer', icon: Compass },
   ];
 
   const staffLinks: NavLinkItem[] = [
     { label: 'My Work Orders', href: '/staff', icon: Wrench },
-    { label: 'DataScope Explorer', href: '/explorer', icon: Compass },
   ];
 
   const adminLinks: NavLinkItem[] = [
     { label: 'City Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'Executive Analytics', href: '/admin/analytics', icon: BarChart3 },
     { label: 'Departments', href: '/admin/departments', icon: Building2 },
-    { label: 'DataScope Explorer', href: '/explorer', icon: Compass },
   ];
 
   const roleLinks = {

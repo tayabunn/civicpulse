@@ -12,13 +12,7 @@ import {
   HardHat,
   Shield,
   Sparkles,
-  Compass,
   ArrowRight,
-  CheckCircle,
-  MapPin,
-  Clock,
-  Layers,
-  BarChart,
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -87,10 +81,9 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link href="/explorer">
+            <Link href="/citizen">
               <Button variant="outline" size="sm" className="gap-2 font-semibold">
-                <Compass size={15} />
-                DataScope Explorer
+                Citizen Portal
               </Button>
             </Link>
             <Link href="/citizen/create">
@@ -122,14 +115,14 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Link href="/explorer">
+            <Link href="/citizen">
               <Button size="lg" className="gap-2 bg-brand-cobalt text-white hover:bg-brand-cobalt-700 font-bold px-8 shadow-md">
-                <Compass size={18} /> Explore City Map & Data
+                Enter Citizen Portal <ArrowRight size={18} />
               </Button>
             </Link>
             <Link href="/citizen/create">
               <Button size="lg" variant="accent" className="gap-2 font-bold px-8 shadow-md">
-                Report Issue Now <ArrowRight size={18} />
+                Report Issue Now
               </Button>
             </Link>
           </div>

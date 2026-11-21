@@ -64,7 +64,7 @@ Modern municipal governance relies heavily on timely identification and resoluti
 ### 4.1 Approaches Evaluated
 1. **Prisma ORM + NextAuth + Standard React Context:** Common Next.js setup, but lacks enterprise query-level state caching, request deduplication, and low-level SQL optimization.
 2. **Drizzle ORM + Redux Toolkit & RTK Query + NextAuth / Secure JWT Session (Selected):**
-   - **Why Selected:** Combines Drizzle's ultra-fast, zero-overhead relational SQL generation and fine-grained indexing with RTK Query's enterprise server-state caching, tag invalidation (`providesTags` / `invalidatesTags`), and normalized client store. It directly fulfills both CivicPulse's GovTech requirements and DataScope's enterprise data-intensive architectural standards.
+   - **Why Selected:** Combines Drizzle's ultra-fast, zero-overhead relational SQL generation and fine-grained indexing with RTK Query's enterprise server-state caching, tag invalidation (`providesTags` / `invalidatesTags`), and normalized client store. It directly fulfills CivicPulse's GovTech requirements and enterprise data-intensive architectural standards.
 3. **Full BaaS (Supabase client-only):** Rejected due to external cloud lock-in and inability to run standalone or manage custom full-stack Redux pipelines cleanly.
 
 ---
@@ -175,7 +175,7 @@ Modern municipal governance relies heavily on timely identification and resoluti
    - `started_at`: TIMESTAMP WITH TIME ZONE
    - `completed_at`: TIMESTAMP WITH TIME ZONE
 
-6. **`saved_views` & `search_history`** (DataScope enterprise features)
+6. **`saved_views` & `search_history`** (Saved filters and views)
    - `saved_views`: `(id, user_id, name, filters_json, sort_json, columns_json, is_shared, created_at)`
    - `search_history`: `(id, user_id, query_text, filters_json, executed_at)`
 
