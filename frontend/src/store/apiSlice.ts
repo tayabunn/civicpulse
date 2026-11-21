@@ -1,0 +1,170 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { RootState } from './index';
+import type {
+  Issue,
+  IssuesResponse,
+  IssueFilters,
+  Department,
+  MaintenanceTask,
+  AnalyticsSummary,
+  SavedView,
+} from '../types';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+export const apiSlice = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
+      if (token) {
+        headers.set('authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
+  tagTypes: ['Issues', 'Departments', 'Tasks', 'Analytics', 'SavedViews'],
+  endpoints: (builder) => ({
+    // Issues
+    getIssues: builder.query<IssuesResponse, IssueFilters | void>({
+      query: (filters) => {
+        const params = new URLSearchParams();
+        if (filters) {
+          Object.entries(filters).forEach(([key, val]) => {
+            if (val !== undefined && val !== null && val !== '') {
+              params.append(key, String(val));
+            }
+          });
+        }
+        return `/issues?${params.toString()}`;
+      },
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Issues' as const, id })),
+              { type: 'Issues', id: 'LIST' },
+            ]
+          : [{ type: 'Issues', id: 'LIST' }],
+    }),
+
+    getIssueById: builder.query<Issue, string>({
+      query: (id) => `/issues/${id}`,
+      providesTags: (_result, _err, id) => [{ type: 'Issues', id }],
+    }),
+
+    createIssue: builder.mutation<Issue, Partial<Issue>>({
+      query: (body) => ({
+        url: '/issues',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [{ type: 'Issues', id: 'LIST' }, 'Analytics'],
+    }),
+
+    updateIssueStatus: builder.mutation<Issue, { id: string; status: string; notes?: string }>({
+      query: ({ id, status, notes }) => ({
+        url: `/issues/${id}/status`,
+        method: 'PATCH',
+        body: { status, notes },
+      }),
+      invalidatesTags: (_res, _err, { id }) => [
+        { type: 'Issues', id },
+        { type: 'Issues', id: 'LIST' },
+        'Analytics',
+      ],
+    }),
+
+    submitFeedback: builder.mutation<Issue, { id: string; rating: number; feedback: string }>({
+      query: ({ id, rating, feedback }) => ({
+        url: `/issues/${id}/feedback`,
+        method: 'POST',
+        body: { rating, feedback },
+      }),
+      invalidatesTags: (_res, _err, { id }) => [{ type: 'Issues', id }],
+    }),
+
+    // Departments
+    getDepartments: builder.query<Department[], void>({
+      query: () => '/departments',
+      providesTags: ['Departments'],
+    }),
+
+    getDepartmentById: builder.query<Department, string>({
+      query: (id) => `/departments/${id}`,
+      providesTags: (_res, _err, id) => [{ type: 'Departments', id }],
+    }),
+
+    // Tasks
+    getTasks: builder.query<MaintenanceTask[], { staffId?: string; status?: string } | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.staffId) queryParams.append('staffId', params.staffId);
+        if (params?.status) queryParams.append('status', params.status);
+        return `/tasks?${queryParams.toString()}`;
+      },
+      providesTags: ['Tasks'],
+    }),
+
+    assignTask: builder.mutation<
+      MaintenanceTask,
+      { issueId: string; staffId: string; notes?: string; scheduledDate?: string }
+    >({
+      query: (body) => ({
+        url: '/tasks',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Tasks', { type: 'Issues', id: 'LIST' }],
+    }),
+
+    updateTaskStatus: builder.mutation<
+      MaintenanceTask,
+      { id: string; status: string; notes?: string; completionPhotoUrl?: string }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/tasks/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Tasks', { type: 'Issues', id: 'LIST' }, 'Analytics'],
+    }),
+
+    // Analytics
+    getAnalytics: builder.query<AnalyticsSummary, void>({
+      query: () => '/analytics',
+      providesTags: ['Analytics'],
+    }),
+
+    // Saved Views
+    getSavedViews: builder.query<SavedView[], void>({
+      query: () => '/saved-views',
+      providesTags: ['SavedViews'],
+    }),
+
+    createSavedView: builder.mutation<SavedView, { name: string; filters: Record<string, any> }>({
+      query: (body) => ({
+        url: '/saved-views',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['SavedViews'],
+    }),
+  }),
+});
+
+export const {
+  useGetIssuesQuery,
+  useGetIssueByIdQuery,
+  useCreateIssueMutation,
+  useUpdateIssueStatusMutation,
+  useSubmitFeedbackMutation,
+  useGetDepartmentsQuery,
+  useGetDepartmentByIdQuery,
+  useGetTasksQuery,
+  useAssignTaskMutation,
+  useUpdateTaskStatusMutation,
+  useGetAnalyticsQuery,
+  useGetSavedViewsQuery,
+  useCreateSavedViewMutation,
+} = apiSlice;

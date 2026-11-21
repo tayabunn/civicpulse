@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Signal City Design System — Light Theme */
+  --background: #F7F5EF;
+  --surface: #FFFFFF;
+  --surface-secondary: #F0F1F5;
+  --surface-elevated: #FFFFFF;
+  --text-primary: #202B45;
+  --text-secondary: #4B5568;
+  --text-muted: #606B7D;
+  --border: #D5DAE3;
+  --border-strong: #AAB2BF;
+  --primary: #315CFF;
+  --primary-hover: #244BE0;
+  --primary-foreground: #FFFFFF;
+  --accent: #FFD447;
+  --accent-foreground: #202B45;
+  --sidebar-bg: #202B45;
+  --sidebar-text: #F7F5EF;
+  --sidebar-active: #FFD447;
+  --sidebar-active-text: #202B45;
+}
+
+[data-theme="dark"], .dark {
+  /* Signal City Design System — Dark Theme */
+  --background: #111827;
+  --surface: #1B2435;
+  --surface-secondary: #202B45;
+  --surface-elevated: #2B3852;
+  --text-primary: #F7F5EF;
+  --text-secondary: #D0D7E3;
+  --text-muted: #AAB5C7;
+  --border: #3C4962;
+  --border-strong: #56647D;
+  --primary: #7D96FF;
+  --primary-hover: #9BAEFF;
+  --primary-foreground: #111827;
+  --accent: #FFD447;
+  --accent-foreground: #202B45;
+  --sidebar-bg: #111827;
+  --sidebar-text: #F7F5EF;
+  --sidebar-active: #FFD447;
+  --sidebar-active-text: #202B45;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+code, pre, .font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  z-index: 10;
+}

@@ -7,9 +7,14 @@
     "frontend"
   ],
   "scripts": {
+    "dev": "npm --workspace=backend run dev",
     "dev:backend": "npm --workspace=backend run dev",
+    "dev:frontend": "npm --workspace=frontend run dev",
     "build:backend": "npm --workspace=backend run build",
+    "build:frontend": "npm --workspace=frontend run build",
     "test:backend": "npm --workspace=backend run test",
+    "test:frontend": "npm --workspace=frontend run test",
+    "test": "npm run test:backend && npm run test:frontend",
     "db:push": "npm --workspace=backend run db:push",
     "db:seed": "npm --workspace=backend run db:seed"
   }
