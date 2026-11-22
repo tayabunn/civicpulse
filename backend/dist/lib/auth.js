@@ -41,10 +41,10 @@ exports.verifyPassword = verifyPassword;
 exports.createSessionToken = createSessionToken;
 exports.verifySessionToken = verifySessionToken;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const jose_1 = require("jose");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret-jwt-token-civicpulse-2026-production-ready');
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-jwt-token-civicpulse-2026-production-ready';
 async function hashPassword(password) {
     return bcryptjs_1.default.hash(password, 10);
 }
@@ -52,15 +52,11 @@ async function verifyPassword(password, hash) {
     return bcryptjs_1.default.compare(password, hash);
 }
 async function createSessionToken(payload) {
-    return new jose_1.SignJWT({ ...payload })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .setExpirationTime('7d')
-        .sign(JWT_SECRET);
+    return jsonwebtoken_1.default.sign({ ...payload }, JWT_SECRET, { expiresIn: '7d' });
 }
 async function verifySessionToken(token) {
     try {
-        const { payload } = await (0, jose_1.jwtVerify)(token, JWT_SECRET);
+        const payload = jsonwebtoken_1.default.verify(token, JWT_SECRET);
         return {
             id: payload.id,
             email: payload.email,

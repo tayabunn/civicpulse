@@ -1,11 +1,10 @@
 import bcrypt from 'bcryptjs';
-import { SignJWT, jwtVerify } from 'jose';
+import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'super-secret-jwt-token-civicpulse-2026-production-ready'
-);
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'super-secret-jwt-token-civicpulse-2026-production-ready';
 
 export type UserRole = 'admin' | 'department_manager' | 'maintenance_staff' | 'citizen';
 
@@ -26,16 +25,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 export async function createSessionToken(payload: SessionUser): Promise<string> {
-  return new SignJWT({ ...payload })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(JWT_SECRET);
+  return jwt.sign({ ...payload }, JWT_SECRET, { expiresIn: '7d' });
 }
 
 export async function verifySessionToken(token: string): Promise<SessionUser | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET) as any;
     return {
       id: payload.id as string,
       email: payload.email as string,
