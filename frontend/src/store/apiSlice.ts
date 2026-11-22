@@ -62,11 +62,25 @@ export const apiSlice = createApi({
       invalidatesTags: [{ type: 'Issues', id: 'LIST' }, 'Analytics'],
     }),
 
-    updateIssueStatus: builder.mutation<Issue, { id: string; status: string; notes?: string }>({
-      query: ({ id, status, notes }) => ({
+    updateIssueStatus: builder.mutation<
+      Issue,
+      {
+        id: string;
+        status?: string;
+        priority?: string;
+        departmentId?: string;
+        assignedStaffId?: string;
+        duplicateOfId?: string;
+        notes?: string;
+        userId?: string;
+        userName?: string;
+        userRole?: string;
+      }
+    >({
+      query: ({ id, ...body }) => ({
         url: `/issues/${id}/status`,
         method: 'PATCH',
-        body: { status, notes },
+        body,
       }),
       invalidatesTags: (_res, _err, { id }) => [
         { type: 'Issues', id },
@@ -220,6 +234,24 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Settings'],
     }),
+
+    // Profile & Password Management
+    updateProfile: builder.mutation<any, { id: string; name?: string; phone?: string; avatarUrl?: string }>({
+      query: (body) => ({
+        url: '/auth/profile',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['Users'],
+    }),
+
+    updatePassword: builder.mutation<any, { id: string; currentPassword: string; newPassword: string }>({
+      query: (body) => ({
+        url: '/auth/password',
+        method: 'PATCH',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -245,4 +277,6 @@ export const {
   useUpdateDepartmentMutation,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
+  useUpdateProfileMutation,
+  useUpdatePasswordMutation,
 } = apiSlice;

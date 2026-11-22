@@ -164,4 +164,76 @@ router.get('/me', authenticateToken, (req: AuthenticatedRequest, res: Response) 
   return res.json({ user: req.user });
 });
 
+router.patch('/profile', async (req: Request, res: Response) => {
+  try {
+    const { id, name, phone, avatarUrl } = req.body;
+    if (!id) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const updates: Partial<typeof users.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+    if (name) updates.name = name;
+    if (phone !== undefined) updates.phone = phone;
+    if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
+
+    const [updated] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+
+    if (!updated) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        id: updated.id,
+        email: updated.email,
+        name: updated.name,
+        role: updated.role,
+        departmentId: updated.departmentId,
+        phone: updated.phone,
+        avatarUrl: updated.avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({ error: 'Failed to update user profile' });
+  }
+});
+
+router.patch('/password', async (req: Request, res: Response) => {
+  try {
+    const { id, currentPassword, newPassword } = req.body;
+    if (!id || !currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'ID, current password, and new password are required' });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await verifyPassword(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Current password does not match' });
+    }
+
+    const newHash = await hashPassword(newPassword);
+    await db
+      .update(users)
+      .set({ passwordHash: newHash, updatedAt: new Date() })
+      .where(eq(users.id, id));
+
+    return res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
+    return res.status(500).json({ error: 'Failed to update password' });
+  }
+});
+
 export default router;
