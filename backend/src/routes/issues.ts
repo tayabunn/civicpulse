@@ -2,7 +2,14 @@ import { Router, Response } from 'express';
 import { db } from '../db';
 import { issues, users, departments, issueActivities, maintenanceTasks } from '../db/schema';
 import { eq, and, or, ilike, desc, asc, count, gte, lte } from 'drizzle-orm';
-import { createIssueSchema, issueFilterSchema, validateStatusTransition } from '../lib/validation';
+import {
+  createIssueSchema,
+  issueFilterSchema,
+  validateStatusTransition,
+  canUserVerifyReport,
+  canUserCloseReport,
+  canUserChangeIssueStatus,
+} from '../lib/validation';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import {
   resolveDepartmentForCategory,
@@ -285,14 +292,105 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-// PATCH /api/issues/:id/status
-router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response) => {
+// PUT /api/issues/:id (Citizens can update their own reported issue before triage)
+router.put('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const user = req.user || {
-      id: (req.body.userId as string) || '00000000-0000-0000-0000-000000000001',
-      name: (req.body.userName as string) || 'Department Triage Officer',
-      role: (req.body.userRole as any) || 'department_manager',
+    const user = req.user!;
+    const id = req.params.id as string;
+    const { title, description, address, imageUrl } = req.body;
+
+    const [current] = await db.select().from(issues).where(eq(issues.id, id)).limit(1);
+    if (!current) {
+      return res.status(404).json({ error: 'Issue not found' });
+    }
+
+    // Citizens can only manage their own reports
+    if (user.role === 'citizen') {
+      if (current.reporterId !== user.id) {
+        return res.status(403).json({ error: 'Forbidden: Citizens can only manage their own reports' });
+      }
+      if (current.status !== 'submitted') {
+        return res.status(400).json({ error: 'Issue has already entered triage and cannot be edited by citizen' });
+      }
+    } else if (user.role !== 'admin' && user.role !== 'department_manager') {
+      return res.status(403).json({ error: 'Forbidden: Insufficient permissions to edit issue details' });
+    }
+
+    const updates: Partial<typeof issues.$inferInsert> = {
+      updatedAt: new Date(),
     };
+    if (title) updates.title = title;
+    if (description) updates.description = description;
+    if (address) updates.address = address;
+    if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+
+    const [updated] = await db.update(issues).set(updates).where(eq(issues.id, id)).returning();
+
+    await logIssueActivity({
+      issueId: id,
+      userId: user.id,
+      action: 'ISSUE_DETAILS_UPDATED',
+      previousStatus: current.status,
+      newStatus: current.status,
+      notes: `Details edited by reporter (${user.name}).`,
+    });
+
+    return res.json({ success: true, issue: updated });
+  } catch (error) {
+    console.error('Update issue details error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/issues/:id (Citizens can cancel their own report before triage)
+router.delete('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    const id = req.params.id as string;
+
+    const [current] = await db.select().from(issues).where(eq(issues.id, id)).limit(1);
+    if (!current) {
+      return res.status(404).json({ error: 'Issue not found' });
+    }
+
+    if (user.role === 'citizen') {
+      if (current.reporterId !== user.id) {
+        return res.status(403).json({ error: 'Forbidden: Citizens can only manage their own reports' });
+      }
+      if (current.status !== 'submitted') {
+        return res.status(400).json({ error: 'Cannot cancel an issue that has already entered triage' });
+      }
+    } else if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Only the reporting citizen or an administrator can remove a report' });
+    }
+
+    // Preserve history by logging cancellation before closure
+    await logIssueActivity({
+      issueId: id,
+      userId: user.id,
+      action: 'REPORT_CANCELLED_BY_REPORTER',
+      previousStatus: current.status,
+      newStatus: 'closed',
+      notes: `Report retracted/cancelled by reporter ${user.name}.`,
+    });
+
+    const [closedIssue] = await db
+      .update(issues)
+      .set({ status: 'closed', updatedAt: new Date() })
+      .where(eq(issues.id, id))
+      .returning();
+
+    return res.json({ success: true, message: 'Issue cancelled successfully', issue: closedIssue });
+  } catch (error) {
+    console.error('Delete issue error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PATCH /api/issues/:id/status (Strict Server-Side Lifecycle & Role-Based Authorization)
+router.patch('/:id/status', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = req.user!;
     const id = req.params.id as string;
     const { status, priority, departmentId, assignedStaffId, duplicateOfId, notes } = req.body;
 
@@ -301,14 +399,52 @@ router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response) => 
       return res.status(404).json({ error: 'Issue not found' });
     }
 
-    if (user.role === 'citizen' && !status && !priority) {
-      return res.status(403).json({ error: 'Citizens cannot change issue status' });
+    // 1. Citizens cannot modify issue status
+    if (user.role === 'citizen') {
+      return res.status(403).json({ error: 'Forbidden: Citizens cannot modify issue status' });
     }
 
-    if (user.role === 'maintenance_staff' && current.assignedStaffId !== user.id) {
-      return res.status(403).json({ error: 'Not authorized for this task' });
+    // 2. Unauthorized users must not modify issue status
+    if (!canUserChangeIssueStatus(user.role)) {
+      return res.status(403).json({ error: 'Forbidden: Insufficient permissions to change issue status' });
     }
 
+    // 3. Maintenance staff can only update assigned tasks
+    if (user.role === 'maintenance_staff') {
+      if (current.assignedStaffId !== user.id) {
+        return res.status(403).json({ error: 'Forbidden: Maintenance staff can only update tasks assigned to them' });
+      }
+      if (status && !['in_progress', 'resolved'].includes(status)) {
+        return res.status(403).json({
+          error: 'Forbidden: Maintenance staff can only transition issues to In Progress or Resolved',
+        });
+      }
+    }
+
+    // 4. Department managers can only manage their own department's issues
+    if (user.role === 'department_manager') {
+      if (user.departmentId && current.departmentId && current.departmentId !== user.departmentId) {
+        return res.status(403).json({
+          error: "Forbidden: Department managers can only manage issues within their own department",
+        });
+      }
+    }
+
+    // 5. Only authorized users can verify reports (under_review)
+    if (status === 'under_review' && !canUserVerifyReport(user.role)) {
+      return res.status(403).json({
+        error: 'Forbidden: Only authorized department managers or administrators can verify reports',
+      });
+    }
+
+    // 6. Only authorized users can close reports (closed)
+    if (status === 'closed' && !canUserCloseReport(user.role)) {
+      return res.status(403).json({
+        error: 'Forbidden: Only authorized department managers or administrators can close reports',
+      });
+    }
+
+    // 7. Validate lifecycle transition graph
     if (status && !validateStatusTransition(current.status, status)) {
       return res.status(400).json({
         error: `Invalid status transition from ${current.status} to ${status}`,
@@ -343,6 +479,7 @@ router.patch('/:id/status', async (req: AuthenticatedRequest, res: Response) => 
       });
     }
 
+    // 8. Issue history must be preserved (immutable audit log)
     await logIssueActivity({
       issueId: id,
       userId: user.id,

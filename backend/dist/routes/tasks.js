@@ -6,6 +6,7 @@ const schema_1 = require("../db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
 const auth_1 = require("../middleware/auth");
 const issue_service_1 = require("../lib/issue-service");
+const validation_1 = require("../lib/validation");
 const router = (0, express_1.Router)();
 router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
@@ -50,6 +51,10 @@ router.patch('/:id', auth_1.authenticateToken, async (req, res) => {
         const user = req.user;
         const id = req.params.id;
         const { status, fieldNotes, proofImageUrl } = req.body;
+        // 1. Citizens cannot update maintenance tasks
+        if (user.role === 'citizen') {
+            return res.status(403).json({ error: 'Forbidden: Citizens cannot update maintenance tasks' });
+        }
         const [currentTask] = await db_1.db
             .select()
             .from(schema_1.maintenanceTasks)
@@ -58,8 +63,13 @@ router.patch('/:id', auth_1.authenticateToken, async (req, res) => {
         if (!currentTask) {
             return res.status(404).json({ error: 'Task not found' });
         }
+        // 2. Maintenance staff can only update assigned tasks
         if (user.role === 'maintenance_staff' && currentTask.staffId !== user.id) {
-            return res.status(403).json({ error: 'Not authorized for this task' });
+            return res.status(403).json({ error: 'Forbidden: Maintenance staff can only update tasks assigned to them' });
+        }
+        // 3. Validate completion photograph proof
+        if (proofImageUrl && !(0, validation_1.isValidImageUrl)(proofImageUrl)) {
+            return res.status(400).json({ error: 'Invalid proof image format. Must be a valid URL or base64 image.' });
         }
         const updates = {};
         if (status)

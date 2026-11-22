@@ -1,8 +1,40 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.issueFilterSchema = exports.createIssueSchema = exports.registerSchema = exports.loginSchema = void 0;
+exports.isValidImageUrl = isValidImageUrl;
+exports.canUserVerifyReport = canUserVerifyReport;
+exports.canUserCloseReport = canUserCloseReport;
+exports.canUserChangeIssueStatus = canUserChangeIssueStatus;
 exports.validateStatusTransition = validateStatusTransition;
 const zod_1 = require("zod");
+function isValidImageUrl(url) {
+    if (!url)
+        return true;
+    try {
+        const parsed = new URL(url);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            return true;
+        }
+    }
+    catch {
+        // not a standard web URL, check base64 data uri
+    }
+    // Base64 Data URI check
+    const base64DataUriRegex = /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+    if (base64DataUriRegex.test(url)) {
+        return url.length <= 8 * 1024 * 1024; // <= 8MB
+    }
+    return false;
+}
+function canUserVerifyReport(role) {
+    return role === 'department_manager' || role === 'admin';
+}
+function canUserCloseReport(role) {
+    return role === 'department_manager' || role === 'admin';
+}
+function canUserChangeIssueStatus(role) {
+    return role === 'admin' || role === 'department_manager' || role === 'maintenance_staff';
+}
 exports.loginSchema = zod_1.z.object({
     email: zod_1.z.string().email('Invalid email address'),
     password: zod_1.z.string().min(6, 'Password must be at least 6 characters'),
@@ -27,10 +59,13 @@ exports.createIssueSchema = zod_1.z.object({
         'public_infrastructure',
     ]),
     priority: zod_1.z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-    latitude: zod_1.z.number().min(-90).max(90),
-    longitude: zod_1.z.number().min(-180).max(180),
+    latitude: zod_1.z.number().refine((v) => !isNaN(v) && v >= -90 && v <= 90, 'Invalid latitude (-90 to 90)'),
+    longitude: zod_1.z.number().refine((v) => !isNaN(v) && v >= -180 && v <= 180, 'Invalid longitude (-180 to 180)'),
     address: zod_1.z.string().min(3, 'Address is required'),
-    imageUrl: zod_1.z.string().optional(),
+    imageUrl: zod_1.z
+        .string()
+        .optional()
+        .refine((v) => !v || isValidImageUrl(v), 'Invalid image URL or base64 format'),
 });
 exports.issueFilterSchema = zod_1.z.object({
     q: zod_1.z.string().optional(),
@@ -47,6 +82,7 @@ exports.issueFilterSchema = zod_1.z.object({
     lat: zod_1.z.coerce.number().optional(),
     lng: zod_1.z.coerce.number().optional(),
     radius: zod_1.z.coerce.number().optional(),
+    myReports: zod_1.z.coerce.boolean().optional(),
 });
 const VALID_TRANSITIONS = {
     submitted: ['under_review', 'closed'],

@@ -1,5 +1,37 @@
 import { z } from 'zod';
 
+export function isValidImageUrl(url?: string | null): boolean {
+  if (!url) return true;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return true;
+    }
+  } catch {
+    // not a standard web URL, check base64 data uri
+  }
+
+  // Base64 Data URI check
+  const base64DataUriRegex = /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+  if (base64DataUriRegex.test(url)) {
+    return url.length <= 8 * 1024 * 1024; // <= 8MB
+  }
+
+  return false;
+}
+
+export function canUserVerifyReport(role: string): boolean {
+  return role === 'department_manager' || role === 'admin';
+}
+
+export function canUserCloseReport(role: string): boolean {
+  return role === 'department_manager' || role === 'admin';
+}
+
+export function canUserChangeIssueStatus(role: string): boolean {
+  return role === 'admin' || role === 'department_manager' || role === 'maintenance_staff';
+}
+
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -26,10 +58,13 @@ export const createIssueSchema = z.object({
     'public_infrastructure',
   ]),
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  latitude: z.number().refine((v) => !isNaN(v) && v >= -90 && v <= 90, 'Invalid latitude (-90 to 90)'),
+  longitude: z.number().refine((v) => !isNaN(v) && v >= -180 && v <= 180, 'Invalid longitude (-180 to 180)'),
   address: z.string().min(3, 'Address is required'),
-  imageUrl: z.string().optional(),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((v) => !v || isValidImageUrl(v), 'Invalid image URL or base64 format'),
 });
 
 export const issueFilterSchema = z.object({
@@ -47,6 +82,7 @@ export const issueFilterSchema = z.object({
   lat: z.coerce.number().optional(),
   lng: z.coerce.number().optional(),
   radius: z.coerce.number().optional(),
+  myReports: z.coerce.boolean().optional(),
 });
 
 const VALID_TRANSITIONS: Record<string, string[]> = {

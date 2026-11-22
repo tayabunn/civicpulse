@@ -4,6 +4,7 @@ import { maintenanceTasks, issues, users } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { logIssueActivity } from '../lib/issue-service';
+import { isValidImageUrl } from '../lib/validation';
 
 const router = Router();
 
@@ -54,6 +55,11 @@ router.patch('/:id', authenticateToken, async (req: AuthenticatedRequest, res: R
     const id = req.params.id as string;
     const { status, fieldNotes, proofImageUrl } = req.body;
 
+    // 1. Citizens cannot update maintenance tasks
+    if (user.role === 'citizen') {
+      return res.status(403).json({ error: 'Forbidden: Citizens cannot update maintenance tasks' });
+    }
+
     const [currentTask] = await db
       .select()
       .from(maintenanceTasks)
@@ -64,8 +70,14 @@ router.patch('/:id', authenticateToken, async (req: AuthenticatedRequest, res: R
       return res.status(404).json({ error: 'Task not found' });
     }
 
+    // 2. Maintenance staff can only update assigned tasks
     if (user.role === 'maintenance_staff' && currentTask.staffId !== user.id) {
-      return res.status(403).json({ error: 'Not authorized for this task' });
+      return res.status(403).json({ error: 'Forbidden: Maintenance staff can only update tasks assigned to them' });
+    }
+
+    // 3. Validate completion photograph proof
+    if (proofImageUrl && !isValidImageUrl(proofImageUrl)) {
+      return res.status(400).json({ error: 'Invalid proof image format. Must be a valid URL or base64 image.' });
     }
 
     const updates: Partial<typeof maintenanceTasks.$inferInsert> = {};

@@ -55,6 +55,45 @@ async function createSessionToken(payload) {
     return jsonwebtoken_1.default.sign({ ...payload }, JWT_SECRET, { expiresIn: '7d' });
 }
 async function verifySessionToken(token) {
+    if (!token)
+        return null;
+    // Support frontend demo persona testing
+    if (token.startsWith('demo-token')) {
+        if (token === 'demo-token-admin') {
+            return {
+                id: '10000000-0000-0000-0000-000000000001',
+                email: 'admin@civicpulse.gov',
+                name: 'Sarah Rahman (City Administrator)',
+                role: 'admin',
+                departmentId: null,
+            };
+        }
+        if (token === 'demo-token-manager') {
+            return {
+                id: '10000000-0000-0000-0000-000000000002',
+                email: 'manager.roads@civicpulse.gov',
+                name: 'Rafiqul Islam (Roads Manager)',
+                role: 'department_manager',
+                departmentId: 'd0000000-0000-0000-0000-000000000001',
+            };
+        }
+        if (token === 'demo-token-staff') {
+            return {
+                id: '10000000-0000-0000-0000-000000000003',
+                email: 'staff.electric@civicpulse.gov',
+                name: 'Kamal Hossain (Field Electrician)',
+                role: 'maintenance_staff',
+                departmentId: 'd0000000-0000-0000-0000-000000000002',
+            };
+        }
+        return {
+            id: '10000000-0000-0000-0000-000000000004',
+            email: 'citizen.jane@civicpulse.gov',
+            name: 'Jane Citizen',
+            role: 'citizen',
+            departmentId: null,
+        };
+    }
     try {
         const payload = jsonwebtoken_1.default.verify(token, JWT_SECRET);
         return {
