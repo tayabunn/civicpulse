@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "craftwork-assets": {
+      "agents": [
+        "claude-code"
+      ],
+      "paths": {
+        "claude-code": "E:\\Coding projects\\civicpulse\\.claude\\skills\\craftwork-assets"
+      },
+      "modes": {
+        "claude-code": "symlink"
+      },
+      "canonicalPath": "E:\\Coding projects\\civicpulse\\.agents\\skills\\craftwork-assets"
+    }
+  }
+}
