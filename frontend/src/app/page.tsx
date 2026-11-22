@@ -71,9 +71,7 @@ export default function LandingPage() {
       <header className="border-b border-brand-coolGray bg-surface/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-brand-midnight flex items-center justify-center text-brand-yellow shadow-md group-hover:scale-105 transition-transform">
-              <BrandLogo size={22} className="text-brand-yellow" />
-            </div>
+            <BrandLogo size={36} className="text-[#202B45] group-hover:scale-105 transition-transform" />
             <div>
               <span className="font-display font-extrabold text-xl tracking-tight text-brand-midnight">
                 CIVICPULSE

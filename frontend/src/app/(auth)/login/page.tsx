@@ -80,8 +80,8 @@ export default function LoginPage() {
 
         {/* Brand */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-brand-midnight text-brand-yellow flex items-center justify-center mx-auto shadow-lg">
-            <BrandLogo size={28} className="text-brand-yellow" />
+          <div className="flex justify-center">
+            <BrandLogo size={44} className="text-[#202B45]" />
           </div>
           <h1 className="text-2xl font-bold font-display text-text-primary tracking-tight">
             Log In to CivicPulse
