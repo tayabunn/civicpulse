@@ -25,8 +25,19 @@ import {
   Play,
   MapPin,
   ExternalLink,
+  AlertTriangle,
+  Clock,
+  BellRing,
+  Filter,
 } from 'lucide-react';
 import { MaintenanceTask, Issue } from '@/types';
+
+const SLA_HOURS: Record<string, number> = {
+  critical: 24,
+  high: 48,
+  medium: 96,
+  low: 168,
+};
 
 export default function StaffTasksPage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -34,6 +45,8 @@ export default function StaffTasksPage() {
   const { data: issuesData } = useGetIssuesQuery({ limit: 100 });
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const [updateIssueStatus] = useUpdateIssueStatusMutation();
+
+  const [remindersOnly, setRemindersOnly] = useState(false);
 
   // Completion Modal State
   const [activeTask, setActiveTask] = useState<MaintenanceTask | null>(null);
@@ -93,6 +106,42 @@ export default function StaffTasksPage() {
     }
   };
 
+  // Helper to compute SLA reminder stats
+  const getSlaStatus = (task: MaintenanceTask, issue?: Issue) => {
+    if (task.status === 'completed') return null;
+
+    const assignedDate = new Date(task.assignedAt || task.createdAt);
+    const priority = issue?.priority || 'medium';
+    const slaLimitHours = SLA_HOURS[priority] || 96;
+    const deadline = new Date(assignedDate.getTime() + slaLimitHours * 60 * 60 * 1000);
+    const now = new Date();
+    const hoursRemaining = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    const isOverdue = hoursRemaining < 0;
+    const isApproaching = hoursRemaining >= 0 && hoursRemaining <= 12;
+
+    return {
+      hoursRemaining: Math.round(hoursRemaining),
+      isOverdue,
+      isApproaching,
+      slaLimitHours,
+    };
+  };
+
+  const taskList = tasks || [];
+  const urgentCount = taskList.filter((t) => {
+    const issue = t.issue || allIssues.find((i: Issue) => i.id === t.issueId);
+    const sla = getSlaStatus(t, issue);
+    return sla && (sla.isOverdue || sla.isApproaching);
+  }).length;
+
+  const filteredTasks = taskList.filter((t) => {
+    if (!remindersOnly) return true;
+    const issue = t.issue || allIssues.find((i: Issue) => i.id === t.issueId);
+    const sla = getSlaStatus(t, issue);
+    return sla && (sla.isOverdue || sla.isApproaching);
+  });
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Top Banner */}
@@ -110,21 +159,53 @@ export default function StaffTasksPage() {
         </div>
       </div>
 
+      {/* Bonus Challenge 6: Automated Maintenance Reminders Alert Banner */}
+      {urgentCount > 0 && (
+        <div className="p-4 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <BellRing className="w-5 h-5 text-amber-500 animate-bounce" />
+            <div>
+              <h4 className="text-sm font-bold text-text-primary">
+                Automated Maintenance Reminders ({urgentCount} Urgent)
+              </h4>
+              <p className="text-xs text-text-muted">
+                Work orders approaching SLA deadline or requiring immediate field dispatch.
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setRemindersOnly(!remindersOnly)}
+            className={`text-xs gap-1.5 h-8 font-mono ${
+              remindersOnly ? 'border-amber-500 bg-amber-500/20 text-amber-700 dark:text-amber-300' : ''
+            }`}
+          >
+            <Filter size={12} />
+            {remindersOnly ? 'Show All Work Orders' : 'Filter Urgent Only'}
+          </Button>
+        </div>
+      )}
+
       {/* Task List */}
       <div className="space-y-4">
         {isLoading ? (
           <p className="text-center py-12 text-xs font-mono text-text-muted">
             Loading assigned field work orders...
           </p>
-        ) : !tasks || tasks.length === 0 ? (
+        ) : filteredTasks.length === 0 ? (
           <Card className="p-8 text-center text-text-muted">
-            No active work orders assigned to your queue today. Great job!
+            {remindersOnly
+              ? 'No urgent maintenance reminders at this time. All orders on schedule.'
+              : 'No active work orders assigned to your queue today. Great job!'}
           </Card>
         ) : (
-          tasks.map((task: MaintenanceTask) => {
+          filteredTasks.map((task: MaintenanceTask) => {
             const issue = task.issue || allIssues.find((i: Issue) => i.id === task.issueId);
             const isCompleted = task.status === 'completed';
             const isInProgress = task.status === 'in_progress';
+            const sla = getSlaStatus(task, issue);
 
             const mapsUrl = issue
               ? `https://www.google.com/maps/search/?api=1&query=${issue.latitude},${issue.longitude}`
@@ -136,6 +217,10 @@ export default function StaffTasksPage() {
                 className={`p-6 transition-all border-l-4 ${
                   isCompleted
                     ? 'border-l-emerald-500 opacity-80'
+                    : sla?.isOverdue
+                    ? 'border-l-rose-500 ring-1 ring-rose-500/30'
+                    : sla?.isApproaching
+                    ? 'border-l-amber-500'
                     : isInProgress
                     ? 'border-l-brand-yellow'
                     : 'border-l-brand-cobalt'
@@ -143,7 +228,7 @@ export default function StaffTasksPage() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-xs font-bold text-brand-cobalt">
                         {issue?.trackingCode || 'WO-#' + task.id.slice(0, 8)}
                       </span>
@@ -163,6 +248,18 @@ export default function StaffTasksPage() {
                       >
                         {task.status.toUpperCase()}
                       </Badge>
+
+                      {/* Automated SLA Reminder Badge */}
+                      {sla?.isOverdue && (
+                        <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 flex items-center gap-1">
+                          <AlertTriangle size={11} /> OVERDUE ({Math.abs(sla.hoursRemaining)}h)
+                        </span>
+                      )}
+                      {sla?.isApproaching && !sla.isOverdue && (
+                        <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                          <Clock size={11} /> SLA Reminder: {sla.hoursRemaining}h left
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="text-lg font-bold font-display text-text-primary">
@@ -198,8 +295,8 @@ export default function StaffTasksPage() {
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto"
                     >
-                      <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs">
-                        <Navigation size={13} /> Open in Maps <ExternalLink size={11} />
+                      <Button variant="outline" size="sm" className="w-full text-xs gap-1.5">
+                        <Navigation size={13} /> Open GPS Navigation
                       </Button>
                     </a>
 
@@ -208,9 +305,9 @@ export default function StaffTasksPage() {
                         variant="primary"
                         size="sm"
                         onClick={() => handleStartTask(task)}
-                        className="w-full gap-1.5 text-xs font-bold"
+                        className="w-full text-xs gap-1.5 font-bold"
                       >
-                        <Play size={13} /> Start Work
+                        <Play size={13} /> Start Repairs
                       </Button>
                     )}
 
@@ -219,16 +316,10 @@ export default function StaffTasksPage() {
                         variant="accent"
                         size="sm"
                         onClick={() => setActiveTask(task)}
-                        className="w-full gap-1.5 text-xs font-bold shadow-sm"
+                        className="w-full text-xs gap-1.5 font-bold shadow-sm"
                       >
-                        <CheckCircle2 size={13} /> Complete Repair
+                        <CheckCircle2 size={13} /> Complete & Upload Proof
                       </Button>
-                    )}
-
-                    {isCompleted && (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">
-                        <CheckCircle2 size={14} /> Completed
-                      </span>
                     )}
                   </div>
                 </div>
@@ -238,44 +329,31 @@ export default function StaffTasksPage() {
         )}
       </div>
 
-      {/* Completion & Proof Photo Upload Modal */}
-      <Dialog
-        isOpen={!!activeTask}
-        onClose={() => setActiveTask(null)}
-        title="Complete Field Work Order"
-        description="Provide repair notes and attach proof photography before marking resolved."
-      >
-        {activeTask && (
+      {/* Completion Modal */}
+      {activeTask && (
+        <Dialog
+          isOpen={true}
+          onClose={() => setActiveTask(null)}
+          title="Complete Work Order & Upload Proof"
+          description="Submit photographic proof and field notes to close out this maintenance order."
+        >
           <form onSubmit={handleCompleteTask} className="space-y-4">
             <Textarea
-              label="Field Repair Execution Notes *"
-              placeholder="e.g. Cleared blocked drainage line, replaced 15m underground wiring, tested voltage..."
+              label="Field Maintenance Notes *"
+              placeholder="e.g. Cleared 15kg asphalt debris, compacted 4-inch hot-mix asphalt, leveled flush with street surface."
               value={completionNotes}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCompletionNotes(e.target.value)}
+              onChange={(e) => setCompletionNotes(e.target.value)}
               rows={3}
               required
             />
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-text-secondary">
-                Repair Completion Proof Photograph (URL) *
-              </label>
-              <Input
-                placeholder="https://... photo url"
-                value={completionPhotoUrl}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompletionPhotoUrl(e.target.value)}
-                required
-              />
-              {completionPhotoUrl && (
-                <div className="mt-2 h-40 rounded-lg overflow-hidden border border-border">
-                  <img
-                    src={completionPhotoUrl}
-                    alt="Proof preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
+            <Input
+              label="Completion Photograph Proof (URL or Demo)"
+              placeholder="https://... completion photo"
+              value={completionPhotoUrl}
+              onChange={(e) => setCompletionPhotoUrl(e.target.value)}
+              required
+            />
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
               <Button
@@ -288,16 +366,16 @@ export default function StaffTasksPage() {
               </Button>
               <Button
                 type="submit"
-                variant="primary"
+                variant="accent"
                 isLoading={isSubmitting}
                 className="font-bold shadow-sm"
               >
-                Mark Resolved & Close Work Order
+                Submit Resolution
               </Button>
             </div>
           </form>
-        )}
-      </Dialog>
+        </Dialog>
+      )}
     </div>
   );
 }

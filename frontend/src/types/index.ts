@@ -63,6 +63,7 @@ export interface MaintenanceTask {
   staffId: string;
   status: TaskStatus;
   assignedById?: string | null;
+  assignedAt?: string | null;
   notes?: string | null;
   completionPhotoUrl?: string | null;
   scheduledDate?: string | null;
@@ -87,6 +88,7 @@ export interface Issue {
   imageUrl?: string | null;
   reporterId: string;
   departmentId?: string | null;
+  departmentName?: string | null;
   duplicateOfId?: string | null;
   resolutionNotes?: string | null;
   resolutionImageUrl?: string | null;
@@ -125,16 +127,47 @@ export interface IssuesResponse {
   totalPages: number;
 }
 
-export interface AnalyticsSummary {
-  totalIssues: number;
-  resolvedCount: number;
-  inProgressCount: number;
-  pendingCount: number;
-  avgResolutionHours: number;
+export interface DepartmentRanking {
+  rank: number;
+  departmentId?: string;
+  departmentName: string;
+  code: string;
+  score: number;
+  grade: string;
+  medal?: string | null;
   slaComplianceRate: number;
-  categoryBreakdown: { category: string; count: number }[];
-  monthlyTrends: { month: string; submitted: number; resolved: number }[];
-  departmentWorkloads: { department: string; openIssues: number; staffCount: number }[];
+  avgResolutionHours: number;
+  totalIssues: number;
+  resolvedIssues: number;
+  trend: string;
+}
+
+export interface CitizenSatisfactionData {
+  avgRating: number;
+  totalRatings: number;
+  csatPercentage: number;
+  ratingDistribution: { stars: number; count: number; percentage: number }[];
+}
+
+export interface AnalyticsSummary {
+  totalIssues?: number;
+  resolvedCount?: number;
+  inProgressCount?: number;
+  pendingCount?: number;
+  avgResolutionHours?: number;
+  slaComplianceRate?: number;
+  categoryBreakdown?: { category: string; count: number }[];
+  monthlyTrends?: { month: string; submitted?: number; resolved?: number; reported?: number }[];
+  departmentWorkloads?: { department: string; openIssues: number; staffCount: number }[];
+  departmentRankings?: DepartmentRanking[];
+  citizenSatisfaction?: CitizenSatisfactionData;
+  overview?: {
+    total: number;
+    pending: number;
+    resolved: number;
+    closed: number;
+    resolutionRate: number;
+  };
 }
 
 export interface SavedView {

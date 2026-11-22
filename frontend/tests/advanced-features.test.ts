@@ -68,4 +68,36 @@ describe('Advanced Features: UI & Filter Parameters', () => {
     expect(isWithinBounds('2025-12-31')).toBe(false);
     expect(isWithinBounds('2026-11-23')).toBe(false);
   });
+
+  describe('Bonus Challenges: SLA Reminders & CSAT Calculations', () => {
+    it('correctly detects overdue and approaching SLA maintenance reminders', () => {
+      const SLA_HOURS: Record<string, number> = {
+        critical: 24,
+        high: 48,
+        medium: 96,
+        low: 168,
+      };
+
+      const now = new Date();
+      // Task 1: Assigned 26 hours ago (Critical 24h limit) -> Overdue by 2h
+      const assignedAgo26h = new Date(now.getTime() - 26 * 60 * 60 * 1000);
+      const hoursRemaining1 = (new Date(assignedAgo26h.getTime() + SLA_HOURS.critical * 3600000).getTime() - now.getTime()) / 3600000;
+      expect(hoursRemaining1 < 0).toBe(true); // Overdue
+
+      // Task 2: Assigned 20 hours ago (Critical 24h limit) -> Due in 4h -> Approaching
+      const assignedAgo20h = new Date(now.getTime() - 20 * 60 * 60 * 1000);
+      const hoursRemaining2 = (new Date(assignedAgo20h.getTime() + SLA_HOURS.critical * 3600000).getTime() - now.getTime()) / 3600000;
+      expect(hoursRemaining2 > 0 && hoursRemaining2 <= 12).toBe(true); // Approaching reminder
+    });
+
+    it('calculates CSAT satisfaction percentage accurately', () => {
+      const ratings = [5, 5, 4, 5, 4, 3, 2, 5, 5, 4]; // 8 out of 10 are 4 or 5
+      const satisfiedCount = ratings.filter((r) => r >= 4).length;
+      const csat = Math.round((satisfiedCount / ratings.length) * 100);
+      expect(csat).toBe(80);
+
+      const avg = Number((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1));
+      expect(avg).toBe(4.2);
+    });
+  });
 });

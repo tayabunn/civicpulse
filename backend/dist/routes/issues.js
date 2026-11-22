@@ -134,6 +134,18 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
         }
         const { title, description, category, priority, latitude, longitude, address, imageUrl } = parsed.data;
         const departmentId = await (0, issue_service_1.resolveDepartmentForCategory)(category);
+        // Bonus Challenge 2: Automatic duplicate issue detection within 50 meters
+        const candidates = await db_1.db
+            .select({
+            id: schema_1.issues.id,
+            category: schema_1.issues.category,
+            status: schema_1.issues.status,
+            latitude: schema_1.issues.latitude,
+            longitude: schema_1.issues.longitude,
+        })
+            .from(schema_1.issues)
+            .where((0, drizzle_orm_1.eq)(schema_1.issues.category, category));
+        const duplicate = (0, issue_service_1.findNearbyDuplicate)(latitude, longitude, category, candidates, 50);
         const [newIssue] = await db_1.db
             .insert(schema_1.issues)
             .values({
@@ -148,16 +160,26 @@ router.post('/', auth_1.authenticateToken, async (req, res) => {
             imageUrl,
             reporterId: user.id,
             departmentId: departmentId || undefined,
+            duplicateOfId: duplicate ? duplicate.id : undefined,
         })
             .returning();
+        const trackingCode = `CP-${newIssue.id.slice(0, 8).toUpperCase()}`;
         await (0, issue_service_1.logIssueActivity)({
             issueId: newIssue.id,
             userId: user.id,
-            action: 'SUBMITTED',
+            action: duplicate ? 'SUBMITTED_WITH_AUTO_DUPLICATE_LINK' : 'SUBMITTED',
             newStatus: 'submitted',
-            notes: `Reported by ${user.name} via Citizen Portal.`,
+            notes: duplicate
+                ? `Reported by ${user.name}. Proximity radar automatically linked to existing duplicate #${duplicate.id.slice(0, 8).toUpperCase()} within 50m.`
+                : `Reported by ${user.name} via Citizen Portal.`,
         });
-        return res.status(201).json({ success: true, issue: newIssue });
+        return res.status(201).json({
+            success: true,
+            issue: { ...newIssue, trackingCode },
+            duplicateDetected: Boolean(duplicate),
+            duplicateOfId: duplicate ? duplicate.id : null,
+            duplicateTrackingCode: duplicate ? `CP-${duplicate.id.slice(0, 8).toUpperCase()}` : null,
+        });
     }
     catch (error) {
         console.error('Create issue error:', error);

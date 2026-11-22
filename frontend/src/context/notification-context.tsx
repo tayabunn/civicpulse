@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
@@ -36,6 +36,8 @@ interface NotificationContextType {
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
+  // Bonus Challenge 1: Real-time live event simulation
+  simulateLiveEvent: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -76,6 +78,33 @@ const INITIAL_NOTIFICATIONS: ActivityNotification[] = [
     read: true,
     type: 'info',
     link: '/admin/analytics',
+  },
+];
+
+const SIMULATED_EVENTS = [
+  {
+    title: 'New High Severity Incident',
+    description: 'Hazardous uncovered manhole reported at Mirpur 10 roundabout.',
+    type: 'warning' as const,
+    link: '/manager/issues',
+  },
+  {
+    title: 'Field Repair Completed',
+    description: 'Faulty sodium vapor streetlight at Banani 11 restored by Electric Crew #2.',
+    type: 'success' as const,
+    link: '/citizen/reports',
+  },
+  {
+    title: 'Triage Queue Update',
+    description: 'Solid Waste Management dispatched sanitation compactor to Badda.',
+    type: 'info' as const,
+    link: '/manager/issues',
+  },
+  {
+    title: 'Urgent SLA Reminder',
+    description: 'Pothole work order #CP-2024-0016 approaching 24h critical threshold.',
+    type: 'warning' as const,
+    link: '/staff',
   },
 ];
 
@@ -133,6 +162,30 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     setNotifications([]);
   };
 
+  // Bonus Challenge 1: Real-time Live Event Simulator
+  const simulateLiveEvent = useCallback(() => {
+    const randomEvent = SIMULATED_EVENTS[Math.floor(Math.random() * SIMULATED_EVENTS.length)];
+    const newId = `live-${Date.now()}`;
+
+    const newNotification: ActivityNotification = {
+      id: newId,
+      title: randomEvent.title,
+      description: randomEvent.description,
+      time: 'Just now',
+      read: false,
+      type: randomEvent.type,
+      link: randomEvent.link,
+    };
+
+    setNotifications((prev) => [newNotification, ...prev]);
+    addToast({
+      type: randomEvent.type,
+      title: `⚡ Live Alert: ${randomEvent.title}`,
+      message: randomEvent.description,
+      duration: 5000,
+    });
+  }, []);
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -150,6 +203,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         markAsRead,
         markAllAsRead,
         clearNotifications,
+        simulateLiveEvent,
       }}
     >
       {children}

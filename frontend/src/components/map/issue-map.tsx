@@ -5,7 +5,7 @@ import React from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { Issue } from '../../types';
 
-const DynamicMap = dynamic(() => import('./issue-map-client'), {
+const DynamicMap = dynamic<IssueMapProps>(() => import('./issue-map-client').then(m => m.IssueMapClient || m.default), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full min-h-[400px] flex flex-col items-center justify-center bg-surface-secondary rounded-xl border border-border">

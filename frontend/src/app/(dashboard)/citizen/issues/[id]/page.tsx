@@ -37,6 +37,8 @@ import {
   ShieldAlert,
   Send,
   SlidersHorizontal,
+  Printer,
+  FileText,
 } from 'lucide-react';
 import { IssueActivity, IssuePriority, IssueStatus } from '@/types';
 
@@ -133,10 +135,37 @@ export default function IssueDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {/* Official Municipal Printable Header (PDF & Print View) */}
+      <div className="hidden print:block border-b-2 border-black pb-4 mb-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <span className="font-mono text-xs uppercase tracking-widest text-slate-600 block">
+              GovTech Smart City Infrastructure Management
+            </span>
+            <h1 className="text-2xl font-bold font-display uppercase tracking-tight text-black mt-0.5">
+              Municipal Work Order & Incident Report
+            </h1>
+            <p className="text-xs font-mono text-slate-700 mt-0.5">
+              Dhaka City Corporation • Central Dispatch & Triage Registry
+            </p>
+          </div>
+          <div className="text-right font-mono text-xs space-y-0.5">
+            <p className="font-bold text-sm text-black">{issue.trackingCode}</p>
+            <p className="text-slate-600">Printed: {new Date().toLocaleDateString()}</p>
+            <p className="text-slate-600">Status: {getStatusLabel(issue.status).toUpperCase()}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Top breadcrumb & tracking header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => router.back()} className="h-8 w-8 p-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="h-8 w-8 p-0 print:hidden"
+          >
             <ChevronLeft size={16} />
           </Button>
           <div>
@@ -157,16 +186,29 @@ export default function IssueDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Badge className={`text-sm px-3 py-1 ${getStatusBadgeClass(issue.status)}`}>
             {getStatusLabel(issue.status)}
           </Badge>
+
+          {/* Bonus Challenge 7: PDF Issue Report Print Trigger */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => window.print()}
+            className="gap-1.5 font-bold text-xs h-8 print:hidden"
+            title="Download or Print official PDF Report"
+          >
+            <Printer size={13} /> Export PDF Report
+          </Button>
+
           {issue.status === 'resolved' && !issue.citizenRating && (
             <Button
               variant="accent"
               size="sm"
               onClick={() => setIsFeedbackOpen(true)}
-              className="gap-1.5 font-bold shadow-sm"
+              className="gap-1.5 font-bold shadow-sm print:hidden"
             >
               <Star size={14} /> Rate Resolution
             </Button>
@@ -297,7 +339,7 @@ export default function IssueDetailPage() {
 
           {/* Manager & Staff Quick Triage Action Panel */}
           {isStaffOrManager && (
-            <Card className="p-6 border-brand-cobalt/30 bg-surface">
+            <Card className="p-6 border-brand-cobalt/30 bg-surface print:hidden">
               <div className="flex items-center gap-2 mb-3">
                 <SlidersHorizontal className="w-5 h-5 text-brand-cobalt" />
                 <h3 className="text-base font-bold font-display text-text-primary">
@@ -425,6 +467,24 @@ export default function IssueDetailPage() {
               )}
             </div>
           </Card>
+        </div>
+      </div>
+
+      {/* Official Municipal PDF Report Sign-Off Footer */}
+      <div className="hidden print:block pt-8 mt-8 border-t-2 border-black text-xs font-mono">
+        <div className="flex justify-between items-end">
+          <div className="space-y-1">
+            <p className="font-bold uppercase">Municipal Verification Certification</p>
+            <p className="text-slate-600">Issued by CivicPulse GovTech Smart City Platform</p>
+            <p className="text-slate-600">
+              Department: {issue.department?.name || issue.departmentName || 'Central Municipal Dispatch'}
+            </p>
+          </div>
+          <div className="text-center space-y-1">
+            <div className="w-48 border-b border-black mb-1" />
+            <p className="font-bold">Authorized Dispatch Officer</p>
+            <p className="text-[10px] text-slate-500">Dhaka City Corporation</p>
+          </div>
         </div>
       </div>
 

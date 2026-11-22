@@ -22,6 +22,7 @@ import {
   AlertCircle,
   Info,
   AlertTriangle,
+  Zap,
   ExternalLink,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -37,6 +38,7 @@ export function Header({ title }: { title?: string }) {
     markAsRead,
     markAllAsRead,
     clearNotifications,
+    simulateLiveEvent,
   } = useNotification();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -213,7 +215,15 @@ export function Header({ title }: { title?: string }) {
               </div>
 
               <div className="p-2.5 bg-surface-secondary/70 border-t border-border flex justify-between items-center text-xs text-text-muted">
-                <span>Signal City Event Bus</span>
+                <button
+                  type="button"
+                  onClick={() => simulateLiveEvent()}
+                  className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-brand-cobalt hover:underline"
+                  title="Simulate incoming real-time smart city work order"
+                >
+                  <Zap size={11} className="text-amber-500 fill-amber-500" />
+                  Simulate Live Event
+                </button>
                 {notifications.length > 0 && (
                   <button
                     onClick={clearNotifications}
