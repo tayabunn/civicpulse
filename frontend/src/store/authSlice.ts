@@ -42,9 +42,9 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: DEMO_USERS.citizen, // Default to demo citizen for quick friction-free demo
-  token: 'demo-token',
-  isAuthenticated: true,
+  user: null,
+  token: null,
+  isAuthenticated: false,
 };
 
 export const authSlice = createSlice({
