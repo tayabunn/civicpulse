@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 304 304" fill="none" width="100%" height="100%">
-  <!-- CivicPulse Geometric C Logo -->
-  <path d="M 0,0 L 213,0 L 304,91 L 304,155 L 241,155 L 171,85 L 85,85 L 85,213 L 0,213 Z" fill="currentColor" />
-  <path d="M 86,214 L 304,214 L 304,304 L 86,304 Z" fill="currentColor" />
+  <!-- CivicPulse Geometric C Logo in #202B45 -->
+  <path d="M 0,0 L 213,0 L 304,91 L 304,155 L 241,155 L 171,85 L 85,85 L 85,213 L 0,213 Z" fill="#202B45" />
+  <path d="M 86,214 L 304,214 L 304,304 L 86,304 Z" fill="#202B45" />
 </svg>
