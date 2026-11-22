@@ -19,12 +19,12 @@ export default function DashboardLayout({
       <Sidebar />
       <div
         className={cn(
-          'transition-all duration-300 flex flex-col min-h-screen',
-          sidebarCollapsed ? 'ml-[76px]' : 'ml-[248px]'
+          'transition-all duration-300 flex flex-col min-h-screen ml-0',
+          sidebarCollapsed ? 'md:ml-[76px]' : 'md:ml-[248px]'
         )}
       >
         <Header />
-        <main className="flex-1 p-6 lg:p-8 max-w-[1600px] w-full mx-auto animate-in fade-in duration-200">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto animate-in fade-in duration-200">
           {children}
         </main>
       </div>

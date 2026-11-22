@@ -3,19 +3,40 @@
 import React, { useState } from 'react';
 import { useGetIssuesQuery } from '@/store/apiSlice';
 import { DataTable } from '@/components/table/data-table';
-import { Select } from '@/components/ui/input';
+import { FilterToolbar } from '@/components/table/filter-toolbar';
+import { IssueFilters } from '@/types';
 
 export default function ManagerIssuesPage() {
-  const [status, setStatus] = useState<string>('');
-  const [priority, setPriority] = useState<string>('');
-  const [page, setPage] = useState(1);
-
-  const { data: issuesData, isLoading } = useGetIssuesQuery({
-    status: status || undefined,
-    priority: priority || undefined,
-    page,
-    limit: 15,
+  const [filters, setFilters] = useState<IssueFilters>({
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
   });
+
+  const { data: issuesData, isLoading } = useGetIssuesQuery(filters);
+
+  const handleFilterChange = (newFilters: Partial<IssueFilters>) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+  };
+
+  const handleReset = () => {
+    setFilters({
+      page: 1,
+      limit: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
+  };
+
+  const handleSortChange = (column: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      sortBy: column,
+      sortOrder: prev.sortBy === column && prev.sortOrder === 'asc' ? 'desc' : 'asc',
+      page: 1,
+    }));
+  };
 
   return (
     <div className="space-y-6">
@@ -28,50 +49,27 @@ export default function ManagerIssuesPage() {
         </p>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-surface border border-border">
-        <Select
-          label="Filter Status"
-          value={status}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-          options={[
-            { label: 'All Lifecycle Statuses', value: '' },
-            { label: 'Submitted (New)', value: 'submitted' },
-            { label: 'Under Review', value: 'under_review' },
-            { label: 'Assigned', value: 'assigned' },
-            { label: 'In Progress', value: 'in_progress' },
-            { label: 'Resolved', value: 'resolved' },
-            { label: 'Closed', value: 'closed' },
-          ]}
-        />
+      <FilterToolbar
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onReset={handleReset}
+        isLoading={isLoading}
+        totalResults={issuesData?.total}
+      />
 
-        <Select
-          label="Filter Priority"
-          value={priority}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            setPriority(e.target.value);
-            setPage(1);
-          }}
-          options={[
-            { label: 'All Priorities', value: '' },
-            { label: 'Critical', value: 'critical' },
-            { label: 'High', value: 'high' },
-            { label: 'Medium', value: 'medium' },
-            { label: 'Low', value: 'low' },
-          ]}
-        />
-      </div>
-
-      {/* Table */}
-      <div className="h-[600px]">
+      <div className="min-h-[500px]">
         <DataTable
           issues={issuesData?.items || []}
           currentPage={issuesData?.page || 1}
           totalPages={issuesData?.totalPages || 1}
-          onPageChange={(p: number) => setPage(p)}
+          totalCount={issuesData?.total}
+          pageSize={filters.limit || 10}
+          onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+          onPageSizeChange={(size) => setFilters((prev) => ({ ...prev, limit: size, page: 1 }))}
+          sortColumn={filters.sortBy}
+          sortOrder={filters.sortOrder}
+          onSortChange={handleSortChange}
+          onClearFilters={handleReset}
           isLoading={isLoading}
         />
       </div>

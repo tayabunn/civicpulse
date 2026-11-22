@@ -43,10 +43,12 @@ export interface Department {
 export interface IssueActivity {
   id: string;
   issueId: string;
-  userId: string;
+  userId?: string | null;
   action: string;
   fromStatus?: string | null;
   toStatus?: string | null;
+  previousStatus?: string | null;
+  newStatus?: string | null;
   notes?: string | null;
   createdAt: string;
   userName?: string;
@@ -104,10 +106,15 @@ export interface IssueFilters {
   priority?: string;
   departmentId?: string;
   search?: string;
+  q?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  sort?: string;
+  order?: 'asc' | 'desc';
 }
 
 export interface IssuesResponse {

@@ -5,6 +5,8 @@ import './globals.css';
 import { StoreProvider } from '../store/provider';
 import { ThemeProvider } from '../components/layout/theme-provider';
 import { AuthSync } from '../components/layout/auth-sync';
+import { NotificationProvider } from '../context/notification-context';
+import { ToastContainer } from '../components/ui/toast-container';
 
 export const metadata: Metadata = {
   title: 'CivicPulse — Smart City Infrastructure Management Platform',
@@ -21,10 +23,13 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-text-primary antialiased selection:bg-brand-yellow selection:text-brand-midnight">
         <StoreProvider>
           <ThemeProvider>
-            <Suspense fallback={null}>
-              <AuthSync />
-            </Suspense>
-            {children}
+            <NotificationProvider>
+              <Suspense fallback={null}>
+                <AuthSync />
+              </Suspense>
+              {children}
+              <ToastContainer />
+            </NotificationProvider>
           </ThemeProvider>
         </StoreProvider>
       </body>

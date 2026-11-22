@@ -33,7 +33,15 @@ export const apiSlice = createApi({
         if (filters) {
           Object.entries(filters).forEach(([key, val]) => {
             if (val !== undefined && val !== null && val !== '') {
-              params.append(key, String(val));
+              if (key === 'search') {
+                params.append('q', String(val));
+              } else if (key === 'sortBy') {
+                params.append('sort', String(val));
+              } else if (key === 'sortOrder') {
+                params.append('order', String(val));
+              } else {
+                params.append(key, String(val));
+              }
             }
           });
         }

@@ -38,6 +38,8 @@ exports.issueFilterSchema = zod_1.z.object({
     status: zod_1.z.string().optional(),
     priority: zod_1.z.string().optional(),
     departmentId: zod_1.z.string().optional(),
+    startDate: zod_1.z.string().optional(),
+    endDate: zod_1.z.string().optional(),
     page: zod_1.z.coerce.number().default(1),
     limit: zod_1.z.coerce.number().default(10),
     sort: zod_1.z.string().default('createdAt'),

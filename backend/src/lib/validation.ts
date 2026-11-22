@@ -38,6 +38,8 @@ export const issueFilterSchema = z.object({
   status: z.string().optional(),
   priority: z.string().optional(),
   departmentId: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   page: z.coerce.number().default(1),
   limit: z.coerce.number().default(10),
   sort: z.string().default('createdAt'),

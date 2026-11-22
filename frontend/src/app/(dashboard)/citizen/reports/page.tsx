@@ -6,40 +6,64 @@ import { useGetIssuesQuery } from '@/store/apiSlice';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { FilterToolbar } from '@/components/table/filter-toolbar';
 import {
   getStatusBadgeClass,
   getStatusLabel,
   getPriorityBadgeClass,
   getPriorityLabel,
+  getCategoryBadgeClass,
+  getCategoryLabel,
   formatDate,
 } from '@/lib/utils';
-import { PlusCircle, MapPin, ArrowRight } from 'lucide-react';
-import { Issue } from '@/types';
+import { PlusCircle, MapPin, ArrowRight, ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
+import { IssueFilters } from '@/types';
 
 export default function CitizenReportsPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'resolved'>('all');
-  const [search, setSearch] = useState('');
-  const { data: issuesData, isLoading } = useGetIssuesQuery({ limit: 50 });
+  const [filters, setFilters] = useState<IssueFilters>({
+    page: 1,
+    limit: 12,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  });
 
-  const allIssues = issuesData?.items || [];
+  // Calculate status parameter based on tab + filter toolbar
+  let effectiveStatus = filters.status;
+  if (!effectiveStatus) {
+    if (activeTab === 'resolved') effectiveStatus = 'resolved';
+  }
 
-  const filtered = allIssues.filter((issue: Issue) => {
-    const matchesSearch =
-      issue.title.toLowerCase().includes(search.toLowerCase()) ||
-      issue.trackingCode.toLowerCase().includes(search.toLowerCase()) ||
-      issue.address.toLowerCase().includes(search.toLowerCase());
+  const queryParams: IssueFilters = {
+    ...filters,
+    status: effectiveStatus,
+  };
 
-    if (!matchesSearch) return false;
+  const { data: issuesData, isLoading } = useGetIssuesQuery(queryParams);
 
+  const handleFilterChange = (newFilters: Partial<IssueFilters>) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+  };
+
+  const handleReset = () => {
+    setActiveTab('all');
+    setFilters({
+      page: 1,
+      limit: 12,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
+    });
+  };
+
+  const issues = (issuesData?.items || []).filter((issue) => {
     if (activeTab === 'active') {
       return issue.status !== 'resolved' && issue.status !== 'closed';
     }
-    if (activeTab === 'resolved') {
-      return issue.status === 'resolved' || issue.status === 'closed';
-    }
     return true;
   });
+
+  const totalPages = issuesData?.totalPages || 1;
+  const currentPage = issuesData?.page || 1;
 
   return (
     <div className="space-y-6">
@@ -50,7 +74,7 @@ export default function CitizenReportsPage() {
             My Incident Reports
           </h2>
           <p className="text-sm text-text-muted">
-            Track and monitor resolution progress for issues you submitted to the city.
+            Track and monitor resolution progress for public infrastructure issues reported to the city.
           </p>
         </div>
         <Link href="/citizen/create">
@@ -60,65 +84,93 @@ export default function CitizenReportsPage() {
         </Link>
       </div>
 
-      {/* Filter Tabs and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 rounded-xl bg-surface border border-border">
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
-          {(['all', 'active', 'resolved'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
-                activeTab === tab
-                  ? 'bg-brand-midnight text-white shadow-sm'
-                  : 'text-text-secondary hover:bg-surface-secondary'
-              }`}
-            >
-              {tab === 'all' ? 'All Reports' : tab === 'active' ? 'Active Issues' : 'Resolved'}
-            </button>
-          ))}
-        </div>
-
-        <div className="w-full sm:w-72">
-          <Input
-            placeholder="Search code, title, address..."
-            value={search}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-            className="h-9 text-xs"
-          />
-        </div>
+      {/* Tabs */}
+      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface border border-border w-fit">
+        {(['all', 'active', 'resolved'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+              setFilters((prev) => ({ ...prev, page: 1 }));
+            }}
+            className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
+              activeTab === tab
+                ? 'bg-brand-midnight text-white shadow-sm'
+                : 'text-text-secondary hover:bg-surface-secondary'
+            }`}
+          >
+            {tab === 'all' ? 'All Reports' : tab === 'active' ? 'Active Issues' : 'Resolved'}
+          </button>
+        ))}
       </div>
+
+      {/* Filter Toolbar with debounced search, date bounds, priority, sort */}
+      <FilterToolbar
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onReset={handleReset}
+        isLoading={isLoading}
+        totalResults={issuesData?.total}
+      />
 
       {/* Reports Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          <p className="col-span-full py-12 text-center text-xs font-mono text-text-muted">
-            Loading your reports...
-          </p>
-        ) : filtered.length === 0 ? (
-          <Card className="col-span-full p-12 text-center text-text-muted">
-            No incident reports found matching your criteria.
-          </Card>
+          Array.from({ length: 6 }).map((_, idx) => (
+            <Card key={`card-skel-${idx}`} className="p-5 space-y-4 animate-pulse">
+              <div className="flex justify-between items-start">
+                <div className="h-4 w-24 bg-surface-secondary rounded" />
+                <div className="h-5 w-16 bg-surface-secondary rounded-full" />
+              </div>
+              <div className="h-5 w-44 bg-surface-secondary rounded" />
+              <div className="h-3 w-56 bg-surface-secondary/70 rounded" />
+              <div className="pt-2 border-t border-border flex justify-between items-center">
+                <div className="h-4 w-20 bg-surface-secondary rounded" />
+                <div className="h-7 w-20 bg-surface-secondary rounded" />
+              </div>
+            </Card>
+          ))
+        ) : issues.length === 0 ? (
+          <div className="col-span-full p-12 text-center rounded-xl bg-surface border border-border">
+            <div className="w-12 h-12 rounded-full bg-surface-secondary border border-border flex items-center justify-center text-text-muted mx-auto mb-3">
+              <SearchX className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-bold text-text-primary mb-1">No Incident Reports Found</h4>
+            <p className="text-xs text-text-muted max-w-sm mx-auto mb-4">
+              We couldn&apos;t find any incident reports matching your selected criteria and filters.
+            </p>
+            <Button variant="outline" size="sm" onClick={handleReset} className="text-xs">
+              Clear Filters
+            </Button>
+          </div>
         ) : (
-          filtered.map((issue: Issue) => (
+          issues.map((issue) => (
             <Card
               key={issue.id}
-              className="flex flex-col justify-between p-5 transition-all hover:border-brand-cobalt hover:shadow-md"
+              className="flex flex-col justify-between hover:shadow-md transition-all hover:border-brand-cobalt/40 group overflow-hidden"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-brand-cobalt">
+              <div className="p-5 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs font-bold text-brand-cobalt bg-brand-cobalt/10 px-2 py-0.5 rounded">
                     {issue.trackingCode}
                   </span>
-                  <Badge className={getPriorityBadgeClass(issue.priority)}>
-                    {getPriorityLabel(issue.priority)}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge className={getPriorityBadgeClass(issue.priority)}>
+                      {getPriorityLabel(issue.priority)}
+                    </Badge>
+                    <Badge className={getStatusBadgeClass(issue.status)}>
+                      {getStatusLabel(issue.status)}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-base text-text-primary line-clamp-1">
+                  <h3 className="font-bold text-base text-text-primary group-hover:text-brand-cobalt transition-colors line-clamp-1">
                     {issue.title}
-                  </h4>
-                  <p className="text-xs text-text-muted line-clamp-2 mt-1">{issue.description}</p>
+                  </h3>
+                  <p className="text-xs text-text-muted mt-1 line-clamp-2">
+                    {issue.description}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-xs text-text-muted">
@@ -127,21 +179,49 @@ export default function CitizenReportsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border mt-4 flex items-center justify-between">
-                <Badge className={getStatusBadgeClass(issue.status)}>
-                  {getStatusLabel(issue.status)}
-                </Badge>
-
-                <Link href={`/citizen/issues/${issue.id}`}>
-                  <Button variant="ghost" size="sm" className="text-xs font-semibold gap-1 text-brand-cobalt">
-                    Timeline <ArrowRight size={12} />
-                  </Button>
+              <div className="px-5 py-3 bg-surface-secondary/50 border-t border-border flex items-center justify-between text-xs">
+                <span className="font-mono text-text-muted">{formatDate(issue.createdAt)}</span>
+                <Link
+                  href={`/citizen/issues/${issue.id}`}
+                  className="inline-flex items-center gap-1 font-semibold text-brand-cobalt hover:underline"
+                >
+                  View Details <ArrowRight size={13} />
                 </Link>
               </div>
             </Card>
           ))
         )}
       </div>
+
+      {/* Pagination Footer */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between p-4 bg-surface rounded-xl border border-border text-xs text-text-muted">
+          <span>
+            Page <strong className="text-text-primary">{currentPage}</strong> of{' '}
+            <strong className="text-text-primary">{totalPages}</strong>
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1 || isLoading}
+              onClick={() => setFilters((prev) => ({ ...prev, page: currentPage - 1 }))}
+              className="h-8 text-xs gap-1"
+            >
+              <ChevronLeft size={13} /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages || isLoading}
+              onClick={() => setFilters((prev) => ({ ...prev, page: currentPage + 1 }))}
+              className="h-8 text-xs gap-1"
+            >
+              Next <ChevronRight size={13} />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         if (!parsed.success) {
             return res.status(400).json({ error: parsed.error.format() });
         }
-        const { q, category, status, priority, departmentId, page = 1, limit = 10, sort = 'createdAt', order = 'desc', lat, lng, radius = 50, } = parsed.data;
+        const { q, category, status, priority, departmentId, startDate, endDate, page = 1, limit = 10, sort = 'createdAt', order = 'desc', lat, lng, radius = 50, } = parsed.data;
         const conditions = [];
         if (q) {
             conditions.push((0, drizzle_orm_1.or)((0, drizzle_orm_1.ilike)(schema_1.issues.title, `%${q}%`), (0, drizzle_orm_1.ilike)(schema_1.issues.description, `%${q}%`), (0, drizzle_orm_1.ilike)(schema_1.issues.address, `%${q}%`)));
@@ -31,6 +31,19 @@ router.get('/', async (req, res) => {
         }
         if (departmentId) {
             conditions.push((0, drizzle_orm_1.eq)(schema_1.issues.departmentId, departmentId));
+        }
+        if (startDate) {
+            const parsedStart = new Date(startDate);
+            if (!isNaN(parsedStart.getTime())) {
+                conditions.push((0, drizzle_orm_1.gte)(schema_1.issues.createdAt, parsedStart));
+            }
+        }
+        if (endDate) {
+            const parsedEnd = new Date(endDate);
+            if (!isNaN(parsedEnd.getTime())) {
+                parsedEnd.setHours(23, 59, 59, 999);
+                conditions.push((0, drizzle_orm_1.lte)(schema_1.issues.createdAt, parsedEnd));
+            }
         }
         const whereClause = conditions.length > 0 ? (0, drizzle_orm_1.and)(...conditions) : undefined;
         // Check for nearby duplicates
@@ -54,7 +67,17 @@ router.get('/', async (req, res) => {
         }
         const [countResult] = await db_1.db.select({ total: (0, drizzle_orm_1.count)() }).from(schema_1.issues).where(whereClause);
         const total = Number(countResult?.total || 0);
-        const sortColumn = sort === 'priority' ? schema_1.issues.priority : schema_1.issues.createdAt;
+        let sortColumn = schema_1.issues.createdAt;
+        if (sort === 'priority')
+            sortColumn = schema_1.issues.priority;
+        else if (sort === 'status')
+            sortColumn = schema_1.issues.status;
+        else if (sort === 'title')
+            sortColumn = schema_1.issues.title;
+        else if (sort === 'category')
+            sortColumn = schema_1.issues.category;
+        else if (sort === 'updatedAt')
+            sortColumn = schema_1.issues.updatedAt;
         const sortOrder = order === 'asc' ? (0, drizzle_orm_1.asc)(sortColumn) : (0, drizzle_orm_1.desc)(sortColumn);
         const offset = (page - 1) * limit;
         const items = await db_1.db

@@ -77,4 +77,25 @@ describe('Issue Business Logic & State Machine', () => {
     );
     expect(farAway).toBeNull();
   });
+
+  it('validates and parses date range filters and sort parameters', () => {
+    const validFilters = {
+      startDate: '2026-11-01',
+      endDate: '2026-11-22',
+      sort: 'priority',
+      order: 'asc',
+      page: '2',
+      limit: '20',
+    };
+    const parsed = issueFilterSchema.safeParse(validFilters);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.startDate).toBe('2026-11-01');
+      expect(parsed.data.endDate).toBe('2026-11-22');
+      expect(parsed.data.sort).toBe('priority');
+      expect(parsed.data.order).toBe('asc');
+      expect(parsed.data.page).toBe(2);
+      expect(parsed.data.limit).toBe(20);
+    }
+  });
 });

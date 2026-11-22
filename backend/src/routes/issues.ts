@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { db } from '../db';
 import { issues, users, departments, issueActivities, maintenanceTasks } from '../db/schema';
-import { eq, and, or, ilike, desc, asc, count } from 'drizzle-orm';
+import { eq, and, or, ilike, desc, asc, count, gte, lte } from 'drizzle-orm';
 import { createIssueSchema, issueFilterSchema, validateStatusTransition } from '../lib/validation';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import {
@@ -26,6 +26,8 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       status,
       priority,
       departmentId,
+      startDate,
+      endDate,
       page = 1,
       limit = 10,
       sort = 'createdAt',
@@ -63,6 +65,21 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       conditions.push(eq(issues.departmentId, departmentId));
     }
 
+    if (startDate) {
+      const parsedStart = new Date(startDate);
+      if (!isNaN(parsedStart.getTime())) {
+        conditions.push(gte(issues.createdAt, parsedStart));
+      }
+    }
+
+    if (endDate) {
+      const parsedEnd = new Date(endDate);
+      if (!isNaN(parsedEnd.getTime())) {
+        parsedEnd.setHours(23, 59, 59, 999);
+        conditions.push(lte(issues.createdAt, parsedEnd));
+      }
+    }
+
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     // Check for nearby duplicates
@@ -89,7 +106,13 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
     const [countResult] = await db.select({ total: count() }).from(issues).where(whereClause);
     const total = Number(countResult?.total || 0);
 
-    const sortColumn = sort === 'priority' ? issues.priority : issues.createdAt;
+    let sortColumn: any = issues.createdAt;
+    if (sort === 'priority') sortColumn = issues.priority;
+    else if (sort === 'status') sortColumn = issues.status;
+    else if (sort === 'title') sortColumn = issues.title;
+    else if (sort === 'category') sortColumn = issues.category;
+    else if (sort === 'updatedAt') sortColumn = issues.updatedAt;
+
     const sortOrder = order === 'asc' ? asc(sortColumn) : desc(sortColumn);
     const offset = (page - 1) * limit;
 

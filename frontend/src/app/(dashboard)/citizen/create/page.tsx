@@ -8,9 +8,10 @@ import { useCreateIssueMutation, useGetIssuesQuery } from '@/store/apiSlice';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input, Textarea, Select } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { ImageUploader } from '@/components/ui/image-uploader';
 import { LocationPicker } from '@/components/map/location-picker';
 import { calculateDistanceMeters } from '@/lib/geo-client';
-import { AlertTriangle, CheckCircle2, Sparkles } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { IssueCategory, IssuePriority, Issue } from '@/types';
 
 export default function CreateIssuePage() {
@@ -28,8 +29,37 @@ export default function CreateIssuePage() {
   const [latitude, setLatitude] = useState(23.8103);
   const [longitude, setLongitude] = useState(90.4125);
   const [imageUrl, setImageUrl] = useState('');
+
+  // Validation & Touched state
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Field validation rules
+  const errors = {
+    title: !title.trim()
+      ? 'Title is required'
+      : title.trim().length < 5
+      ? 'Title must be at least 5 characters'
+      : null,
+    description: !description.trim()
+      ? 'Detailed description is required'
+      : description.trim().length < 15
+      ? 'Description must be at least 15 characters to assist repair crews'
+      : null,
+    address: !address.trim()
+      ? 'Street address is required'
+      : address.trim().length < 5
+      ? 'Address must be at least 5 characters'
+      : null,
+    location:
+      latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180
+        ? 'Valid GPS coordinates are required'
+        : null,
+  };
+
+  const isFormValid = !errors.title && !errors.description && !errors.address && !errors.location;
 
   // 50m Proximity Radar Duplicate Detection
   const nearbyDuplicates = (existingIssuesData?.items || []).filter((issue: Issue) => {
@@ -37,23 +67,28 @@ export default function CreateIssuePage() {
     return dist <= 50;
   });
 
+  const markTouched = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
     setErrorMsg('');
     setSuccessMsg('');
 
-    if (!title.trim() || !description.trim() || !address.trim()) {
-      setErrorMsg('Please fill in all required fields (title, description, and address).');
+    if (!isFormValid) {
+      setErrorMsg('Please resolve the highlighted validation errors before submitting.');
       return;
     }
 
     try {
       const res = await createIssue({
-        title,
+        title: title.trim(),
         category,
         priority,
-        description,
-        address,
+        description: description.trim(),
+        address: address.trim(),
         latitude,
         longitude,
         imageUrl: imageUrl || undefined,
@@ -65,40 +100,47 @@ export default function CreateIssuePage() {
         router.push(`/citizen/issues/${res.id}`);
       }, 1500);
     } catch (err: any) {
-      setErrorMsg(err?.data?.error || 'Failed to submit report. Please check your input.');
+      setErrorMsg(err?.data?.error || 'Failed to submit report. Please check your network and input.');
     }
   };
 
-  const handleSamplePhoto = () => {
-    setImageUrl('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800');
-  };
-
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h2 className="text-2xl lg:text-3xl font-bold font-display text-text-primary tracking-tight">
-          Report Municipal Infrastructure Issue
-        </h2>
-        <p className="text-sm text-text-muted mt-1">
-          Submit geotagged infrastructure defects directly to Dhaka City Corporation triage dispatchers.
-        </p>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}
+          className="h-8 w-8 p-0"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h2 className="text-2xl lg:text-3xl font-bold font-display text-text-primary tracking-tight">
+            Report Municipal Infrastructure Issue
+          </h2>
+          <p className="text-sm text-text-muted mt-0.5">
+            Submit geotagged infrastructure defects directly to Dhaka City Corporation triage dispatchers.
+          </p>
+        </div>
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
-          <AlertTriangle size={16} />
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2 animate-fadeIn">
+          <AlertTriangle size={16} className="shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm flex items-center gap-2">
-          <CheckCircle2 size={16} />
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm flex items-center gap-2 animate-fadeIn">
+          <CheckCircle2 size={16} className="shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column: Details */}
           <Card className="p-6 space-y-4">
@@ -107,14 +149,23 @@ export default function CreateIssuePage() {
               <CardDescription>Describe what needs repair or attention</CardDescription>
             </CardHeader>
 
-            <Input
-              label="Incident Title *"
-              id="title"
-              placeholder="e.g. Hazardous deep pothole near Dhanmondi 27"
-              value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-              required
-            />
+            <div>
+              <Input
+                label="Incident Title *"
+                id="title"
+                placeholder="e.g. Hazardous deep pothole near Dhanmondi 27"
+                value={title}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                onBlur={() => markTouched('title')}
+                className={(touched.title || submitted) && errors.title ? 'border-rose-500 focus:ring-rose-500' : ''}
+                required
+              />
+              {(touched.title || submitted) && errors.title && (
+                <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} /> {errors.title}
+                </p>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Select
@@ -146,52 +197,49 @@ export default function CreateIssuePage() {
               />
             </div>
 
-            <Textarea
-              label="Detailed Description *"
-              id="description"
-              placeholder="Provide exact details (e.g. depth of pothole, sparking wire, waterlogged street)..."
-              value={description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
-              rows={4}
-              required
-            />
+            <div>
+              <Textarea
+                label="Detailed Description *"
+                id="description"
+                placeholder="Provide exact details (e.g. depth of pothole, sparking wire, waterlogged street)..."
+                value={description}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
+                onBlur={() => markTouched('description')}
+                rows={4}
+                className={(touched.description || submitted) && errors.description ? 'border-rose-500 focus:ring-rose-500' : ''}
+                required
+              />
+              {(touched.description || submitted) && errors.description && (
+                <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} /> {errors.description}
+                </p>
+              )}
+            </div>
 
-            <Input
-              label="Street Address / Landmark *"
-              id="address"
-              placeholder="e.g. Road 27, House 42, Dhanmondi, Dhaka"
-              value={address}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-              required
-            />
+            <div>
+              <Input
+                label="Street Address / Landmark *"
+                id="address"
+                placeholder="e.g. Road 27, House 42, Dhanmondi, Dhaka"
+                value={address}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
+                onBlur={() => markTouched('address')}
+                className={(touched.address || submitted) && errors.address ? 'border-rose-500 focus:ring-rose-500' : ''}
+                required
+              />
+              {(touched.address || submitted) && errors.address && (
+                <p className="text-xs text-rose-600 mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} /> {errors.address}
+                </p>
+              )}
+            </div>
 
-            {/* Photo Attachment */}
+            {/* Photograph Evidence Dropzone & Preview */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-text-secondary">
-                Photograph Evidence (URL or Demo)
+                Photograph Evidence (Drag-and-Drop or Sample)
               </label>
-              <div className="flex gap-2">
-                <Input
-                  id="imageUrl"
-                  placeholder="https://... photo url"
-                  value={imageUrl}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImageUrl(e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSamplePhoto}
-                  className="shrink-0 text-xs gap-1"
-                >
-                  <Sparkles size={12} /> Sample Photo
-                </Button>
-              </div>
-              {imageUrl && (
-                <div className="mt-2 h-36 rounded-lg overflow-hidden border border-border relative">
-                  <img src={imageUrl} alt="Incident preview" className="w-full h-full object-cover" />
-                </div>
-              )}
+              <ImageUploader value={imageUrl} onChange={setImageUrl} maxSizeMB={5} />
             </div>
           </Card>
 

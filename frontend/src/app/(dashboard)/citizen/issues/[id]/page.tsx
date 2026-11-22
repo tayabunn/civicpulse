@@ -2,15 +2,19 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import {
   useGetIssueByIdQuery,
   useSubmitFeedbackMutation,
+  useUpdateIssueStatusMutation,
 } from '@/store/apiSlice';
+import { useNotification } from '@/context/notification-context';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/input';
+import { Textarea, Select } from '@/components/ui/input';
 import {
   getStatusBadgeClass,
   getStatusLabel,
@@ -27,19 +31,34 @@ import {
   Star,
   ChevronLeft,
   Camera,
+  Clock,
+  User,
+  ArrowRight,
+  ShieldAlert,
+  Send,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { IssueActivity } from '@/types';
+import { IssueActivity, IssuePriority, IssueStatus } from '@/types';
 
 export default function IssueDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { notifySuccess, notifyError } = useNotification();
+
   const { data: issue, isLoading, refetch } = useGetIssueByIdQuery(id as string);
   const [submitFeedback, { isLoading: isSubmittingFeedback }] = useSubmitFeedbackMutation();
+  const [updateIssueStatus, { isLoading: isUpdatingStatus }] = useUpdateIssueStatusMutation();
 
   // Feedback Modal State
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [feedbackText, setFeedbackText] = useState('');
+
+  // Triage state for Manager / Admin
+  const [newStatus, setNewStatus] = useState<string>('');
+  const [newPriority, setNewPriority] = useState<string>('');
+  const [triageNotes, setTriageNotes] = useState<string>('');
 
   if (isLoading) {
     return (
@@ -60,6 +79,9 @@ export default function IssueDetailPage() {
     );
   }
 
+  const isStaffOrManager =
+    user?.role === 'manager' || user?.role === 'admin' || user?.role === 'staff';
+
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -68,10 +90,34 @@ export default function IssueDetailPage() {
         rating,
         feedback: feedbackText,
       }).unwrap();
+      notifySuccess('Thank you for rating this resolution!', 'Feedback Recorded');
       setIsFeedbackOpen(false);
       refetch();
     } catch {
-      alert('Failed to submit feedback.');
+      notifyError('Failed to record feedback. Please try again.', 'Error');
+    }
+  };
+
+  const handleTriageSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStatus && !newPriority && !triageNotes) return;
+
+    try {
+      await updateIssueStatus({
+        id: issue.id,
+        status: newStatus || undefined,
+        priority: newPriority || undefined,
+        notes: triageNotes || undefined,
+        userId: user?.id,
+      }).unwrap();
+
+      notifySuccess('Work order status updated successfully!', 'Triage Updated');
+      setNewStatus('');
+      setNewPriority('');
+      setTriageNotes('');
+      refetch();
+    } catch (err: any) {
+      notifyError(err?.data?.error || 'Failed to update work order.', 'Triage Error');
     }
   };
 
@@ -94,7 +140,7 @@ export default function IssueDetailPage() {
             <ChevronLeft size={16} />
           </Button>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-sm font-bold text-brand-cobalt">
                 {issue.trackingCode}
               </span>
@@ -105,7 +151,7 @@ export default function IssueDetailPage() {
                 {getCategoryLabel(issue.category)}
               </Badge>
             </div>
-            <h2 className="text-2xl font-bold font-display text-text-primary mt-1">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-text-primary mt-1">
               {issue.title}
             </h2>
           </div>
@@ -129,8 +175,8 @@ export default function IssueDetailPage() {
       </div>
 
       {/* Lifecycle Stepper Bar */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between relative">
+      <Card className="p-4 sm:p-6 overflow-x-auto">
+        <div className="flex items-center justify-between relative min-w-[450px]">
           <div className="absolute top-1/2 left-0 right-0 h-1 bg-surface-secondary -translate-y-1/2 z-0" />
           {steps.map((step, idx) => {
             const isCompleted = currentStepIndex >= idx;
@@ -171,7 +217,7 @@ export default function IssueDetailPage() {
 
             <p className="text-sm text-text-primary leading-relaxed">{issue.description}</p>
 
-            <div className="grid grid-cols-2 gap-4 pt-3 border-t border-border text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-border text-xs">
               <div>
                 <span className="text-text-muted block">Location / Address:</span>
                 <span className="font-semibold text-text-primary">{issue.address}</span>
@@ -190,7 +236,7 @@ export default function IssueDetailPage() {
                 <span className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
                   <Camera size={14} /> Citizen Evidence Photograph
                 </span>
-                <div className="h-48 rounded-xl overflow-hidden border border-border">
+                <div className="h-48 sm:h-64 rounded-xl overflow-hidden border border-border">
                   <img
                     src={issue.imageUrl}
                     alt="Citizen evidence"
@@ -206,7 +252,7 @@ export default function IssueDetailPage() {
                 <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
                   <CheckCircle2 size={14} /> Field Crew Repair Proof Photograph
                 </span>
-                <div className="h-48 rounded-xl overflow-hidden border-2 border-emerald-500">
+                <div className="h-48 sm:h-64 rounded-xl overflow-hidden border-2 border-emerald-500">
                   <img
                     src={issue.resolutionImageUrl}
                     alt="Resolution evidence"
@@ -215,7 +261,7 @@ export default function IssueDetailPage() {
                 </div>
                 {issue.resolutionNotes && (
                   <p className="text-xs text-text-muted italic bg-surface-secondary p-2.5 rounded-lg border border-border">
-                    " {issue.resolutionNotes} "
+                    &ldquo;{issue.resolutionNotes}&rdquo;
                   </p>
                 )}
               </div>
@@ -231,7 +277,9 @@ export default function IssueDetailPage() {
                     <Star
                       key={i}
                       size={16}
-                      className={i < (issue.citizenRating || 0) ? 'fill-amber-400' : 'text-slate-300'}
+                      className={
+                        i < (issue.citizenRating || 0) ? 'fill-amber-400' : 'text-slate-300'
+                      }
                     />
                   ))}
                 </div>
@@ -241,37 +289,131 @@ export default function IssueDetailPage() {
               </div>
               {issue.citizenFeedback && (
                 <p className="text-xs text-emerald-900 dark:text-emerald-200 italic">
-                  "{issue.citizenFeedback}"
+                  &ldquo;{issue.citizenFeedback}&rdquo;
                 </p>
               )}
             </Card>
           )}
+
+          {/* Manager & Staff Quick Triage Action Panel */}
+          {isStaffOrManager && (
+            <Card className="p-6 border-brand-cobalt/30 bg-surface">
+              <div className="flex items-center gap-2 mb-3">
+                <SlidersHorizontal className="w-5 h-5 text-brand-cobalt" />
+                <h3 className="text-base font-bold font-display text-text-primary">
+                  Triage & Dispatch Actions
+                </h3>
+              </div>
+              <p className="text-xs text-text-muted mb-4">
+                Update work order lifecycle, escalate severity level, or record internal maintenance notes.
+              </p>
+
+              <form onSubmit={handleTriageSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Select
+                    label="Transition Status"
+                    value={newStatus}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewStatus(e.target.value)}
+                    options={[
+                      { label: `Keep current (${getStatusLabel(issue.status)})`, value: '' },
+                      { label: 'Under Review', value: 'under_review' },
+                      { label: 'Assigned', value: 'assigned' },
+                      { label: 'In Progress', value: 'in_progress' },
+                      { label: 'Resolved', value: 'resolved' },
+                      { label: 'Closed', value: 'closed' },
+                    ]}
+                  />
+
+                  <Select
+                    label="Adjust Priority"
+                    value={newPriority}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewPriority(e.target.value)}
+                    options={[
+                      { label: `Keep current (${getPriorityLabel(issue.priority)})`, value: '' },
+                      { label: 'Critical', value: 'critical' },
+                      { label: 'High', value: 'high' },
+                      { label: 'Medium', value: 'medium' },
+                      { label: 'Low', value: 'low' },
+                    ]}
+                  />
+                </div>
+
+                <Textarea
+                  label="Dispatch / Resolution Notes"
+                  placeholder="e.g. Dispatched asphalt patching crew #2 to site..."
+                  value={triageNotes}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTriageNotes(e.target.value)}
+                  rows={2}
+                />
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  isLoading={isUpdatingStatus}
+                  className="gap-1.5 font-bold"
+                >
+                  <Send size={13} /> Update Work Order
+                </Button>
+              </form>
+            </Card>
+          )}
         </div>
 
-        {/* Right Column (5 cols): Immutable Audit Trail */}
+        {/* Right Column (5 cols): Activity History Audit Trail */}
         <div className="lg:col-span-5 space-y-4">
           <Card className="p-6">
             <CardHeader className="p-0 mb-4">
-              <CardTitle>Immutable Activity Audit</CardTitle>
-              <CardDescription>Verified cryptographic history of transitions</CardDescription>
+              <CardTitle>Activity History</CardTitle>
+              <CardDescription>Verified chronological audit trail</CardDescription>
             </CardHeader>
 
             <div className="relative pl-6 border-l-2 border-brand-cobalt/30 space-y-6">
               {issue.activities && issue.activities.length > 0 ? (
                 issue.activities.map((act: IssueActivity) => (
-                  <div key={act.id} className="relative">
-                    <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-brand-cobalt border-2 border-surface" />
-                    <div>
-                      <div className="flex items-center justify-between">
+                  <div key={act.id} className="relative group">
+                    {/* Circle Node */}
+                    <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-brand-cobalt border-2 border-surface group-hover:scale-125 transition-transform" />
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-1 flex-wrap">
                         <span className="text-xs font-bold text-text-primary capitalize">
-                          {act.action.replace('_', ' ')}
+                          {act.action.replace(/_/g, ' ')}
                         </span>
-                        <span className="text-[10px] font-mono text-text-muted">
-                          {formatDate(act.createdAt)}
+                        <span className="text-[10px] font-mono text-text-muted flex items-center gap-1">
+                          <Clock size={10} /> {formatDate(act.createdAt)}
                         </span>
                       </div>
+
+                      {/* Actor Information */}
+                      <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
+                        <User size={11} className="text-brand-cobalt" />
+                        <span className="font-medium text-text-primary">
+                          {act.userName || 'System Auto-Dispatcher'}
+                        </span>
+                        {act.userRole && (
+                          <span className="px-1.5 py-0.2 rounded text-[10px] uppercase font-mono bg-surface-secondary border border-border">
+                            {act.userRole}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Status Transition Pills */}
+                      {(act.previousStatus || act.fromStatus) && (act.newStatus || act.toStatus) && (
+                        <div className="flex items-center gap-1 text-[11px] pt-1">
+                          <span className="font-mono text-text-muted line-through">
+                            {getStatusLabel((act.previousStatus || act.fromStatus) as any)}
+                          </span>
+                          <ArrowRight size={10} className="text-brand-cobalt" />
+                          <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                            {getStatusLabel((act.newStatus || act.toStatus) as any)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Triage / Activity Notes */}
                       {act.notes && (
-                        <p className="text-xs text-text-muted mt-1 bg-surface-secondary p-2 rounded border border-border">
+                        <p className="text-xs text-text-muted mt-1.5 bg-surface-secondary p-2.5 rounded-lg border border-border leading-relaxed">
                           {act.notes}
                         </p>
                       )}
@@ -279,7 +421,7 @@ export default function IssueDetailPage() {
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-text-muted">No activity records yet.</p>
+                <p className="text-xs text-text-muted">No activity records logged yet.</p>
               )}
             </div>
           </Card>
