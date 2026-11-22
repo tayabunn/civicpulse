@@ -24,6 +24,10 @@ import {
   AlertTriangle,
   Zap,
   ExternalLink,
+  Settings,
+  LogOut,
+  LogIn,
+  UserPlus,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -43,6 +47,8 @@ export function Header({ title }: { title?: string }) {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const notifDropdownRef = useRef<HTMLDivElement>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicked outside
   useEffect(() => {
@@ -52,6 +58,12 @@ export function Header({ title }: { title?: string }) {
         !notifDropdownRef.current.contains(event.target as Node)
       ) {
         setShowNotifications(false);
+      }
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowUserMenu(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -250,17 +262,76 @@ export function Header({ title }: { title?: string }) {
           )}
         </button>
 
-        {/* User Profile Avatar */}
-        <div className="flex items-center gap-3 pl-2 border-l border-border">
-          {user?.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={user.name}
-              className="w-9 h-9 rounded-full object-cover border border-border"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-brand-cobalt text-white flex items-center justify-center font-bold text-xs">
-              {user?.name?.slice(0, 2).toUpperCase() || 'CP'}
+        {/* User Profile Avatar with Account Menu */}
+        <div className="relative pl-2 border-l border-border" ref={userMenuRef}>
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-brand-cobalt transition-all"
+            title="Account Options"
+            aria-label="User Account Menu"
+          >
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="w-9 h-9 rounded-full object-cover border border-border"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-brand-cobalt text-white flex items-center justify-center font-bold text-xs">
+                {user?.name?.slice(0, 2).toUpperCase() || 'CP'}
+              </div>
+            )}
+          </button>
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-56 rounded-xl bg-surface border border-border shadow-2xl z-50 overflow-hidden animate-fadeIn py-1">
+              <div className="px-3.5 py-2.5 border-b border-border bg-surface-secondary/40">
+                <p className="text-xs font-bold text-text-primary truncate">{user?.name || 'Guest User'}</p>
+                <p className="text-[11px] text-text-muted truncate">{user?.email || 'user@civicpulse.gov'}</p>
+                <span className="mt-1 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-brand-cobalt/10 text-brand-cobalt border border-brand-cobalt/20">
+                  {user?.role || 'citizen'}
+                </span>
+              </div>
+
+              <div className="py-1">
+                <Link
+                  href="/profile"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
+                >
+                  <Settings size={14} className="text-brand-cobalt" />
+                  <span>Profile Settings</span>
+                </Link>
+
+                <Link
+                  href="/login"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
+                >
+                  <LogIn size={14} className="text-brand-cobalt" />
+                  <span>Log In / Switch Account</span>
+                </Link>
+
+                <Link
+                  href="/register"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
+                >
+                  <UserPlus size={14} className="text-brand-cobalt" />
+                  <span>Register New User</span>
+                </Link>
+              </div>
+
+              <div className="border-t border-border pt-1">
+                <Link
+                  href="/login"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                >
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
+                </Link>
+              </div>
             </div>
           )}
         </div>
