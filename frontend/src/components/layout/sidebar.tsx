@@ -17,11 +17,11 @@ import {
   Sliders,
   ChevronLeft,
   ChevronRight,
-  Flame,
   X,
   User,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { BrandLogo } from '../ui/brand-logo';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -108,8 +108,8 @@ export function Sidebar() {
         <div>
           <div className="h-[72px] flex items-center justify-between px-4 border-b border-[#34415B]">
             <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-lg bg-brand-yellow flex items-center justify-center text-brand-midnight font-bold shadow-md shrink-0">
-                <Flame className="w-5 h-5 fill-brand-midnight text-brand-midnight" />
+              <div className="w-9 h-9 rounded-lg bg-brand-yellow flex items-center justify-center text-brand-midnight shadow-md shrink-0">
+                <BrandLogo size={20} className="text-brand-midnight" />
               </div>
               {(!sidebarCollapsed || mobileSidebarOpen) && (
                 <div>
