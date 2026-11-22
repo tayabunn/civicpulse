@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Flame,
   X,
+  User,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -42,16 +43,19 @@ export function Sidebar() {
     { label: 'Overview', href: '/citizen', icon: LayoutDashboard },
     { label: 'Report Issue', href: '/citizen/create', icon: FilePlus, highlight: true },
     { label: 'My Reports', href: '/citizen/reports', icon: Inbox },
+    { label: 'Profile Settings', href: '/profile', icon: User },
   ];
 
   const managerLinks: NavLinkItem[] = [
     { label: 'Triage Overview', href: '/manager', icon: LayoutDashboard },
     { label: 'Department Queue', href: '/manager/issues', icon: Inbox },
     { label: 'Crew & Workload', href: '/manager/team', icon: Users },
+    { label: 'Profile Settings', href: '/profile', icon: User },
   ];
 
   const staffLinks: NavLinkItem[] = [
     { label: 'My Work Orders', href: '/staff', icon: Wrench },
+    { label: 'Profile Settings', href: '/profile', icon: User },
   ];
 
   const adminLinks: NavLinkItem[] = [
@@ -60,6 +64,7 @@ export function Sidebar() {
     { label: 'Departments', href: '/admin/departments', icon: Building2 },
     { label: 'User Directory', href: '/admin/users', icon: Users },
     { label: 'System Settings', href: '/admin/settings', icon: Sliders },
+    { label: 'Profile Settings', href: '/profile', icon: User },
   ];
 
   const roleLinks = {
