@@ -11,6 +11,16 @@ import { ToastContainer } from '../components/ui/toast-container';
 export const metadata: Metadata = {
   title: 'CivicPulse — Smart City Infrastructure Management Platform',
   description: 'Enterprise GovTech platform for municipal issue tracking, department triage, and field maintenance.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
