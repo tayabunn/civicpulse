@@ -9,8 +9,8 @@ import { Card } from '../../../components/ui/card';
 import { Input, Select } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import { GoogleButton } from '../../../components/ui/google-button';
+import { BrandLogo } from '../../../components/ui/brand-logo';
 import {
-  Flame,
   User,
   HardHat,
   Shield,
@@ -81,7 +81,7 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-brand-midnight text-brand-yellow flex items-center justify-center mx-auto shadow-lg">
-            <Flame className="w-7 h-7 fill-brand-yellow text-brand-yellow" />
+            <BrandLogo size={28} className="text-brand-yellow" />
           </div>
           <h1 className="text-2xl font-bold font-display text-text-primary tracking-tight">
             Log In to CivicPulse
