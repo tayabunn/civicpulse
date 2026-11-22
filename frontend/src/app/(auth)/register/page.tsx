@@ -10,6 +10,7 @@ import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import { GoogleButton } from '../../../components/ui/google-button';
 import { BrandLogo } from '../../../components/ui/brand-logo';
+import { LazyLoader } from '../../../components/ui/lazy-loader';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 import { UserRole } from '../../../types';
 
@@ -37,28 +38,71 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      const newUser = {
-        id: `reg-${Date.now()}`,
-        name: name.trim() || 'New Registered User',
-        email: email.trim(),
-        role,
-        phone: phone.trim() || '+8801700000000',
-        avatarUrl: `https://images.unsplash.com/photo-${role === 'admin' ? '1494790108377-be9c29b29330' : role === 'manager' ? '1507003211169-0a1dd7228f2d' : role === 'staff' ? '1500648767791-00dcc994a43e' : '1438761681033-6461ffad8d80'}?w=150`,
-      };
+    const displayName = name.trim() || email.split('@')[0].replace(/[._-]/g, ' ');
+    const newUser = {
+      id: `reg-${Date.now()}`,
+      name: displayName,
+      email: email.trim(),
+      role,
+      phone: phone.trim() || '+8801700000000',
+      avatarUrl: `https://images.unsplash.com/photo-${
+        role === 'admin'
+          ? '1494790108377-be9c29b29330'
+          : role === 'manager'
+          ? '1507003211169-0a1dd7228f2d'
+          : role === 'staff'
+          ? '1500648767791-00dcc994a43e'
+          : '1438761681033-6461ffad8d80'
+      }?w=150`,
+    };
 
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: displayName,
+          email: email.trim(),
+          password,
+          phone: phone.trim() || '+8801700000000',
+          role,
+        }),
+      });
+      const data = await response.json();
+      if (data?.user) {
+        dispatch(
+          setCredentials({
+            user: { ...data.user, role },
+            token: data.token || `token-${Date.now()}`,
+          })
+        );
+      } else {
+        dispatch(setCredentials({ user: newUser, token: `token-${Date.now()}` }));
+      }
+    } catch {
       dispatch(setCredentials({ user: newUser, token: `token-${Date.now()}` }));
+    }
+
+    setTimeout(() => {
       setIsLoading(false);
       router.push(getDashboardForRole(role));
-    }, 400);
+    }, 600);
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 relative">
+      {isLoading && (
+        <LazyLoader
+          fullScreen
+          message="Creating your verified account..."
+          submessage="Configuring municipal permissions and initializing dashboard..."
+        />
+      )}
       <div className="w-full max-w-md space-y-6">
         {/* Back Link */}
         <div className="flex items-center justify-between">

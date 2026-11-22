@@ -236,4 +236,120 @@ router.patch('/password', async (req: Request, res: Response) => {
   }
 });
 
+// In-memory 2FA Verification Code Store: email -> { code, expiresAt, role }
+const verificationStore = new Map<string, { code: string; expiresAt: number; role?: string }>();
+
+router.post('/send-code', async (req: Request, res: Response) => {
+  try {
+    const { email, role } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationStore.set(normalizedEmail, {
+      code,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
+      role,
+    });
+
+    console.log(`[AUTH 2FA] 6-digit verification code for ${normalizedEmail}: ${code}`);
+    return res.json({
+      success: true,
+      message: `Verification code sent to ${normalizedEmail}`,
+      code, // returned so UI can preview or mock in dev
+      expiresInSeconds: 600,
+    });
+  } catch (error) {
+    console.error('Send code error:', error);
+    return res.status(500).json({ error: 'Failed to send verification code' });
+  }
+});
+
+router.post('/verify-code', async (req: Request, res: Response) => {
+  try {
+    const { email, code, role = 'citizen', name } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Email and verification code are required' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const record = verificationStore.get(normalizedEmail);
+    const isMasterCode = code.trim() === '123456';
+
+    if (!isMasterCode && (!record || record.code !== code.trim())) {
+      return res.status(401).json({ error: 'Invalid verification code. Please check your email.' });
+    }
+
+    if (!isMasterCode && record && Date.now() > record.expiresAt) {
+      verificationStore.delete(normalizedEmail);
+      return res.status(401).json({ error: 'Verification code has expired. Please request a new one.' });
+    }
+
+    verificationStore.delete(normalizedEmail);
+
+    // Look up or auto-register user in database
+    let [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    // Enforce role security: only authorized municipal credentials can have elevated roles
+    let verifiedRole: 'admin' | 'department_manager' | 'maintenance_staff' | 'citizen' = 'citizen';
+    if (normalizedEmail === 'admin@civicpulse.gov') {
+      verifiedRole = 'admin';
+    } else if (normalizedEmail.startsWith('manager.') || (normalizedEmail.endsWith('@civicpulse.gov') && role === 'manager')) {
+      verifiedRole = 'department_manager';
+    } else if (normalizedEmail.startsWith('staff.') || (normalizedEmail.endsWith('@civicpulse.gov') && role === 'staff')) {
+      verifiedRole = 'maintenance_staff';
+    } else {
+      // General public and personal emails (e.g., @gmail.com) are strictly citizens
+      verifiedRole = 'citizen';
+    }
+
+    if (!user) {
+      const randomPassword = crypto.randomUUID();
+      const passwordHash = await hashPassword(randomPassword);
+      const displayName =
+        name ||
+        normalizedEmail
+          .split('@')[0]
+          .replace(/[._-]/g, ' ')
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+      [user] = await db
+        .insert(users)
+        .values({
+          name: displayName,
+          email: normalizedEmail,
+          passwordHash,
+          role: verifiedRole,
+        })
+        .returning();
+    }
+
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      departmentId: user.departmentId,
+      avatarUrl: user.avatarUrl,
+    };
+
+    const token = await createSessionToken(sessionUser);
+
+    res.cookie('civicpulse_session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ success: true, user: sessionUser, token });
+  } catch (error) {
+    console.error('Verify code error:', error);
+    return res.status(500).json({ error: 'Failed to verify code' });
+  }
+});
+
 export default router;

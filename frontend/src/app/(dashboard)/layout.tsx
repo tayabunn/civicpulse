@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
+import { useRouter, usePathname } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
+import { hydrateAuth } from '../../store/authSlice';
 import { Sidebar } from '../../components/layout/sidebar';
 import { Header } from '../../components/layout/header';
 import { cn } from '../../lib/utils';
@@ -14,18 +15,57 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { sidebarCollapsed } = useSelector((state: RootState) => state.ui);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    // Strict authentication guard: redirect to /login if not authenticated
-    if (!isAuthenticated || !user) {
-      router.replace('/login');
-    } else {
-      setIsAuthorized(true);
+    dispatch(hydrateAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // 1. Strict authentication guard with local storage persistence check
+    const storedUserStr = typeof window !== 'undefined' ? localStorage.getItem('civicpulse_user') : null;
+    let currentUser = user;
+    if (!currentUser && storedUserStr) {
+      try {
+        currentUser = JSON.parse(storedUserStr);
+      } catch {}
     }
-  }, [isAuthenticated, user, router]);
+
+    if (!isAuthenticated && !currentUser) {
+      router.replace('/login');
+      return;
+    }
+
+    const role = currentUser?.role || 'citizen';
+
+    // 2. Strict Role-Based Access Control (RBAC):
+    // Only verified 'admin' can access /admin routes
+    if (pathname.startsWith('/admin') && role !== 'admin') {
+      console.warn(`[RBAC] Access denied: User (${currentUser?.email}, role: ${role}) blocked from accessing ${pathname}`);
+      router.replace('/citizen');
+      return;
+    }
+
+    // Only 'manager' or 'admin' can access /manager routes
+    if (pathname.startsWith('/manager') && role !== 'manager' && role !== 'admin') {
+      console.warn(`[RBAC] Access denied: User (${currentUser?.email}, role: ${role}) blocked from accessing ${pathname}`);
+      router.replace('/citizen');
+      return;
+    }
+
+    // Only 'staff' or 'admin' can access /staff routes
+    if (pathname.startsWith('/staff') && role !== 'staff' && role !== 'admin') {
+      console.warn(`[RBAC] Access denied: User (${currentUser?.email}, role: ${role}) blocked from accessing ${pathname}`);
+      router.replace('/citizen');
+      return;
+    }
+
+    setIsAuthorized(true);
+  }, [isAuthenticated, user, pathname, router]);
 
   // Prevent any dashboard rendering until authorization is verified
   if (!isAuthorized) {

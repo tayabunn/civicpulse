@@ -58,6 +58,12 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('civicpulse_user', JSON.stringify(action.payload.user));
+          localStorage.setItem('civicpulse_token', action.payload.token);
+        } catch {}
+      }
     },
     setDemoPersona: (state, action: PayloadAction<UserRole>) => {
       const demo = DEMO_USERS[action.payload];
@@ -65,15 +71,40 @@ export const authSlice = createSlice({
         state.user = demo;
         state.token = `demo-token-${action.payload}`;
         state.isAuthenticated = true;
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('civicpulse_user', JSON.stringify(demo));
+            localStorage.setItem('civicpulse_token', `demo-token-${action.payload}`);
+          } catch {}
+        }
+      }
+    },
+    hydrateAuth: (state) => {
+      if (typeof window !== 'undefined') {
+        try {
+          const storedUser = localStorage.getItem('civicpulse_user');
+          const storedToken = localStorage.getItem('civicpulse_token');
+          if (storedUser && storedToken) {
+            state.user = JSON.parse(storedUser);
+            state.token = storedToken;
+            state.isAuthenticated = true;
+          }
+        } catch {}
       }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('civicpulse_user');
+          localStorage.removeItem('civicpulse_token');
+        } catch {}
+      }
     },
   },
 });
 
-export const { setCredentials, setDemoPersona, logout } = authSlice.actions;
+export const { setCredentials, setDemoPersona, hydrateAuth, logout } = authSlice.actions;
 export default authSlice.reducer;
