@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store';
 import { setDemoPersona } from '../store/authSlice';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -13,10 +14,22 @@ import {
   Shield,
   Sparkles,
   ArrowRight,
+  LogIn,
+  UserPlus,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export default function LandingPage() {
   const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  const dashboardPath = user?.role === 'admin'
+    ? '/admin'
+    : user?.role === 'manager'
+    ? '/manager'
+    : user?.role === 'staff'
+    ? '/staff'
+    : '/citizen';
 
   const personas = [
     {
@@ -63,11 +76,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-brand-warmWhite text-brand-midnight">
-      {/* Top Banner Navigation */}
-      <header className="border-b border-brand-coolGray bg-surface/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-midnight flex items-center justify-center text-brand-yellow font-bold shadow-md">
+      {/* Top Banner Navigation with Log In & Register Buttons */}
+      <header className="border-b border-brand-coolGray bg-surface/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-3.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-brand-midnight flex items-center justify-center text-brand-yellow font-bold shadow-md group-hover:scale-105 transition-transform">
               <Flame className="w-6 h-6 fill-brand-yellow text-brand-yellow" />
             </div>
             <div>
@@ -75,22 +88,54 @@ export default function LandingPage() {
                 CIVICPULSE
               </span>
               <span className="text-[10px] font-mono text-brand-cobalt uppercase tracking-widest block font-bold">
-                Signal City Design System v1.0
+                Smart City Platform
               </span>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-4">
-            <Link href="/citizen">
-              <Button variant="outline" size="sm" className="gap-2 font-semibold">
-                Citizen Portal
+          {/* Quick Portal Links */}
+          <nav className="hidden md:flex items-center gap-6 text-xs lg:text-sm font-semibold text-text-secondary">
+            <Link href="/citizen" className="hover:text-brand-cobalt transition-colors">Citizen</Link>
+            <Link href="/manager" className="hover:text-brand-cobalt transition-colors">Department Hub</Link>
+            <Link href="/staff" className="hover:text-brand-cobalt transition-colors">Field Crew</Link>
+            <Link href="/admin" className="hover:text-brand-cobalt transition-colors">Admin BI</Link>
+          </nav>
+
+          {/* Right Action Controls: Log In & Register Buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/login">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 font-semibold border-slate-300 text-brand-midnight hover:bg-slate-100"
+              >
+                <LogIn size={15} />
+                <span>Log In</span>
               </Button>
             </Link>
-            <Link href="/citizen/create">
-              <Button variant="accent" size="sm" className="gap-2 font-bold shadow-sm">
-                Report Infrastructure Issue
+
+            <Link href="/register">
+              <Button
+                variant="accent"
+                size="sm"
+                className="gap-1.5 font-bold shadow-sm bg-brand-yellow text-brand-midnight hover:bg-yellow-400"
+              >
+                <UserPlus size={15} />
+                <span>Register</span>
               </Button>
             </Link>
+
+            {isAuthenticated && user && (
+              <Link href={dashboardPath} className="hidden sm:inline-block">
+                <Button
+                  size="sm"
+                  className="gap-1.5 font-bold bg-brand-midnight text-white hover:bg-slate-800 shadow-sm"
+                >
+                  <LayoutDashboard size={14} />
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>

@@ -4,16 +4,20 @@ import { generateSeedData } from '../src/db/mock-data';
 describe('Seed Data Generator', () => {
   it('generates the mandatory minimum volume of entities', () => {
     const data = generateSeedData();
-    expect(data.users.length).toBeGreaterThanOrEqual(24);
-    expect(data.departments.length).toBeGreaterThanOrEqual(5);
-    expect(data.issues.length).toBeGreaterThanOrEqual(100);
-    expect(data.locations.length).toBeGreaterThanOrEqual(30);
+    // Section 7 Minimum Data Requirements
+    expect(data.departments.length).toBeGreaterThanOrEqual(5); // Minimum 5 Departments
+    expect(data.issues.length).toBeGreaterThanOrEqual(100); // Minimum 100 Issues
+    expect(data.locations.length).toBeGreaterThanOrEqual(30); // Minimum 30 Sample Locations
 
     const roles = new Set(data.users.map((u) => u.role));
+    expect(roles.size).toBeGreaterThanOrEqual(4); // Minimum 4 User Roles
     expect(roles.has('admin')).toBe(true);
     expect(roles.has('department_manager')).toBe(true);
     expect(roles.has('maintenance_staff')).toBe(true);
     expect(roles.has('citizen')).toBe(true);
+
+    const staffUsers = data.users.filter((u) => u.role === 'maintenance_staff');
+    expect(staffUsers.length).toBeGreaterThanOrEqual(20); // Minimum 20 Maintenance Staff
   });
 
   it('generates demo users with required emails and roles', () => {
