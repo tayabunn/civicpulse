@@ -7,8 +7,8 @@ import { RootState } from '../store';
 import { setDemoPersona } from '../store/authSlice';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { BrandLogo } from '../components/ui/brand-logo';
 import {
-  Flame,
   User,
   HardHat,
   Shield,
@@ -71,8 +71,8 @@ export default function LandingPage() {
       <header className="border-b border-brand-coolGray bg-surface/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-brand-midnight flex items-center justify-center text-brand-yellow font-bold shadow-md group-hover:scale-105 transition-transform">
-              <Flame className="w-6 h-6 fill-brand-yellow text-brand-yellow" />
+            <div className="w-10 h-10 rounded-xl bg-brand-midnight flex items-center justify-center text-brand-yellow shadow-md group-hover:scale-105 transition-transform">
+              <BrandLogo size={22} className="text-brand-yellow" />
             </div>
             <div>
               <span className="font-display font-extrabold text-xl tracking-tight text-brand-midnight">
@@ -83,14 +83,6 @@ export default function LandingPage() {
               </span>
             </div>
           </Link>
-
-          {/* Quick Portal Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs lg:text-sm font-semibold text-text-secondary">
-            <Link href="/citizen" className="hover:text-brand-cobalt transition-colors">Citizen</Link>
-            <Link href="/manager" className="hover:text-brand-cobalt transition-colors">Department Hub</Link>
-            <Link href="/staff" className="hover:text-brand-cobalt transition-colors">Field Crew</Link>
-            <Link href="/admin" className="hover:text-brand-cobalt transition-colors">Admin BI</Link>
-          </nav>
 
           {/* Right Action Controls: Log In & Register Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
