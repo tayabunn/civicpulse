@@ -21,15 +21,6 @@ import {
 
 export default function LandingPage() {
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
-
-  const dashboardPath = user?.role === 'admin'
-    ? '/admin'
-    : user?.role === 'manager'
-    ? '/manager'
-    : user?.role === 'staff'
-    ? '/staff'
-    : '/citizen';
 
   const personas = [
     {
@@ -124,18 +115,6 @@ export default function LandingPage() {
                 <span>Register</span>
               </Button>
             </Link>
-
-            {isAuthenticated && user && (
-              <Link href={dashboardPath} className="hidden sm:inline-block">
-                <Button
-                  size="sm"
-                  className="gap-1.5 font-bold bg-brand-midnight text-white hover:bg-slate-800 shadow-sm"
-                >
-                  <LayoutDashboard size={14} />
-                  <span>Dashboard</span>
-                </Button>
-              </Link>
-            )}
           </div>
         </div>
       </header>
