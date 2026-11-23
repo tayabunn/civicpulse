@@ -15,14 +15,16 @@ export function RolesPlansSection() {
     <section id="portals" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
       <div className="max-w-7xl mx-auto">
         {/* Section Heading matching Verdona's 'Our Plans' */}
-        <div className="anim-role-header text-center max-w-3xl mx-auto space-y-3 mb-16">
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-brand-cobalt">
-            Multi-Role Ecosystem
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-brand-midnight tracking-tight">
+        <div className="anim-role-header text-center max-w-3xl mx-auto space-y-4 mb-16">
+          <div>
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+              Portals & Access
+            </span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight tracking-tight">
             Our Dedicated Portals
           </h2>
-          <p className="text-base text-[#4B5568] leading-relaxed">
+          <p className="text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
             One connected city. Four dedicated operational portals. Seamless role-based access for citizens,
             dispatchers, field crews, and city leadership.
           </p>
