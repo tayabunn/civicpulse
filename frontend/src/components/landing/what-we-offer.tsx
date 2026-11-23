@@ -10,13 +10,15 @@ export function WhatWeOffer() {
       <div className="max-w-7xl mx-auto">
         {/* Section Heading matching Verdona */}
         <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-brand-cobalt">
-            Services & Infrastructure
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-brand-midnight tracking-tight">
+          <div>
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+              Services
+            </span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight tracking-tight">
             What We Offer
           </h2>
-          <p className="text-base text-[#4B5568] leading-relaxed">
+          <p className="text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
             From damaged roads to overflowing drainage systems, report everyday problems affecting your
             neighborhood and bring them directly to the attention of municipal teams.
           </p>
