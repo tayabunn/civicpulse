@@ -11,10 +11,11 @@ import {
 export const NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '#about' },
-  { label: 'What We Offer', href: '#services' },
-  { label: 'Platform Features', href: '#features' },
+  { label: 'Services', href: '#services' },
+  { label: 'Features', href: '#features' },
   { label: 'Portals', href: '#portals' },
-  { label: 'City Telemetry', href: '#telemetry' },
+  { label: 'FAQs', href: '#faqs' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 export const HERO_STATS: HeroStat[] = [
