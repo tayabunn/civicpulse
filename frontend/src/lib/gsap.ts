@@ -28,34 +28,47 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { SplitText } from 'gsap/SplitText';
 import { TextPlugin } from 'gsap/TextPlugin';
 
+// Safely register plugins in proper dependency order only on the client
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(
+  const safeRegister = (...plugins: any[]) => {
+    for (const plugin of plugins) {
+      if (plugin) {
+        try {
+          gsap.registerPlugin(plugin);
+        } catch (e) {
+          // Skip if missing optional external dependency (e.g. PIXI, CreateJS)
+        }
+      }
+    }
+  };
+
+  safeRegister(
     useGSAP,
-    Draggable,
-    DrawSVGPlugin,
-    EaselPlugin,
-    Flip,
-    GSDevTools,
-    InertiaPlugin,
-    MotionPathHelper,
-    MotionPathPlugin,
-    MorphSVGPlugin,
-    Observer,
-    Physics2DPlugin,
-    PhysicsPropsPlugin,
-    PixiPlugin,
-    ScrambleTextPlugin,
-    ScrollTrigger,
-    ScrollSmoother,
-    ScrollToPlugin,
-    SplitText,
-    TextPlugin,
+    CustomEase,
+    CustomBounce,
+    CustomWiggle,
     RoughEase,
     ExpoScaleEase,
     SlowMo,
-    CustomEase,
-    CustomBounce,
-    CustomWiggle
+    ScrollTrigger,
+    ScrollSmoother,
+    ScrollToPlugin,
+    MotionPathPlugin,
+    MotionPathHelper,
+    Flip,
+    Draggable,
+    Observer,
+    TextPlugin,
+    SplitText,
+    DrawSVGPlugin,
+    MorphSVGPlugin,
+    InertiaPlugin,
+    ScrambleTextPlugin,
+    Physics2DPlugin,
+    PhysicsPropsPlugin,
+    GSDevTools,
+    PixiPlugin,
+    EaselPlugin
   );
 }
 
