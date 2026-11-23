@@ -86,3 +86,30 @@ code, pre, .font-mono {
   border-radius: 12px;
   z-index: 10;
 }
+
+/* Infinite Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Smooth Focus Glow */
+.focus-glow:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49, 92, 255, 0.35);
+}
