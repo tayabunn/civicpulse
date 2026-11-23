@@ -64,8 +64,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        sans: ["Inter", "sans-serif"],
+        display: ["Manrope", "sans-serif"],
+        sans: ["Manrope", "sans-serif"],
+        serif: ["Instrument Serif", "Georgia", "serif"],
         mono: ["IBM Plex Mono", "monospace"],
       },
       borderRadius: {
