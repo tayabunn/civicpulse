@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-text-primary antialiased selection:bg-brand-yellow selection:text-brand-midnight">
+      <body suppressHydrationWarning className="min-h-screen bg-background text-text-primary antialiased selection:bg-brand-yellow selection:text-brand-midnight">
         <StoreProvider>
           <ThemeProvider>
             <NotificationProvider>
