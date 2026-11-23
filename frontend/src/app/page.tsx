@@ -7,12 +7,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { Navbar } from '../components/landing/navbar';
 import { HeroSection } from '../components/landing/hero-section';
-import { PartnersTicker } from '../components/landing/partners-ticker';
+import { AboutSection } from '../components/landing/about-section';
 import { WhatWeOffer } from '../components/landing/what-we-offer';
 import { FeaturesSection } from '../components/landing/features-section';
 import { RolesPlansSection } from '../components/landing/roles-plans-section';
 import { LiveCaseSpotlight } from '../components/landing/live-case-spotlight';
 import { TestimonialSection } from '../components/landing/testimonial-section';
+import { FAQSection } from '../components/landing/faq-section';
 import { ContactSection } from '../components/landing/contact-section';
 import { Footer } from '../components/landing/footer';
 
@@ -140,6 +141,42 @@ export default function LandingPage() {
         ease: 'sine.inOut',
         delay: 0.8,
       });
+
+      // 2.5. About Us Section Stagger Reveal on Scroll
+      gsap.fromTo(
+        '.anim-about-img',
+        { opacity: 0, scale: 0.95, y: 30 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.75,
+          ease: 'power3.out',
+          clearProps: 'all',
+          scrollTrigger: {
+            trigger: '#about',
+            start: 'top 85%',
+            once: true,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        '.anim-about-content',
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.75,
+          ease: 'power3.out',
+          clearProps: 'all',
+          scrollTrigger: {
+            trigger: '#about',
+            start: 'top 85%',
+            once: true,
+          },
+        }
+      );
 
       // 3. What We Offer (Verdona 3x2 Photo Grid) Stagger Reveal on Scroll
       gsap.fromTo(
@@ -326,13 +363,49 @@ export default function LandingPage() {
         }
       );
 
-      // 8. Contact Section Left & Right Slide-In
+      // 7.5. FAQ Section Stagger Reveal on Scroll
       gsap.fromTo(
-        '.anim-contact-info',
-        { opacity: 0, x: -30 },
+        '.anim-faq-header',
+        { opacity: 0, y: 25 },
         {
           opacity: 1,
-          x: 0,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          clearProps: 'all',
+          scrollTrigger: {
+            trigger: '#faqs',
+            start: 'top 85%',
+            once: true,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        '.anim-faq-list',
+        { opacity: 0, y: 35 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+          clearProps: 'all',
+          scrollTrigger: {
+            trigger: '#faqs',
+            start: 'top 80%',
+            once: true,
+          },
+        }
+      );
+
+      // 8. Contact Section Left & Right Slide-In
+      gsap.fromTo(
+        '.anim-contact-img',
+        { opacity: 0, scale: 0.96, y: 30 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
           duration: 0.7,
           ease: 'power3.out',
           clearProps: 'all',
@@ -345,11 +418,11 @@ export default function LandingPage() {
       );
 
       gsap.fromTo(
-        '.anim-contact-card',
-        { opacity: 0, x: 30 },
+        '.anim-contact-form',
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
-          x: 0,
+          y: 0,
           duration: 0.7,
           ease: 'power3.out',
           clearProps: 'all',
@@ -373,7 +446,7 @@ export default function LandingPage() {
 
       // Safety safeguard: Ensure cards are never left invisible under any circumstance
       const safetyTimer = setTimeout(() => {
-        gsap.to('.anim-offer-card, .anim-feature-card, .anim-role-card, .anim-spotlight-card', {
+        gsap.to('.anim-offer-card, .anim-feature-card, .anim-role-card, .anim-spotlight-card, .anim-faq-list', {
           opacity: 1,
           y: 0,
           scale: 1,
@@ -398,12 +471,13 @@ export default function LandingPage() {
       <Navbar />
       <main className="flex-1">
         <HeroSection />
-        <PartnersTicker />
+        <AboutSection />
         <WhatWeOffer />
         <FeaturesSection />
         <RolesPlansSection />
         <LiveCaseSpotlight />
         <TestimonialSection />
+        <FAQSection />
         <ContactSection />
       </main>
       <Footer />
