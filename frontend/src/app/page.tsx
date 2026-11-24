@@ -142,23 +142,40 @@ export default function LandingPage() {
       const servicesTrack = document.querySelector('#services-track') as HTMLElement;
 
       if (servicesSection && servicesTrack) {
-        const getScrollDistance = () => {
-          return Math.max(0, servicesTrack.scrollWidth - window.innerWidth);
+        const getInitialOffset = () => {
+          const firstCard = servicesTrack.querySelector('.anim-offer-card') as HTMLElement;
+          const cardWidth = firstCard ? firstCard.offsetWidth : 400;
+          return Math.max(0, window.innerWidth * 0.8 - cardWidth);
         };
 
-        gsap.to(servicesTrack, {
-          x: () => -getScrollDistance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: servicesSection,
-            start: 'top top',
-            end: () => `+=${Math.max(1000, getScrollDistance() * 1.15)}`,
-            pin: true,
-            scrub: 1.2,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
+        const getTotalScrollDistance = () => {
+          const cards = servicesTrack.querySelectorAll('.anim-offer-card');
+          const firstCard = cards[0] as HTMLElement;
+          const cardWidth = firstCard ? firstCard.offsetWidth : 400;
+          const gap = parseFloat(window.getComputedStyle(servicesTrack).gap) || 32;
+          const initialOffset = getInitialOffset();
+          return initialOffset + (cards.length - 1) * (cardWidth + gap);
+        };
+
+        gsap.fromTo(
+          servicesTrack,
+          {
+            x: () => getInitialOffset(),
           },
-        });
+          {
+            x: () => getInitialOffset() - getTotalScrollDistance(),
+            ease: 'none',
+            scrollTrigger: {
+              trigger: servicesSection,
+              start: 'top top',
+              end: () => `+=${Math.max(1200, getTotalScrollDistance() * 0.85)}`,
+              pin: true,
+              scrub: 1.2,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
       }
 
       // 4. Main Features Stagger Reveal on Scroll
