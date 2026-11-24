@@ -133,7 +133,7 @@ export function AboutSection() {
             <div className="space-y-6">
               {/* Category Pill Badge (Increased height + Transparent fill) */}
               <div>
-                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm font-sans font-normal transition-colors">
+                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-normal transition-colors">
                   About Us
                 </span>
               </div>
@@ -212,7 +212,7 @@ export function AboutSection() {
               </div>
 
               {/* Supporting Operational Metrics Strip with Verdona Count-Up Animation */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 border-y border-slate-200/90 dark:border-slate-800/90 py-4 transition-colors">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-200/90 dark:border-slate-800/90 py-4 transition-colors">
                 <div className="space-y-0.5">
                   <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
                     <CountUpNumber value={94.2} decimals={1} suffix="%" duration={1800} />
