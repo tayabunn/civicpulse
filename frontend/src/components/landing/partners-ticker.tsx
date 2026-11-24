@@ -113,7 +113,7 @@ export function PartnersTicker() {
   return (
     <div className="w-full overflow-hidden">
       {/* Centered Title with Increased Size and Brand Dark Blue */}
-      <p className="text-center text-base sm:text-lg font-bold text-brand-midnight dark:text-blue-200 font-sans mb-7 sm:mb-8 tracking-tight">
+      <p className="text-center text-base sm:text-lg font-normal text-brand-midnight dark:text-blue-200 font-sans mb-7 sm:mb-8 tracking-tight">
         Our Trusted Partners
       </p>
 
