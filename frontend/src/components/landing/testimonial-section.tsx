@@ -10,7 +10,7 @@ export function TestimonialSection() {
       <div className="anim-testimonial-card max-w-4xl mx-auto text-center space-y-8">
         {/* Pill Badge matching Verdona */}
         <div>
-          <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
+          <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-sans font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
             Testimonials
           </span>
         </div>
