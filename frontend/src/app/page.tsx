@@ -153,8 +153,8 @@ export default function LandingPage() {
           const firstCard = cards[0] as HTMLElement;
           const cardWidth = firstCard ? firstCard.offsetWidth : 400;
           const gap = parseFloat(window.getComputedStyle(servicesTrack).gap) || 32;
-          const initialOffset = getInitialOffset();
-          return initialOffset + (cards.length - 1) * (cardWidth + gap);
+          // Travel exactly enough so the last card arrives at the right boundary, then release pin
+          return (cards.length - 1) * (cardWidth + gap);
         };
 
         gsap.fromTo(
@@ -168,7 +168,7 @@ export default function LandingPage() {
             scrollTrigger: {
               trigger: servicesSection,
               start: 'top top',
-              end: () => `+=${Math.max(1200, getTotalScrollDistance() * 0.85)}`,
+              end: () => `+=${Math.max(900, getTotalScrollDistance() * 0.85)}`,
               pin: true,
               scrub: 1.2,
               anticipatePin: 1,
