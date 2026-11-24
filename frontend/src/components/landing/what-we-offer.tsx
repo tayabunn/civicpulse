@@ -7,19 +7,19 @@ import { Button } from '../ui/button';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="relative pt-10 sm:pt-12 lg:pt-16 pb-12 sm:pb-16 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-center">
+    <section id="services" className="relative pt-16 sm:pt-20 lg:pt-20 pb-6 sm:pb-8 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-start">
       <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
-        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-2.5 mb-8 sm:mb-10">
+        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-2 mb-6 sm:mb-8">
           <div>
-            <span className="inline-flex items-center justify-center px-5 h-8 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm font-sans font-medium transition-colors">
+            <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
               Services
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             What We Offer
           </h2>
-          <p className="text-sm sm:text-base text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
             From damaged roads to overflowing drainage systems, report everyday problems affecting your
             neighborhood and bring them directly to the attention of municipal teams.
           </p>
@@ -30,13 +30,12 @@ export function WhatWeOffer() {
       <div className="w-full overflow-hidden">
         <div
           id="services-track"
-          className="flex flex-nowrap gap-6 sm:gap-8 pl-[10vw] pr-[10vw] will-change-transform"
+          className="flex flex-nowrap gap-6 sm:gap-8 pl-[10vw] pr-0 will-change-transform"
         >
           {WHAT_WE_OFFER.map((item) => (
-            <Link
+            <div
               key={item.id}
-              href="/citizen/create"
-              className="anim-offer-card group relative rounded-3xl overflow-hidden w-[290px] sm:w-[330px] md:w-[360px] lg:w-[390px] aspect-[4/3.3] shrink-0 bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
+              className="anim-offer-card group relative rounded-3xl overflow-hidden w-[290px] sm:w-[330px] md:w-[360px] lg:w-[390px] aspect-[4/3.3] shrink-0 bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 select-none cursor-default"
             >
               {/* Full-Bleed Card Image */}
               <Image
@@ -50,40 +49,41 @@ export function WhatWeOffer() {
               {/* Multi-Stop Dark Gradient Overlay for optimal text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight/95 via-brand-midnight/50 to-brand-midnight/10 group-hover:via-brand-midnight/40 transition-colors" />
 
-              {/* Top Row: Category Pill & Floating Arrow */}
+              {/* Top Row: Category Pill & Visual Arrow */}
               <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-mono font-bold uppercase tracking-wider border border-white/20">
+                <span className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-sans font-bold uppercase tracking-wider border border-white/20">
                   {item.tag}
                 </span>
 
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-[#315CFF] group-hover:text-white transition-colors duration-200">
-                  <ArrowUpRight size={17} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-colors duration-200">
+                  <ArrowUpRight size={17} />
                 </div>
               </div>
 
               {/* Bottom Row: Title & Subtitle */}
               <div className="relative z-10 space-y-1.5">
-                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug group-hover:text-blue-200 transition-colors">
+                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug transition-colors">
                   {item.title}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-slate-200 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
-                <div className="pt-1.5 text-xs font-bold text-white/90 underline decoration-[#315CFF] decoration-2 underline-offset-4 flex items-center gap-1 group-hover:text-blue-200 transition-colors">
-                  <span>Report in this category →</span>
+                <div className="pt-1.5 text-xs font-semibold text-white/80 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#315CFF]" />
+                  <span>Municipal Service</span>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Centered "More Services" Action Button (Exact same style and font size as Navbar Log In) */}
-      <div className="w-full flex justify-center items-center mt-8 sm:mt-10">
-        <Link href="/citizen/create">
+      {/* Centered "More Services" Action Button (Links to Features section without bypassing auth) */}
+      <div className="relative z-30 w-full flex justify-center items-center mt-8 sm:mt-12">
+        <Link href="#features">
           <Button
             size="sm"
-            className="font-medium font-sans bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] transition-all rounded-full px-6 h-11 text-base shadow-md"
+            className="font-medium font-sans bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] transition-all rounded-full px-6 h-11 text-base shadow-md cursor-pointer"
           >
             More Services
           </Button>
