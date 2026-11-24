@@ -55,7 +55,7 @@ export function FAQSection() {
         {/* Header matching Verdona */}
         <div className="anim-faq-header text-center space-y-4 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-white/20 text-white/90 text-xs font-mono font-bold uppercase tracking-wider bg-white/10">
+            <span className="inline-block px-3.5 py-1 rounded-full border border-white/20 text-white/90 text-xs font-sans font-bold uppercase tracking-wider bg-white/10">
               FAQs
             </span>
           </div>
