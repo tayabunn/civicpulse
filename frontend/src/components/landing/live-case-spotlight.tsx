@@ -52,33 +52,33 @@ export function LiveCaseSpotlight() {
   ];
 
   return (
-    <section id="telemetry" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-brand-coolGray">
-      <div className="max-w-7xl mx-auto">
+    <section id="telemetry" className="py-20 lg:py-28 bg-white dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
+      <div className="w-[80%] mx-auto">
         <div className="anim-spotlight-header text-center max-w-3xl mx-auto space-y-3 mb-16">
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-brand-cobalt">
             Real-Time Resolution Flow
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-brand-midnight tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             Know Where Every Report Stands
           </h2>
-          <p className="text-base text-[#4B5568] leading-relaxed">
+          <p className="text-base text-[#4B5568] dark:text-slate-300 leading-relaxed transition-colors">
             Complete transparency from initial report submission to asphalt compaction. No hidden paperwork,
             no lost reports.
           </p>
         </div>
 
         {/* Verdona-Framed Spotlight Container */}
-        <div className="anim-spotlight-card max-w-4xl mx-auto rounded-3xl bg-brand-warmWhite border border-slate-200 p-6 sm:p-10 shadow-sm">
+        <div className="anim-spotlight-card max-w-4xl mx-auto rounded-3xl bg-brand-warmWhite dark:bg-[#1B2435] border border-slate-200 dark:border-slate-700/80 p-6 sm:p-10 shadow-sm transition-colors">
           {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-700/80">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-brand-midnight text-brand-yellow">
                   CASE #CP-1024
                 </span>
-                <span className="text-xs font-semibold text-slate-500">Sector 3, Uttara, Dhaka</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Sector 3, Uttara, Dhaka</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold font-display text-brand-midnight">
+              <h3 className="text-xl sm:text-2xl font-bold font-display text-brand-midnight dark:text-white transition-colors">
                 Deep road cavity near road crossing
               </h3>
             </div>
@@ -99,7 +99,7 @@ export function LiveCaseSpotlight() {
                         ? 'bg-emerald-500 text-white shadow-sm'
                         : item.active
                         ? 'bg-brand-midnight text-brand-yellow ring-4 ring-brand-yellow/50 scale-110'
-                        : 'bg-slate-200 text-slate-400'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500'
                     }`}
                   >
                     {item.completed ? <CheckCircle2 size={16} /> : item.step}
@@ -107,7 +107,7 @@ export function LiveCaseSpotlight() {
                   {idx < timelineSteps.length - 1 && (
                     <div
                       className={`w-0.5 h-12 my-1 ${
-                        item.completed ? 'bg-emerald-400' : 'bg-slate-200'
+                        item.completed ? 'bg-emerald-400' : 'bg-slate-200 dark:bg-slate-700'
                       }`}
                     />
                   )}
@@ -118,17 +118,17 @@ export function LiveCaseSpotlight() {
                     <h4
                       className={`text-sm sm:text-base font-bold font-display ${
                         item.active
-                          ? 'text-brand-midnight underline decoration-brand-yellow decoration-2'
+                          ? 'text-brand-midnight dark:text-brand-yellow underline decoration-brand-yellow decoration-2'
                           : item.completed
-                          ? 'text-slate-800'
-                          : 'text-slate-400'
+                          ? 'text-slate-800 dark:text-slate-200'
+                          : 'text-slate-400 dark:text-slate-500'
                       }`}
                     >
                       {item.status}
                     </h4>
-                    <span className="font-mono text-[11px] text-text-muted">{item.time}</span>
+                    <span className="font-mono text-[11px] text-text-muted dark:text-slate-400">{item.time}</span>
                   </div>
-                  <p className="text-xs text-[#4B5568] leading-relaxed max-w-xl">
+                  <p className="text-xs text-[#4B5568] dark:text-slate-300 leading-relaxed max-w-xl transition-colors">
                     {item.detail}
                   </p>
                 </div>
@@ -136,8 +136,8 @@ export function LiveCaseSpotlight() {
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
-            <div className="text-xs text-[#4B5568] flex items-center gap-2">
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="text-xs text-[#4B5568] dark:text-slate-300 flex items-center gap-2">
               <Radio size={14} className="text-emerald-500 animate-pulse" />
               <span>Real-time GPS synchronization connected</span>
             </div>

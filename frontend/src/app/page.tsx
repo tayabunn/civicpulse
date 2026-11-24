@@ -62,85 +62,10 @@ export default function LandingPage() {
             scale: 0.95,
             opacity: 0,
             duration: 0.6,
-            stagger: 0.1,
             ease: 'back.out(1.2)',
           },
           '-=0.3'
-        )
-        .from(
-          '.anim-hero-stat',
-          {
-            y: 20,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: 'power2.out',
-          },
-          '-=0.2'
-        )
-        .from(
-          '.anim-hero-frame',
-          {
-            y: 45,
-            scale: 0.96,
-            opacity: 0,
-            duration: 0.9,
-            ease: 'power3.out',
-          },
-          '-=0.4'
-        )
-        .from(
-          '.anim-float-card-1',
-          {
-            x: -35,
-            opacity: 0,
-            duration: 0.7,
-          },
-          '-=0.4'
-        )
-        .from(
-          '.anim-float-card-2',
-          {
-            y: 35,
-            opacity: 0,
-            duration: 0.7,
-          },
-          '-=0.4'
-        )
-        .from(
-          '.anim-float-card-3',
-          {
-            x: 35,
-            opacity: 0,
-            duration: 0.7,
-          },
-          '-=0.4'
         );
-
-      // 2. Ambient Sine Wave Floating Physics for Hero Telemetry Cards
-      gsap.to('.anim-float-card-1', {
-        y: '-=7',
-        duration: 2.8,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-      });
-      gsap.to('.anim-float-card-2', {
-        y: '+=7',
-        duration: 3.2,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 0.4,
-      });
-      gsap.to('.anim-float-card-3', {
-        y: '-=6',
-        duration: 2.6,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: 0.8,
-      });
 
       // 2.5. About Us Section Stagger Reveal on Scroll
       gsap.fromTo(
@@ -466,7 +391,7 @@ export default function LandingPage() {
   return (
     <div
       ref={pageContainerRef}
-      className="min-h-screen bg-brand-warmWhite text-brand-midnight flex flex-col font-sans selection:bg-brand-yellow selection:text-brand-midnight antialiased"
+      className="min-h-screen bg-brand-warmWhite dark:bg-[#0B0F17] text-brand-midnight dark:text-slate-100 flex flex-col font-sans selection:bg-brand-yellow selection:text-brand-midnight antialiased transition-colors duration-300"
     >
       <Navbar />
       <main className="flex-1">

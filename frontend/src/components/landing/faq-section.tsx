@@ -76,24 +76,24 @@ export function FAQSection() {
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 border border-slate-100"
+                className="bg-white dark:bg-[#1B2435] rounded-2xl overflow-hidden shadow-lg transition-all duration-300 border border-slate-100 dark:border-slate-700/80"
               >
                 <button
                   type="button"
                   onClick={() => toggle(item.id)}
-                  className="w-full text-left p-6 sm:p-7 flex items-center justify-between gap-4 text-brand-midnight hover:text-brand-cobalt transition-colors focus:outline-none"
+                  className="w-full text-left p-6 sm:p-7 flex items-center justify-between gap-4 text-brand-midnight dark:text-white hover:text-brand-cobalt dark:hover:text-brand-yellow transition-colors focus:outline-none"
                   aria-expanded={isOpen}
                 >
                   <span className="text-base sm:text-lg font-bold font-display tracking-tight leading-snug">
                     {item.question}
                   </span>
-                  <div className="shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-brand-midnight transition-transform">
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-brand-midnight dark:text-white transition-transform">
                     {isOpen ? <X size={18} /> : <Plus size={18} />}
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 sm:px-7 sm:pb-7 text-sm text-[#4B5568] leading-relaxed border-t border-slate-100 pt-4 animate-fadeIn">
+                  <div className="px-6 pb-6 sm:px-7 sm:pb-7 text-sm text-[#4B5568] dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-700/80 pt-4 animate-fadeIn">
                     {item.answer}
                   </div>
                 )}

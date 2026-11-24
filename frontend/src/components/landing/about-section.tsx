@@ -1,87 +1,247 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { HERO_STATS } from './data';
+import Link from 'next/link';
+import { Button } from '../ui/button';
+import { Check, ArrowRight, ShieldCheck, Activity } from 'lucide-react';
 import { PartnersTicker } from './partners-ticker';
 
+const SLIDES = [
+  {
+    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+    title: 'On-Ground Road & Civil Works',
+    tag: 'Rapid Field Crew',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=800&q=80',
+    title: 'Emergency Response & Safety',
+    tag: 'Municipal Patrol',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80',
+    title: 'Central GIS Dispatch Operations',
+    tag: 'City Command',
+  },
+];
+
 export function AboutSection() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto rotate slides every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section id="about" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
-      <div className="max-w-7xl mx-auto">
-        {/* Verdona 2-Column About Us Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center mb-16">
-          {/* Left Column: Rounded Vertical Photo */}
-          <div className="lg:col-span-5 anim-about-img">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border-4 border-white bg-slate-900 group">
-              <Image
-                src="https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=1000&q=80"
-                alt="Municipal Infrastructure Field Engineer"
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                sizes="(max-width: 1024px) 100vw, 40vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight/70 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6 text-white">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-brand-yellow font-bold block mb-1">
-                  On-Ground Operations
+    <section
+      id="about"
+      className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300 font-sans"
+    >
+      <div className="w-[80%] mx-auto">
+        {/* Main 2-Column Split Grid - items-stretch guarantees equal column height */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch mb-16">
+          {/* ======================================================== */}
+          {/* LEFT COLUMN: Dedicated Mission, Checklist & Action Button */}
+          {/* ======================================================== */}
+          <div className="lg:col-span-6 lg:border-r border-slate-200/90 dark:border-slate-800/90 lg:pr-12 xl:pr-16 flex flex-col justify-between space-y-7">
+            <div className="space-y-6">
+              {/* Category Pill Badge (Increased height + Transparent fill) */}
+              <div>
+                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-xs font-sans font-bold uppercase tracking-wider transition-colors">
+                  About Us
                 </span>
-                <p className="text-sm font-semibold leading-snug text-white/95">
-                  Dhaka Municipal Maintenance & Civil Engineering Division
-                </p>
               </div>
+
+              {/* Authoritative Core Headline (Manrope Font with increased line spacing) */}
+              <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-bold font-sans tracking-tight text-brand-midnight dark:text-white leading-[1.32] sm:leading-[1.3] transition-colors">
+                We are dedicated to protecting and serving our community with integrity, professionalism,
+                and commitment.
+              </h2>
+
+              {/* Editorial Narrative Paragraph (Manrope Font) */}
+              <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
+                CivicPulse is a modern municipal infrastructure partner helping city authorities manage urban
+                grids sustainably, accelerate emergency repair turnarounds, and build resilient operations
+                for the long term.
+              </p>
+
+              {/* Checkmark Feature List (Manrope Font) */}
+              <div className="space-y-3 pt-1">
+                {[
+                  'Fast Emergency & Hazard Response',
+                  'Transparent Community Engagement',
+                  'Sub-Meter Infrastructure Accountability',
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[#315CFF]/10 dark:bg-[#315CFF]/20 text-[#315CFF] dark:text-[#6280FF] flex items-center justify-center shrink-0">
+                      <Check size={13} className="stroke-[3]" />
+                    </div>
+                    <span className="text-sm sm:text-base font-semibold text-brand-midnight dark:text-slate-100 font-sans transition-colors">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Button & Navigation Link pinned at the bottom line */}
+            <div className="pt-4 flex flex-wrap items-center gap-4">
+              <Link href="#contact">
+                <Button
+                  size="lg"
+                  className="bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] font-semibold font-sans px-8 h-12 text-base rounded-full shadow-md transition-all"
+                >
+                  Contact us
+                </Button>
+              </Link>
+              <Link
+                href="#services"
+                className="text-sm font-semibold font-sans text-brand-midnight dark:text-slate-200 hover:text-[#315CFF] dark:hover:text-brand-yellow transition-colors inline-flex items-center gap-1.5 px-3 py-2"
+              >
+                Explore Services
+                <ArrowRight size={15} />
+              </Link>
             </div>
           </div>
 
-          {/* Right Column: Pill Badge, 3 Stats & Large Editorial Text */}
-          <div className="lg:col-span-7 space-y-8 anim-about-content">
-            {/* Pill Badge */}
-            <div>
-              <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
-                About Us
-              </span>
-            </div>
+          {/* ======================================================== */}
+          {/* RIGHT COLUMN: Operational Narrative, Hero 200+, Metrics & Duo */}
+          {/* ======================================================== */}
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-7">
+            <div className="space-y-6">
+              {/* Top Operational Context (Manrope Font) */}
+              <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
+                Our municipal crews and dispatchers work around the clock to safeguard city grids, deliver
+                fast emergency response, and build a safer community for all.
+              </p>
 
-            {/* 3 Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 border-b border-slate-200/90 pb-8">
-              {HERO_STATS.map((stat, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-brand-midnight tracking-tight">
-                    {stat.value}
+              {/* Giant 200+ Metric Display (Numbers in Instrument Serif, Labels in Manrope) */}
+              <div className="pt-0.5">
+                <div className="text-8xl sm:text-9xl lg:text-[116px] font-normal font-serif text-[#315CFF] leading-none tracking-tight">
+                  200+
+                </div>
+                <p className="text-xs sm:text-sm font-sans font-semibold uppercase tracking-wider text-text-muted dark:text-slate-400 mt-2.5">
+                  Municipal Wards & Active Infrastructure Zones Connected
+                </p>
+              </div>
+
+              {/* Supporting Operational Metrics Strip (Numbers in Instrument Serif, Labels in Manrope) */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 border-y border-slate-200/90 dark:border-slate-800/90 py-4 transition-colors">
+                <div className="space-y-0.5">
+                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+                    94.2%
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-brand-cobalt">
-                    {stat.label}
-                  </div>
-                  <div className="text-[11px] font-mono text-text-muted hidden sm:block">
-                    {stat.sublabel}
+                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">SLA Resolution</div>
+                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                    Within 24 hours
                   </div>
                 </div>
-              ))}
+                <div className="space-y-0.5 border-x border-slate-200/80 dark:border-slate-800/80 px-2 sm:px-3">
+                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+                    &lt; 18m
+                  </div>
+                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">Fast Dispatch</div>
+                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                    Emergency triage
+                  </div>
+                </div>
+                <div className="space-y-0.5 pl-1 sm:pl-2">
+                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+                    99.8%
+                  </div>
+                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">GPS Accuracy</div>
+                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                    Sub-meter verified
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Editorial Statement */}
-            <div className="space-y-4">
-              <p className="text-xl sm:text-2xl lg:text-[28px] font-normal leading-relaxed text-brand-midnight tracking-tight">
-                CivicPulse is a modern civic infrastructure partner helping municipalities manage city
-                grids more sustainably, accelerate repair turnarounds, and build resilient operations for the
-                long term.
-              </p>
-              <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
-                From sub-meter GPS duplicate detection to real-time mobile work orders and city leadership
-                scorecards, our end-to-end platform unifies citizens, dispatchers, and field technicians into one
-                accountable workflow.
-              </p>
+            {/* Bottom Visual Duo: Slider Photo Card + Dark Metric Card pinned at bottom line */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
+              {/* Photo Card with Pagination Dots */}
+              <div className="relative rounded-3xl overflow-hidden h-[195px] sm:h-[210px] shadow-md border-2 border-white dark:border-slate-800 bg-slate-900 group">
+                <Image
+                  src={SLIDES[activeSlide].image}
+                  alt={SLIDES[activeSlide].title}
+                  fill
+                  className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 30vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+                {/* Photo Caption Tag (Manrope Font) */}
+                <div className="absolute top-3.5 left-3.5">
+                  <span className="text-[10px] font-sans font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20">
+                    {SLIDES[activeSlide].tag}
+                  </span>
+                </div>
+
+                <div className="absolute bottom-7 left-3.5 right-3.5 text-white">
+                  <p className="text-xs sm:text-sm font-semibold font-sans leading-tight line-clamp-1">
+                    {SLIDES[activeSlide].title}
+                  </p>
+                </div>
+
+                {/* 3 Pagination Dots */}
+                <div className="absolute bottom-2.5 inset-x-0 flex items-center justify-center gap-1.5 z-10">
+                  {SLIDES.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveSlide(idx)}
+                      aria-label={`Go to slide ${idx + 1}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        activeSlide === idx
+                          ? 'w-6 bg-brand-yellow'
+                          : 'w-1.5 bg-white/50 hover:bg-white/80'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Dark Metric Card */}
+              <div className="rounded-3xl p-5 h-[195px] sm:h-[210px] bg-brand-midnight dark:bg-[#151D2A] text-white flex flex-col justify-between shadow-xl border border-white/10 relative overflow-hidden group">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-brand-yellow">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] font-sans font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                    <Activity size={11} className="animate-pulse" />
+                    <span>Live Audit</span>
+                  </div>
+                </div>
+
+                {/* Main Hero Stat: 5,000+ (Instrument Serif) & Description (Manrope) */}
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif tracking-tight text-white leading-none">
+                    5,000+
+                  </div>
+                  <p className="text-xs text-slate-300 font-sans leading-snug line-clamp-2">
+                    Emergency calls & civic issues handled every month.
+                  </p>
+                </div>
+
+                {/* Verified Footer Bar (Manrope Font) */}
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-sans text-brand-yellow/90">
+                  <span className="font-medium">Photo Verified</span>
+                  <span className="font-bold text-white">100% Audited</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Verdona "Our Trusted Partners" Logo Strip */}
-        <div className="pt-8 border-t border-slate-200/80">
-          <div className="text-center mb-6">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-muted">
-              Our Trusted Municipal Partners
-            </span>
-          </div>
+        {/* ======================================================== */}
+        {/* BOTTOM: "Our Trusted Partners" Logo Strip (Manrope Font) */}
+        {/* ======================================================== */}
+        <div className="pt-14 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
           <PartnersTicker />
         </div>
       </div>

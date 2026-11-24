@@ -4,8 +4,8 @@ import { CheckCircle2 } from 'lucide-react';
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-brand-midnight text-white border-b border-brand-midnight">
-      <div className="max-w-7xl mx-auto">
+    <section id="features" className="py-24 lg:py-32 bg-brand-midnight text-white border-b border-brand-midnight">
+      <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona's Dark Features Header */}
         <div className="anim-feature-header text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div>

@@ -21,19 +21,19 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
-      <div className="max-w-7xl mx-auto">
+    <section id="contact" className="py-24 lg:py-32 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
+      <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona's Contact Us Header */}
         <div className="text-center space-y-4 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
               Contact Us
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             Send Us A Message
           </h2>
-          <p className="text-base text-text-secondary max-w-xl mx-auto leading-relaxed">
+          <p className="text-base text-text-secondary dark:text-slate-300 max-w-xl mx-auto leading-relaxed transition-colors">
             Have questions about civic reporting, department integration, or municipal dispatch? We are here to help.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function ContactSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Left Column: Rounded Photo */}
           <div className="lg:col-span-5 anim-contact-img">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border-4 border-white bg-slate-900 group">
+            <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl border-4 border-white dark:border-slate-800 bg-slate-900 group">
               <Image
                 src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80"
                 alt="CivicPulse Operations Center"
@@ -67,23 +67,23 @@ export function ContactSection() {
 
           {/* Right Column: Clean White Form Card matching Verdona */}
           <div className="lg:col-span-7 anim-contact-form">
-            <div className="rounded-3xl bg-white border border-slate-200/90 p-8 sm:p-12 shadow-xl">
+            <div className="rounded-3xl bg-white dark:bg-[#1B2435] border border-slate-200/90 dark:border-slate-700/80 p-8 sm:p-12 shadow-xl transition-colors">
               {submitted ? (
                 <div className="py-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mx-auto">
                     <CheckCircle2 size={32} />
                   </div>
-                  <h3 className="text-2xl font-bold font-display text-brand-midnight">
+                  <h3 className="text-2xl font-bold font-display text-brand-midnight dark:text-white">
                     Message Dispatched Successfully
                   </h3>
-                  <p className="text-sm text-text-secondary max-w-sm mx-auto leading-relaxed">
+                  <p className="text-sm text-text-secondary dark:text-slate-300 max-w-sm mx-auto leading-relaxed">
                     Thank you for reaching out. A CivicPulse municipal operations officer will review your inquiry
                     and respond within 24 hours.
                   </p>
                   <Button
                     variant="outline"
                     onClick={() => setSubmitted(false)}
-                    className="rounded-full mt-4 px-6 border-slate-300 text-brand-midnight hover:bg-slate-50"
+                    className="rounded-full mt-4 px-6 border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     Send another message
                   </Button>
@@ -92,7 +92,7 @@ export function ContactSection() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="text-xs font-bold text-slate-700 mb-1.5 block font-sans">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block font-sans">
                         First Name
                       </label>
                       <input
@@ -101,11 +101,11 @@ export function ContactSection() {
                         placeholder="Jane"
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-700 mb-1.5 block font-sans">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block font-sans">
                         Last Name
                       </label>
                       <input
@@ -114,14 +114,14 @@ export function ContactSection() {
                         placeholder="Smith"
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="text-xs font-bold text-slate-700 mb-1.5 block font-sans">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block font-sans">
                         Email Address
                       </label>
                       <input
@@ -130,11 +130,11 @@ export function ContactSection() {
                         placeholder="testing@gmail.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-700 mb-1.5 block font-sans">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block font-sans">
                         Phone No
                       </label>
                       <input
@@ -143,13 +143,13 @@ export function ContactSection() {
                         placeholder="+880 1700-000000"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
+                        className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-700 mb-1.5 block font-sans">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block font-sans">
                       Project Details / Inquiry
                     </label>
                     <textarea
@@ -158,7 +158,7 @@ export function ContactSection() {
                       placeholder="Enter inquiry or municipal project details..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all resize-none"
+                      className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-cobalt transition-all resize-none"
                     />
                   </div>
 

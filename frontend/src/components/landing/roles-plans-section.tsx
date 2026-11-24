@@ -12,19 +12,19 @@ export function RolesPlansSection() {
   const dispatch = useDispatch();
 
   return (
-    <section id="portals" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
-      <div className="max-w-7xl mx-auto">
+    <section id="portals" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
+      <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona's 'Our Plans' */}
         <div className="anim-role-header text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
               Portals & Access
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             Our Dedicated Portals
           </h2>
-          <p className="text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-text-secondary dark:text-slate-300 leading-relaxed max-w-2xl mx-auto transition-colors">
             One connected city. Four dedicated operational portals. Seamless role-based access for citizens,
             dispatchers, field crews, and city leadership.
           </p>
@@ -41,7 +41,7 @@ export function RolesPlansSection() {
                 className={`anim-role-card relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${
                   isPopular
                     ? 'bg-brand-midnight text-white shadow-xl ring-2 ring-brand-yellow hover:shadow-[0_0_30px_rgba(255,212,71,0.3)]'
-                    : 'bg-white text-brand-midnight border border-slate-200 shadow-sm hover:shadow-md'
+                    : 'bg-white dark:bg-[#1B2435] text-brand-midnight dark:text-white border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md'
                 }`}
               >
                 {/* Popular / Core Dispatch Hub Badge */}

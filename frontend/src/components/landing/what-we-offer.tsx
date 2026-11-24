@@ -6,19 +6,19 @@ import { ArrowUpRight } from 'lucide-react';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
-      <div className="max-w-7xl mx-auto">
+    <section id="services" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
+      <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
         <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
               Services
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             What We Offer
           </h2>
-          <p className="text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base text-text-secondary dark:text-slate-300 leading-relaxed max-w-2xl mx-auto transition-colors">
             From damaged roads to overflowing drainage systems, report everyday problems affecting your
             neighborhood and bring them directly to the attention of municipal teams.
           </p>

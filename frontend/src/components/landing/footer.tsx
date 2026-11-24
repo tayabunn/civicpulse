@@ -6,8 +6,8 @@ import { BrandLogo } from '../ui/brand-logo';
 
 export function Footer() {
   return (
-    <footer className="bg-brand-midnight text-white pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
-      <div className="max-w-7xl mx-auto">
+    <footer className="bg-brand-midnight text-white pt-16 pb-12 border-t border-white/10">
+      <div className="w-[80%] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
           {/* Left Column: Brand Info */}
           <div className="lg:col-span-7 space-y-4">

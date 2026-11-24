@@ -6,17 +6,17 @@ import { TESTIMONIAL } from './data';
 
 export function TestimonialSection() {
   return (
-    <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite border-b border-brand-coolGray">
+    <section className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
       <div className="anim-testimonial-card max-w-4xl mx-auto text-center space-y-8">
         {/* Pill Badge matching Verdona */}
         <div>
-          <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 text-brand-midnight text-xs font-mono font-bold uppercase tracking-wider bg-white/70">
+          <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
             Testimonials
           </span>
         </div>
 
         {/* Large Quote in Instrument Serif Italic */}
-        <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-serif italic font-normal text-brand-midnight leading-relaxed max-w-3xl mx-auto">
+        <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-serif italic font-normal text-brand-midnight dark:text-white leading-relaxed max-w-3xl mx-auto transition-colors">
           "{TESTIMONIAL.quote}"
         </blockquote>
 
@@ -56,10 +56,10 @@ export function TestimonialSection() {
 
         {/* Author & Role in clean Manrope */}
         <div className="space-y-1">
-          <div className="font-display font-bold text-base text-brand-midnight">
+          <div className="font-display font-bold text-base text-brand-midnight dark:text-white transition-colors">
             {TESTIMONIAL.author}
           </div>
-          <div className="text-xs text-text-secondary font-medium">
+          <div className="text-xs text-text-secondary dark:text-slate-300 font-medium transition-colors">
             {TESTIMONIAL.role} • {TESTIMONIAL.organization}
           </div>
         </div>
