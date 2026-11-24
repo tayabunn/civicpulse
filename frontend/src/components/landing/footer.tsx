@@ -17,7 +17,7 @@ export function Footer() {
                 <span className="font-display font-extrabold text-xl tracking-tight text-white block leading-tight">
                   CIVICPULSE
                 </span>
-                <span className="text-[10px] font-mono text-brand-yellow uppercase tracking-widest block font-bold">
+                <span className="text-[10px] font-sans text-brand-yellow uppercase tracking-widest block font-bold">
                   Smart City Platform
                 </span>
               </div>
@@ -28,7 +28,7 @@ export function Footer() {
               every scale — from neighborhood communities to large-scale citywide operations.
             </p>
 
-            <div className="text-xs font-mono text-slate-400 pt-2">
+            <div className="text-xs font-sans text-slate-400 pt-2">
               Connected to Neon Cloud PostgreSQL • Dhaka Smart City Grid
             </div>
           </div>
@@ -36,7 +36,7 @@ export function Footer() {
           {/* Right Column: Quick Links */}
           <div className="lg:col-span-5 flex flex-col sm:flex-row gap-10 sm:gap-16">
             <div className="space-y-3">
-              <h5 className="font-mono text-xs font-bold uppercase tracking-wider text-brand-yellow">
+              <h5 className="font-sans text-xs font-bold uppercase tracking-wider text-brand-yellow">
                 Quick Links
               </h5>
               <ul className="space-y-2 text-sm text-slate-300">
@@ -74,7 +74,7 @@ export function Footer() {
             </div>
 
             <div className="space-y-3">
-              <h5 className="font-mono text-xs font-bold uppercase tracking-wider text-brand-yellow">
+              <h5 className="font-sans text-xs font-bold uppercase tracking-wider text-brand-yellow">
                 Operational Portals
               </h5>
               <ul className="space-y-2 text-sm text-slate-300">
@@ -109,7 +109,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar matching Verdona */}
-        <div className="pt-8 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 font-mono">
+        <div className="pt-8 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 font-sans">
           <p>© 2026 CivicPulse • All Rights Reserved</p>
           <p className="text-slate-400">
             Powered by <span className="text-brand-yellow font-bold">Signal City</span> Design System
