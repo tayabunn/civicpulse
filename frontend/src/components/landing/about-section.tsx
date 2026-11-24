@@ -131,9 +131,9 @@ export function AboutSection() {
           {/* ======================================================== */}
           <div className="lg:col-span-6 lg:border-r border-slate-200/90 dark:border-slate-800/90 lg:pr-12 xl:pr-16 flex flex-col justify-between space-y-7">
             <div className="space-y-6">
-              {/* Category Pill Badge (Title Case / CamelCase + Regular font weight) */}
+              {/* Category Pill Badge (Increased height + Transparent fill) */}
               <div>
-                <span className="inline-flex items-center justify-center px-4.5 h-8 sm:h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-xs sm:text-[13px] font-sans font-normal transition-colors">
+                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-xs font-sans font-normal transition-colors">
                   About Us
                 </span>
               </div>
