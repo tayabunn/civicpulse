@@ -133,7 +133,7 @@ export function AboutSection() {
             <div className="space-y-6">
               {/* Category Pill Badge (Increased height + Transparent fill) */}
               <div>
-                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm sm:text-base font-sans font-normal transition-colors">
+                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm font-sans font-normal transition-colors">
                   About Us
                 </span>
               </div>
