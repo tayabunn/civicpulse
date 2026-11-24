@@ -121,7 +121,7 @@ export function AboutSection() {
   return (
     <section
       id="about"
-      className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300 font-sans"
+      className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 font-sans"
     >
       <div className="w-[80%] mx-auto">
         {/* Main 2-Column Split Grid - items-stretch guarantees equal column height */}
