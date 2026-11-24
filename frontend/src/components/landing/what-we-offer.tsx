@@ -11,14 +11,14 @@ export function WhatWeOffer() {
         {/* Section Heading matching Verdona */}
         <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
           <div>
-            <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm font-sans font-normal transition-colors">
+            <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
               Services
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             What We Offer
           </h2>
-          <p className="text-base text-text-secondary dark:text-slate-300 leading-relaxed max-w-2xl mx-auto transition-colors">
+          <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
             From damaged roads to overflowing drainage systems, report everyday problems affecting your
             neighborhood and bring them directly to the attention of municipal teams.
           </p>
@@ -30,7 +30,7 @@ export function WhatWeOffer() {
             <Link
               key={item.id}
               href="/citizen/create"
-              className="anim-offer-card group relative rounded-3xl overflow-hidden aspect-[4/5] sm:aspect-[3/4] bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-6 sm:p-7 active:scale-[0.98]"
+              className="anim-offer-card group relative rounded-3xl overflow-hidden aspect-[1/1] sm:aspect-[4/3.3] bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
             >
               {/* Full-Bleed Card Image */}
               <Image
@@ -50,23 +50,23 @@ export function WhatWeOffer() {
                   {item.tag}
                 </span>
 
-                <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-brand-midnight transition-colors duration-200">
-                  <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-brand-midnight transition-colors duration-200">
+                  <ArrowUpRight size={17} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
               {/* Bottom Row: Title & Subtitle */}
-              <div className="relative z-10 space-y-2">
-                <div className="text-[11px] font-mono text-brand-yellow uppercase tracking-wider font-bold">
+              <div className="relative z-10 space-y-1.5">
+                <div className="text-[10px] sm:text-[11px] font-mono text-brand-yellow uppercase tracking-wider font-bold">
                   {item.category}
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black font-display text-white leading-snug group-hover:text-brand-yellow transition-colors">
+                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug group-hover:text-brand-yellow transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed line-clamp-2">
+                <p className="text-xs sm:text-[13px] text-slate-200 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
-                <div className="pt-2 text-xs font-bold text-white/90 underline decoration-brand-yellow decoration-2 underline-offset-4 flex items-center gap-1">
+                <div className="pt-1.5 text-xs font-bold text-white/90 underline decoration-brand-yellow decoration-2 underline-offset-4 flex items-center gap-1">
                   <span>Report in this category →</span>
                 </div>
               </div>
