@@ -4,8 +4,24 @@ import { CheckCircle2 } from 'lucide-react';
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-24 lg:py-32 bg-brand-midnight text-white border-b border-brand-midnight">
-      <div className="w-[80%] mx-auto">
+    <section id="features" className="relative pt-24 pb-24 lg:pt-32 lg:pb-32 bg-brand-midnight text-white border-b border-brand-midnight overflow-hidden">
+      {/* Top Curvy Shape matching Navbar (White) */}
+      <div className="absolute top-0 inset-x-0 w-full pointer-events-none overflow-hidden leading-none z-10">
+        <svg
+          viewBox="0 0 992 52"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-12 sm:h-16 lg:h-20 drop-shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0H992H937.518C910.429 0 884.499 10.9901 865.66 30.456L859.547 36.772C850.128 46.5049 837.163 52 823.618 52H164.801C150.309 52 136.541 45.6684 127.108 34.6667C108.244 12.6631 80.7071 0 51.7238 0H0Z"
+            className="fill-white"
+          />
+        </svg>
+      </div>
+
+      <div className="relative z-10 w-[80%] mx-auto">
         {/* Section Heading matching Verdona's Dark Features Header */}
         <div className="anim-feature-header text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div>

@@ -6,7 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300 overflow-hidden">
+    <section id="services" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden">
       <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
         <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
