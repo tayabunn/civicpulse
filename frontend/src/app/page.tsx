@@ -142,19 +142,24 @@ export default function LandingPage() {
       const servicesTrack = document.querySelector('#services-track') as HTMLElement;
 
       if (servicesSection && servicesTrack) {
-        const getInitialOffset = () => {
+        const getInitialX = () => {
           const firstCard = servicesTrack.querySelector('.anim-offer-card') as HTMLElement;
           const cardWidth = firstCard ? firstCard.offsetWidth : 400;
           return Math.max(0, window.innerWidth * 0.8 - cardWidth);
         };
 
-        const getTotalScrollDistance = () => {
+        const getFinalX = () => {
           const cards = servicesTrack.querySelectorAll('.anim-offer-card');
-          const firstCard = cards[0] as HTMLElement;
-          const cardWidth = firstCard ? firstCard.offsetWidth : 400;
-          const gap = parseFloat(window.getComputedStyle(servicesTrack).gap) || 32;
-          // Travel exactly enough so the last card arrives at the right boundary
-          return (cards.length - 1) * (cardWidth + gap);
+          const lastCard = cards[cards.length - 1] as HTMLElement;
+          if (!lastCard) return 0;
+          // Offset of last card right edge from track start:
+          const lastCardRightRel = lastCard.offsetLeft + lastCard.offsetWidth;
+          // When x = window.innerWidth - lastCardRightRel, last card right edge aligns with right screen edge (0 right space)
+          return window.innerWidth - lastCardRightRel;
+        };
+
+        const getTotalScrollDistance = () => {
+          return Math.max(100, getInitialX() - getFinalX());
         };
 
         const holdBuffer = 700; // Generous scroll pause so Main Features does not immediately rise up
@@ -172,14 +177,14 @@ export default function LandingPage() {
           },
         });
 
-        // 1. Smooth horizontal glide of cards from right to left
+        // 1. Smooth horizontal glide of cards from right to left until last card is flush on the right edge
         servicesTl.fromTo(
           servicesTrack,
           {
-            x: () => getInitialOffset(),
+            x: () => getInitialX(),
           },
           {
-            x: () => getInitialOffset() - getTotalScrollDistance(),
+            x: () => getFinalX(),
             ease: 'none',
             duration: 1,
           }
@@ -263,59 +268,7 @@ export default function LandingPage() {
         },
       });
 
-      // 6. Live Case Telemetry Spotlight & Timeline Nodes
-      gsap.fromTo(
-        '.anim-spotlight-header',
-        { opacity: 0, y: 25 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          clearProps: 'all',
-          scrollTrigger: {
-            trigger: '#telemetry',
-            start: 'top 90%',
-            once: true,
-          },
-        }
-      );
-
-      gsap.fromTo(
-        '.anim-spotlight-card',
-        { opacity: 0, y: 35 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: 'power3.out',
-          clearProps: 'all',
-          scrollTrigger: {
-            trigger: '#telemetry',
-            start: 'top 85%',
-            once: true,
-          },
-        }
-      );
-
-      ScrollTrigger.batch('.anim-timeline-node', {
-        start: 'top 90%',
-        once: true,
-        onEnter: (batch) => {
-          gsap.fromTo(
-            batch,
-            { opacity: 0, x: -25 },
-            {
-              opacity: 1,
-              x: 0,
-              duration: 0.5,
-              stagger: 0.08,
-              ease: 'power2.out',
-              clearProps: 'all',
-            }
-          );
-        },
-      });
+      // 6. Live Case Telemetry Spotlight handles its own scoped useGSAP choreography inside LiveCaseSpotlight
 
       // 7. Testimonial Quote Scale & Fade
       gsap.fromTo(
@@ -419,7 +372,7 @@ export default function LandingPage() {
 
       // Safety safeguard: Ensure cards are never left invisible under any circumstance
       const safetyTimer = setTimeout(() => {
-        gsap.to('.anim-feature-card, .anim-role-card, .anim-spotlight-card, .anim-faq-list', {
+        gsap.to('.anim-feature-card, .anim-role-card, .anim-faq-list', {
           opacity: 1,
           y: 0,
           scale: 1,

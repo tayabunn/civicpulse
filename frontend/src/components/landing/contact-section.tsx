@@ -26,7 +26,7 @@ export function ContactSection() {
         {/* Section Heading matching Verdona's Contact Us Header */}
         <div className="text-center space-y-4 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
+            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-sans font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
               Contact Us
             </span>
           </div>
@@ -52,13 +52,13 @@ export function ContactSection() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight/80 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 text-white">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-brand-yellow font-bold block mb-1">
+                <span className="text-[10px] font-sans uppercase tracking-widest text-brand-yellow font-bold block mb-1">
                   Dhaka Municipal Headquarters
                 </span>
                 <p className="text-sm font-semibold leading-snug text-white/95">
                   Central Operations & Rapid Infrastructure Response Unit
                 </p>
-                <div className="mt-3 flex items-center gap-2 text-xs font-mono text-slate-300">
+                <div className="mt-3 flex items-center gap-2 text-xs font-sans text-slate-300">
                   <span>Hotline: +880 (02) 988-1024</span>
                 </div>
               </div>
