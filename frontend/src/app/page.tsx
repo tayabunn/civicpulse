@@ -168,9 +168,10 @@ export default function LandingPage() {
             scrollTrigger: {
               trigger: servicesSection,
               start: 'top top',
-              end: () => `+=${Math.max(900, getTotalScrollDistance() * 0.85)}`,
+              end: () => `+=${getTotalScrollDistance()}`,
               pin: true,
-              scrub: 1.2,
+              pinSpacing: true,
+              scrub: 1,
               anticipatePin: 1,
               invalidateOnRefresh: true,
             },
