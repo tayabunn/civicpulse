@@ -212,31 +212,37 @@ export function AboutSection() {
               </div>
 
               {/* Supporting Operational Metrics Strip with Verdona Count-Up Animation */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-200/90 dark:border-slate-800/90 py-4 transition-colors">
-                <div className="space-y-0.5">
-                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+              <div className="grid grid-cols-3 gap-3 sm:gap-6 border-t border-slate-200/90 dark:border-slate-800/90 py-5 transition-colors">
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
                     <CountUpNumber value={94.2} decimals={1} suffix="%" duration={1800} />
                   </div>
-                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">SLA Resolution</div>
-                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                  <div className="text-sm sm:text-base font-bold font-sans text-[#315CFF] mt-1.5 leading-tight">
+                    SLA Resolution
+                  </div>
+                  <div className="text-xs sm:text-sm font-sans font-medium text-text-muted dark:text-slate-400 leading-snug">
                     Within 24 hours
                   </div>
                 </div>
-                <div className="space-y-0.5 border-x border-slate-200/80 dark:border-slate-800/80 px-2 sm:px-3">
-                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+                <div className="space-y-1 border-x border-slate-200/80 dark:border-slate-800/80 px-2.5 sm:px-4">
+                  <div className="text-3xl sm:text-4xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
                     <CountUpNumber value={18} prefix="< " suffix="m" duration={1800} />
                   </div>
-                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">Fast Dispatch</div>
-                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                  <div className="text-sm sm:text-base font-bold font-sans text-[#315CFF] mt-1.5 leading-tight">
+                    Fast Dispatch
+                  </div>
+                  <div className="text-xs sm:text-sm font-sans font-medium text-text-muted dark:text-slate-400 leading-snug">
                     Emergency triage
                   </div>
                 </div>
-                <div className="space-y-0.5 pl-1 sm:pl-2">
-                  <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
+                <div className="space-y-1 pl-1.5 sm:pl-3">
+                  <div className="text-3xl sm:text-4xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
                     <CountUpNumber value={99.8} decimals={1} suffix="%" duration={1800} />
                   </div>
-                  <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">GPS Accuracy</div>
-                  <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
+                  <div className="text-sm sm:text-base font-bold font-sans text-[#315CFF] mt-1.5 leading-tight">
+                    GPS Accuracy
+                  </div>
+                  <div className="text-xs sm:text-sm font-sans font-medium text-text-muted dark:text-slate-400 leading-snug">
                     Sub-meter verified
                   </div>
                 </div>
