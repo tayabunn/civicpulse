@@ -133,7 +133,7 @@ export function AboutSection() {
             <div className="space-y-6">
               {/* Category Pill Badge (Increased height + Transparent fill) */}
               <div>
-                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-normal transition-colors">
+                <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
                   About Us
                 </span>
               </div>
@@ -250,9 +250,9 @@ export function AboutSection() {
             </div>
 
             {/* Bottom Visual Duo: Slider Photo Card + Dark Metric Card pinned at bottom line */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1 mt-auto">
               {/* Photo Card with Pagination Dots */}
-              <div className="relative rounded-3xl overflow-hidden h-[195px] sm:h-[210px] shadow-md border-2 border-white dark:border-slate-800 bg-slate-900 group">
+              <div className="relative rounded-3xl overflow-hidden h-[220px] sm:h-[245px] shadow-md border-2 border-white dark:border-slate-800 bg-slate-900 group">
                 <Image
                   src={SLIDES[activeSlide].image}
                   alt={SLIDES[activeSlide].title}
@@ -294,7 +294,7 @@ export function AboutSection() {
               </div>
 
               {/* Dark Metric Card with Verdona Count-Up Animation */}
-              <div className="rounded-3xl p-5 h-[195px] sm:h-[210px] bg-brand-midnight dark:bg-[#151D2A] text-white flex flex-col justify-between shadow-xl border border-white/10 relative overflow-hidden group">
+              <div className="rounded-3xl p-5 h-[220px] sm:h-[245px] bg-brand-midnight dark:bg-[#151D2A] text-white flex flex-col justify-between shadow-xl border border-white/10 relative overflow-hidden group">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-brand-yellow">
