@@ -323,7 +323,7 @@ export function AboutSection() {
         {/* ======================================================== */}
         {/* BOTTOM: "Our Trusted Partners" Logo Strip (Manrope Font) */}
         {/* ======================================================== */}
-        <div className="pt-14 border-t border-slate-200/80 dark:border-slate-800 transition-colors">
+        <div className="pt-10 transition-colors">
           <PartnersTicker />
         </div>
       </div>
