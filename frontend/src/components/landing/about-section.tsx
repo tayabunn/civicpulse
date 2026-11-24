@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '../ui/button';
@@ -9,21 +9,103 @@ import { PartnersTicker } from './partners-ticker';
 
 const SLIDES = [
   {
-    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+    image: '/about-road-works.jpg',
     title: 'On-Ground Road & Civil Works',
     tag: 'Rapid Field Crew',
   },
   {
-    image: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=800&q=80',
+    image: '/about-emergency-response.jpg',
     title: 'Emergency Response & Safety',
     tag: 'Municipal Patrol',
   },
   {
-    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80',
+    image: '/about-gis-dispatch.jpg',
     title: 'Central GIS Dispatch Operations',
     tag: 'City Command',
   },
 ];
+
+/**
+ * Verdona-Style Dynamic Number Count-Up Effect on Scroll
+ * Decelerates smoothly with easeOutExpo curve matching Verdona Framer animation.
+ */
+interface CountUpNumberProps {
+  value: number;
+  duration?: number;
+  decimals?: number;
+  prefix?: string;
+  suffix?: string;
+  formatComma?: boolean;
+}
+
+function CountUpNumber({
+  value,
+  duration = 2000,
+  decimals = 0,
+  prefix = '',
+  suffix = '',
+  formatComma = false,
+}: CountUpNumberProps) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    // Graceful fallback for SSR and non-browser test runners
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      setDisplayValue(value);
+      return;
+    }
+
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const startTime = performance.now();
+
+          const update = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Verdona / Framer signature easeOutExpo curve
+            const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+            const current = ease * value;
+            setDisplayValue(current);
+
+            if (progress < 1) {
+              requestAnimationFrame(update);
+            } else {
+              setDisplayValue(value);
+            }
+          };
+
+          requestAnimationFrame(update);
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [value, duration]);
+
+  const formattedNumber =
+    decimals > 0
+      ? displayValue.toFixed(decimals)
+      : formatComma
+      ? Math.round(displayValue).toLocaleString()
+      : Math.round(displayValue).toString();
+
+  return (
+    <span ref={ref} className="inline-block tabular-nums transition-opacity duration-300">
+      {prefix}
+      {formattedNumber}
+      {suffix}
+    </span>
+  );
+}
 
 export function AboutSection() {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -119,21 +201,21 @@ export function AboutSection() {
                 fast emergency response, and build a safer community for all.
               </p>
 
-              {/* Giant 200+ Metric Display (Numbers in Instrument Serif, Labels in Manrope) */}
+              {/* Giant 200+ Metric Display with Verdona Count-Up Animation */}
               <div className="pt-0.5">
                 <div className="text-8xl sm:text-9xl lg:text-[116px] font-normal font-serif text-[#315CFF] leading-none tracking-tight">
-                  200+
+                  <CountUpNumber value={200} suffix="+" duration={1900} />
                 </div>
                 <p className="text-xs sm:text-sm font-sans font-semibold uppercase tracking-wider text-text-muted dark:text-slate-400 mt-2.5">
                   Municipal Wards & Active Infrastructure Zones Connected
                 </p>
               </div>
 
-              {/* Supporting Operational Metrics Strip (Numbers in Instrument Serif, Labels in Manrope) */}
+              {/* Supporting Operational Metrics Strip with Verdona Count-Up Animation */}
               <div className="grid grid-cols-3 gap-2 sm:gap-4 border-y border-slate-200/90 dark:border-slate-800/90 py-4 transition-colors">
                 <div className="space-y-0.5">
                   <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
-                    94.2%
+                    <CountUpNumber value={94.2} decimals={1} suffix="%" duration={1800} />
                   </div>
                   <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">SLA Resolution</div>
                   <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
@@ -142,7 +224,7 @@ export function AboutSection() {
                 </div>
                 <div className="space-y-0.5 border-x border-slate-200/80 dark:border-slate-800/80 px-2 sm:px-3">
                   <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
-                    &lt; 18m
+                    <CountUpNumber value={18} prefix="< " suffix="m" duration={1800} />
                   </div>
                   <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">Fast Dispatch</div>
                   <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
@@ -151,7 +233,7 @@ export function AboutSection() {
                 </div>
                 <div className="space-y-0.5 pl-1 sm:pl-2">
                   <div className="text-2xl sm:text-3xl font-normal font-serif text-brand-midnight dark:text-white leading-none">
-                    99.8%
+                    <CountUpNumber value={99.8} decimals={1} suffix="%" duration={1800} />
                   </div>
                   <div className="text-xs font-bold font-sans text-[#315CFF] mt-1">GPS Accuracy</div>
                   <div className="text-[11px] font-sans font-medium text-text-muted dark:text-slate-400 hidden sm:block">
@@ -205,7 +287,7 @@ export function AboutSection() {
                 </div>
               </div>
 
-              {/* Dark Metric Card */}
+              {/* Dark Metric Card with Verdona Count-Up Animation */}
               <div className="rounded-3xl p-5 h-[195px] sm:h-[210px] bg-brand-midnight dark:bg-[#151D2A] text-white flex flex-col justify-between shadow-xl border border-white/10 relative overflow-hidden group">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -218,10 +300,10 @@ export function AboutSection() {
                   </div>
                 </div>
 
-                {/* Main Hero Stat: 5,000+ (Instrument Serif) & Description (Manrope) */}
+                {/* Main Hero Stat: 5,000+ with Verdona Count-Up (Instrument Serif) & Description (Manrope) */}
                 <div className="space-y-1">
                   <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif tracking-tight text-white leading-none">
-                    5,000+
+                    <CountUpNumber value={5000} formatComma={true} suffix="+" duration={2100} />
                   </div>
                   <p className="text-xs text-slate-300 font-sans leading-snug line-clamp-2">
                     Emergency calls & civic issues handled every month.
