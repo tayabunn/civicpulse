@@ -67,7 +67,7 @@ const config: Config = {
         display: ["Manrope", "sans-serif"],
         sans: ["Manrope", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         serif: ["Instrument Serif", "Georgia", "serif"],
-        mono: ["IBM Plex Mono", "monospace"],
+        mono: ["Manrope", "sans-serif"],
       },
       borderRadius: {
         sm: "6px",
