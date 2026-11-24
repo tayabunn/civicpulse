@@ -6,10 +6,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden">
+    <section id="services" className="relative py-16 sm:py-20 lg:py-24 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-center">
       <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
-        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
+        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-10 sm:mb-12">
           <div>
             <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
               Services
@@ -23,14 +23,19 @@ export function WhatWeOffer() {
             neighborhood and bring them directly to the attention of municipal teams.
           </p>
         </div>
+      </div>
 
-        {/* Verdona 3x2 Signature Photo Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      {/* 1-Line Horizontal Cards Track */}
+      <div className="w-full overflow-hidden">
+        <div
+          id="services-track"
+          className="flex flex-nowrap gap-6 sm:gap-8 pl-[10vw] pr-[10vw] will-change-transform"
+        >
           {WHAT_WE_OFFER.map((item) => (
             <Link
               key={item.id}
               href="/citizen/create"
-              className="anim-offer-card group relative rounded-3xl overflow-hidden aspect-[1/1] sm:aspect-[4/3.3] bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
+              className="anim-offer-card group relative rounded-3xl overflow-hidden w-[310px] sm:w-[350px] md:w-[380px] lg:w-[420px] aspect-[4/3.3] shrink-0 bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
             >
               {/* Full-Bleed Card Image */}
               <Image
@@ -38,7 +43,7 @@ export function WhatWeOffer() {
                 alt={item.title}
                 fill
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 opacity-90"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 320px, 420px"
               />
 
               {/* Multi-Stop Dark Gradient Overlay for optimal text readability */}

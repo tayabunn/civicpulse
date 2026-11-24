@@ -103,7 +103,7 @@ export default function LandingPage() {
         }
       );
 
-      // 3. What We Offer (Verdona 3x2 Photo Grid) Stagger Reveal on Scroll
+      // 3. What We Offer (Verdona 1-Line Photo Cards) Stagger Reveal & Pinned Horizontal Scroll
       gsap.fromTo(
         '.anim-offer-header',
         { opacity: 0, y: 25 },
@@ -115,33 +115,51 @@ export default function LandingPage() {
           clearProps: 'all',
           scrollTrigger: {
             trigger: '#services',
-            start: 'top 90%',
+            start: 'top 85%',
             once: true,
           },
         }
       );
 
-      // 3. What We Offer Cards Right-to-Left Reveal on Scroll
-      ScrollTrigger.batch('.anim-offer-card', {
-        start: 'top 85%',
-        once: true,
-        interval: 0.1,
-        onEnter: (batch) => {
-          gsap.fromTo(
-            batch,
-            { opacity: 0, x: 130, scale: 0.96 },
-            {
-              opacity: 1,
-              x: 0,
-              scale: 1,
-              duration: 0.85,
-              stagger: 0.15,
-              ease: 'power3.out',
-              clearProps: 'transform,opacity',
-            }
-          );
-        },
-      });
+      gsap.fromTo(
+        '.anim-offer-card',
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#services',
+            start: 'top 85%',
+            once: true,
+          },
+        }
+      );
+
+      const servicesSection = document.querySelector('#services') as HTMLElement;
+      const servicesTrack = document.querySelector('#services-track') as HTMLElement;
+
+      if (servicesSection && servicesTrack) {
+        const getScrollDistance = () => {
+          return Math.max(0, servicesTrack.scrollWidth - window.innerWidth);
+        };
+
+        gsap.to(servicesTrack, {
+          x: () => -getScrollDistance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: servicesSection,
+            start: 'top top',
+            end: () => `+=${Math.max(1000, getScrollDistance() * 1.15)}`,
+            pin: true,
+            scrub: 1.2,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+      }
 
       // 4. Main Features Stagger Reveal on Scroll
       gsap.fromTo(
