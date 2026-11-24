@@ -11,7 +11,7 @@ export function WhatWeOffer() {
         {/* Section Heading matching Verdona */}
         <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
+            <span className="inline-flex items-center justify-center px-4.5 h-8 sm:h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-xs sm:text-[13px] font-sans font-normal transition-colors">
               Services
             </span>
           </div>
