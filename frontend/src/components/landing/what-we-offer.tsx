@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { WHAT_WE_OFFER } from './data';
-import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function WhatWeOffer() {
@@ -78,15 +78,14 @@ export function WhatWeOffer() {
         </div>
       </div>
 
-      {/* Centered "More Services" Action Button */}
+      {/* Centered "More Services" Action Button (Exact same style and font size as Navbar Log In) */}
       <div className="w-full flex justify-center items-center mt-10 sm:mt-12">
         <Link href="/citizen/create">
           <Button
-            size="lg"
-            className="h-12 px-8 rounded-full bg-[#315CFF] hover:bg-[#254bdb] text-white font-medium text-sm shadow-md hover:shadow-xl transition-all duration-200 flex items-center gap-2 group active:scale-[0.98]"
+            size="sm"
+            className="font-medium font-sans bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] transition-all rounded-full px-6 h-11 text-base shadow-md"
           >
-            <span>More Services</span>
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            More Services
           </Button>
         </Link>
       </div>
