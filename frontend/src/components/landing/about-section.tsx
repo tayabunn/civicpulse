@@ -260,11 +260,11 @@ export function AboutSection() {
                   className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 30vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/35" />
 
-                {/* Photo Caption Tag (Manrope Font) */}
+                {/* Photo Caption Tag (Dark High-Contrast Badge) */}
                 <div className="absolute top-3.5 left-3.5">
-                  <span className="text-[10px] font-sans font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20">
+                  <span className="text-[10px] sm:text-[11px] font-sans font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md text-white border border-white/20 shadow-md">
                     {SLIDES[activeSlide].tag}
                   </span>
                 </div>
