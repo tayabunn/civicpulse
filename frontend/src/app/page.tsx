@@ -103,7 +103,7 @@ export default function LandingPage() {
         }
       );
 
-      // 3. What We Offer (Verdona 3x2 Photo Grid) Stagger Reveal on Scroll
+      // 3. What We Offer Header Fade
       gsap.fromTo(
         '.anim-offer-header',
         { opacity: 0, y: 25 },
@@ -120,26 +120,6 @@ export default function LandingPage() {
           },
         }
       );
-
-      ScrollTrigger.batch('.anim-offer-card', {
-        start: 'top 92%',
-        once: true,
-        onEnter: (batch) => {
-          gsap.fromTo(
-            batch,
-            { opacity: 0, y: 45, scale: 0.97 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.65,
-              stagger: 0.08,
-              ease: 'power3.out',
-              clearProps: 'all',
-            }
-          );
-        },
-      });
 
       // 4. Main Features Stagger Reveal on Scroll
       gsap.fromTo(
@@ -371,7 +351,7 @@ export default function LandingPage() {
 
       // Safety safeguard: Ensure cards are never left invisible under any circumstance
       const safetyTimer = setTimeout(() => {
-        gsap.to('.anim-offer-card, .anim-feature-card, .anim-role-card, .anim-spotlight-card, .anim-faq-list', {
+        gsap.to('.anim-feature-card, .anim-role-card, .anim-spotlight-card, .anim-faq-list', {
           opacity: 1,
           y: 0,
           scale: 1,
