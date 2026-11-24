@@ -153,11 +153,27 @@ export default function LandingPage() {
           const firstCard = cards[0] as HTMLElement;
           const cardWidth = firstCard ? firstCard.offsetWidth : 400;
           const gap = parseFloat(window.getComputedStyle(servicesTrack).gap) || 32;
-          // Travel exactly enough so the last card arrives at the right boundary, then release pin
+          // Travel exactly enough so the last card arrives at the right boundary
           return (cards.length - 1) * (cardWidth + gap);
         };
 
-        gsap.fromTo(
+        const holdBuffer = 700; // Generous scroll pause so Main Features does not immediately rise up
+
+        const servicesTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: servicesSection,
+            start: 'top top',
+            end: () => `+=${getTotalScrollDistance() + holdBuffer}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // 1. Smooth horizontal glide of cards from right to left
+        servicesTl.fromTo(
           servicesTrack,
           {
             x: () => getInitialOffset(),
@@ -165,18 +181,12 @@ export default function LandingPage() {
           {
             x: () => getInitialOffset() - getTotalScrollDistance(),
             ease: 'none',
-            scrollTrigger: {
-              trigger: servicesSection,
-              start: 'top top',
-              end: () => `+=${getTotalScrollDistance()}`,
-              pin: true,
-              pinSpacing: true,
-              scrub: 1,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-            },
+            duration: 1,
           }
         );
+
+        // 2. Hold state: keeps section pinned and cards in place so Main Features does NOT rise up
+        servicesTl.to({}, { duration: 0.4 });
       }
 
       // 4. Main Features Stagger Reveal on Scroll

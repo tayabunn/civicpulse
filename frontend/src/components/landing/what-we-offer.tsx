@@ -7,19 +7,19 @@ import { Button } from '../ui/button';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="relative py-16 sm:py-20 lg:py-24 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-center">
+    <section id="services" className="relative pt-10 sm:pt-12 lg:pt-16 pb-12 sm:pb-16 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-center">
       <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
-        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-10 sm:mb-12">
+        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-2.5 mb-8 sm:mb-10">
           <div>
-            <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
+            <span className="inline-flex items-center justify-center px-5 h-8 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-sm font-sans font-medium transition-colors">
               Services
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             What We Offer
           </h2>
-          <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
+          <p className="text-sm sm:text-base text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors max-w-2xl mx-auto">
             From damaged roads to overflowing drainage systems, report everyday problems affecting your
             neighborhood and bring them directly to the attention of municipal teams.
           </p>
@@ -36,7 +36,7 @@ export function WhatWeOffer() {
             <Link
               key={item.id}
               href="/citizen/create"
-              className="anim-offer-card group relative rounded-3xl overflow-hidden w-[310px] sm:w-[350px] md:w-[380px] lg:w-[420px] aspect-[4/3.3] shrink-0 bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
+              className="anim-offer-card group relative rounded-3xl overflow-hidden w-[290px] sm:w-[330px] md:w-[360px] lg:w-[390px] aspect-[4/3.3] shrink-0 bg-slate-900 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 active:scale-[0.98]"
             >
               {/* Full-Bleed Card Image */}
               <Image
@@ -79,7 +79,7 @@ export function WhatWeOffer() {
       </div>
 
       {/* Centered "More Services" Action Button (Exact same style and font size as Navbar Log In) */}
-      <div className="w-full flex justify-center items-center mt-10 sm:mt-12">
+      <div className="w-full flex justify-center items-center mt-8 sm:mt-10">
         <Link href="/citizen/create">
           <Button
             size="sm"
