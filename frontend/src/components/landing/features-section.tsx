@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative pt-24 pb-24 lg:pt-32 lg:pb-32 bg-brand-midnight text-white border-b border-brand-midnight overflow-hidden">
+    <section id="features" className="relative -mt-8 sm:-mt-12 lg:-mt-16 pt-20 pb-24 lg:pt-28 lg:pb-32 bg-brand-midnight text-white border-b border-brand-midnight overflow-hidden">
       {/* Top Curvy Shape matching Navbar (White) */}
       <div className="absolute top-0 inset-x-0 w-full pointer-events-none overflow-hidden leading-none z-10">
         <svg

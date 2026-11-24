@@ -6,10 +6,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 export function WhatWeOffer() {
   return (
-    <section id="services" className="relative py-16 sm:py-20 lg:py-24 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden min-h-screen flex flex-col justify-center">
+    <section id="services" className="relative pt-14 sm:pt-16 lg:pt-20 pb-6 sm:pb-8 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 overflow-hidden">
       <div className="w-[80%] mx-auto">
         {/* Section Heading matching Verdona */}
-        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-10 sm:mb-12">
+        <div className="anim-offer-header text-center max-w-3xl mx-auto space-y-3 mb-8 sm:mb-10">
           <div>
             <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-16px font-sans font-medium transition-colors">
               Services
