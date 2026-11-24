@@ -8,119 +8,113 @@ import { ROLE_PLANS } from './data';
 import { Button } from '../ui/button';
 import { Check, ArrowRight } from 'lucide-react';
 
+const PORTAL_THEMES = [
+  {
+    bg: '#DCECE4', // Soft Sage Mint (matching Main Features Card 01)
+    muted: 'text-[#2D4039]',
+    checkColor: 'text-[#DCECE4]',
+  },
+  {
+    bg: '#F2D27A', // Warm Honey Gold (matching Main Features Card 02)
+    muted: 'text-[#3D3214]',
+    checkColor: 'text-[#F2D27A]',
+  },
+  {
+    bg: '#DCE6FF', // Soft Periwinkle Ice (matching Main Features Card 03)
+    muted: 'text-[#2B3B5E]',
+    checkColor: 'text-[#DCE6FF]',
+  },
+  {
+    bg: '#E2FB6C', // Soft Lime Volt (matching Main Features Card 04)
+    muted: 'text-[#2D3816]',
+    checkColor: 'text-[#E2FB6C]',
+  },
+];
+
 export function RolesPlansSection() {
   const dispatch = useDispatch();
 
   return (
-    <section id="portals" className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300">
+    <section
+      id="portals"
+      className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] border-b border-brand-coolGray dark:border-white/10 transition-colors duration-300 font-sans"
+    >
       <div className="w-[80%] mx-auto">
-        {/* Section Heading matching Verdona's 'Our Plans' */}
-        <div className="anim-role-header text-center max-w-3xl mx-auto space-y-4 mb-16">
+        {/* Section Header matching What We Offer */}
+        <div className="anim-role-header text-center max-w-3xl mx-auto space-y-2 mb-16">
           <div>
-            <span className="inline-block px-3.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-brand-midnight dark:text-slate-200 text-xs font-mono font-bold uppercase tracking-wider bg-white/70 dark:bg-slate-800/80 transition-colors">
-              Portals & Access
+            <span className="inline-flex items-center justify-center px-5 h-9 rounded-full border border-[#315CFF]/35 dark:border-[#315CFF]/45 bg-transparent text-[#315CFF] dark:text-[#6280FF] text-base font-sans font-medium transition-colors">
+              Portals &amp; Access
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-brand-midnight dark:text-white tracking-tight transition-colors">
             Our Dedicated Portals
           </h2>
-          <p className="text-base text-text-secondary dark:text-slate-300 leading-relaxed max-w-2xl mx-auto transition-colors">
+          <p className="text-base sm:text-lg text-text-secondary dark:text-slate-300 leading-relaxed font-sans font-normal transition-colors">
             One connected city. Four dedicated operational portals. Seamless role-based access for citizens,
             dispatchers, field crews, and city leadership.
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
+        {/* 4 Cards Grid — Exact reference width (w-[80%]) & card dimensions with Main Features minimal style */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {ROLE_PLANS.map((plan) => {
-            const isPopular = plan.popular;
+          {ROLE_PLANS.map((plan, index) => {
+            const theme = PORTAL_THEMES[index % PORTAL_THEMES.length];
+            const cardNumber = String(index + 1).padStart(2, '0');
 
             return (
               <div
                 key={plan.role}
-                className={`anim-role-card relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${
-                  isPopular
-                    ? 'bg-brand-midnight text-white shadow-xl ring-2 ring-brand-yellow hover:shadow-[0_0_30px_rgba(255,212,71,0.3)]'
-                    : 'bg-white dark:bg-[#1B2435] text-brand-midnight dark:text-white border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md'
-                }`}
+                style={{ backgroundColor: theme.bg, color: '#142038' }}
+                className="anim-role-card group relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-[0_8px_28px_rgba(20,32,56,0.06)] hover:shadow-[0_18px_40px_rgba(20,32,56,0.12)] transition-all duration-300 hover:-translate-y-1"
               >
-                {/* Popular / Core Dispatch Hub Badge */}
-                {isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-yellow text-brand-midnight text-[10px] font-mono font-bold uppercase tracking-wider">
-                    Core Dispatch Hub
-                  </div>
-                )}
-
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full ${
-                        isPopular
-                          ? 'bg-white/15 text-brand-yellow'
-                          : 'bg-slate-100 text-brand-cobalt'
-                      }`}
-                    >
-                      {plan.badge}
-                    </span>
+                  {/* Minimal Eyebrow matching Main Features */}
+                  <div className="flex items-center justify-between gap-2 text-xs font-sans font-medium text-[#142038]/80 mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-sans tabular-nums font-semibold opacity-70">{cardNumber}</span>
+                      <span className="opacity-40">•</span>
+                      <span>{plan.popular ? `Core ${plan.badge}` : plan.badge}</span>
+                    </div>
                   </div>
 
-                  <h3
-                    className={`text-2xl font-black font-display mb-1 ${
-                      isPopular ? 'text-white' : 'text-brand-midnight'
-                    }`}
-                  >
+                  {/* Title & Subtitle */}
+                  <h3 className="text-2xl font-semibold font-display text-[#142038] tracking-tight leading-snug mb-1">
                     {plan.title}
                   </h3>
-                  <div className="text-xs font-mono font-bold text-brand-yellow mb-3">
+                  <div className={`text-xs font-sans font-medium opacity-80 mb-3 ${theme.muted}`}>
                     {plan.tagline}
                   </div>
-                  <p
-                    className={`text-xs leading-relaxed mb-6 ${
-                      isPopular ? 'text-slate-300' : 'text-[#4B5568]'
-                    }`}
-                  >
+                  <p className={`text-xs font-sans leading-relaxed mb-6 ${theme.muted}`}>
                     {plan.description}
                   </p>
 
-                  <div
-                    className={`pt-4 border-t text-xs font-mono font-bold uppercase tracking-wider mb-4 ${
-                      isPopular ? 'border-slate-700 text-slate-300' : 'border-slate-100 text-slate-400'
-                    }`}
-                  >
-                    What's included:
+                  {/* Open Minimal Capabilities List (no divider line, matching Main Features) */}
+                  <div className="text-sm font-medium font-display text-[#142038] tracking-tight mb-3">
+                    Included capabilities
                   </div>
 
                   <ul className="space-y-2.5 mb-8">
                     {plan.features.map((feat, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs">
-                        <Check
-                          size={15}
-                          className={`shrink-0 mt-0.5 ${
-                            isPopular ? 'text-brand-yellow' : 'text-brand-cobalt'
-                          }`}
-                        />
-                        <span className={isPopular ? 'text-slate-200' : 'text-slate-700'}>
-                          {feat}
+                      <li key={i} className="flex items-start gap-2.5 text-xs font-sans leading-snug">
+                        <span className="w-4 h-4 rounded-full bg-[#142038] flex items-center justify-center shrink-0 mt-0.5">
+                          <Check size={10} strokeWidth={2.75} className={theme.checkColor} />
                         </span>
+                        <span className={theme.muted}>{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
+                {/* Minimal Dark Pill CTA matching Main Features */}
                 <Link
                   href={plan.href}
                   onClick={() => dispatch(setDemoPersona(plan.role))}
                   className="w-full block"
                 >
-                  <Button
-                    className={`w-full justify-between font-bold text-xs rounded-full h-11 active:scale-[0.97] transition-all ${
-                      isPopular
-                        ? 'bg-brand-yellow text-brand-midnight hover:bg-yellow-400'
-                        : 'bg-brand-midnight text-brand-yellow hover:bg-slate-800'
-                    }`}
-                  >
+                  <Button className="w-full justify-between font-sans font-medium text-xs rounded-full h-11 px-5 bg-[#142038] text-white hover:bg-[#1e2f52] active:scale-[0.97] transition-all">
                     <span>{plan.cta}</span>
-                    <ArrowRight size={14} />
+                    <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                   </Button>
                 </Link>
               </div>
