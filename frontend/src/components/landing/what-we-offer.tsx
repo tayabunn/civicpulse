@@ -57,9 +57,6 @@ export function WhatWeOffer() {
 
               {/* Bottom Row: Title & Subtitle */}
               <div className="relative z-10 space-y-1.5">
-                <div className="text-[10px] sm:text-[11px] font-mono text-[#6280FF] uppercase tracking-wider font-bold">
-                  {item.category}
-                </div>
                 <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug group-hover:text-blue-200 transition-colors">
                   {item.title}
                 </h3>
