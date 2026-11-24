@@ -50,23 +50,23 @@ export function WhatWeOffer() {
                   {item.tag}
                 </span>
 
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-brand-midnight transition-colors duration-200">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center group-hover:bg-[#315CFF] group-hover:text-white transition-colors duration-200">
                   <ArrowUpRight size={17} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
               {/* Bottom Row: Title & Subtitle */}
               <div className="relative z-10 space-y-1.5">
-                <div className="text-[10px] sm:text-[11px] font-mono text-brand-yellow uppercase tracking-wider font-bold">
+                <div className="text-[10px] sm:text-[11px] font-mono text-[#6280FF] uppercase tracking-wider font-bold">
                   {item.category}
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug group-hover:text-brand-yellow transition-colors">
+                <h3 className="text-lg sm:text-xl font-bold font-display text-white leading-snug group-hover:text-blue-200 transition-colors">
                   {item.title}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-slate-200 leading-relaxed line-clamp-2">
                   {item.description}
                 </p>
-                <div className="pt-1.5 text-xs font-bold text-white/90 underline decoration-brand-yellow decoration-2 underline-offset-4 flex items-center gap-1">
+                <div className="pt-1.5 text-xs font-bold text-white/90 underline decoration-[#315CFF] decoration-2 underline-offset-4 flex items-center gap-1 group-hover:text-blue-200 transition-colors">
                   <span>Report in this category →</span>
                 </div>
               </div>
