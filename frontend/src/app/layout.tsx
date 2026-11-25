@@ -7,6 +7,7 @@ import { ThemeProvider } from '../components/layout/theme-provider';
 import { AuthSync } from '../components/layout/auth-sync';
 import { NotificationProvider } from '../context/notification-context';
 import { ToastContainer } from '../components/ui/toast-container';
+import { SmartPreloader } from '../components/ui/smart-preloader';
 
 export const metadata: Metadata = {
   title: 'CivicPulse — Smart City Infrastructure Management Platform',
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className="min-h-screen bg-background text-text-primary font-sans antialiased selection:bg-brand-yellow selection:text-brand-midnight">
         <StoreProvider>
           <ThemeProvider>
+            <SmartPreloader />
             <NotificationProvider>
               <Suspense fallback={null}>
                 <AuthSync />
