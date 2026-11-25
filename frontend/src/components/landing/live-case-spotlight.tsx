@@ -121,6 +121,7 @@ export function LiveCaseSpotlight() {
             trigger: sectionRef.current,
             start: 'top 86%',
             once: true,
+            refreshPriority: 6,
           },
         });
 
@@ -130,6 +131,7 @@ export function LiveCaseSpotlight() {
             trigger: '.spotlight-grid',
             start: 'top 84%',
             once: true,
+            refreshPriority: 6,
           },
         });
 
@@ -180,6 +182,7 @@ export function LiveCaseSpotlight() {
         pinSpacing: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        refreshPriority: 5,
         onUpdate: (self) => {
           if (isSyncingScrollRef.current) return;
           const nextIdx = Math.min(
@@ -195,8 +198,14 @@ export function LiveCaseSpotlight() {
       });
 
       scrollTriggerRef.current = st;
+      ScrollTrigger.sort();
+      const rafId = requestAnimationFrame(() => {
+        ScrollTrigger.sort();
+        ScrollTrigger.refresh();
+      });
 
       return () => {
+        cancelAnimationFrame(rafId);
         if (syncTimerRef.current !== null) {
           window.clearTimeout(syncTimerRef.current);
         }

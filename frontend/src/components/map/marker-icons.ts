@@ -14,7 +14,7 @@ export function getCategoryIconConfig(category: string): CategoryIconConfig {
       };
     case 'streetlight':
       return {
-        color: '#FFD447', // Signal Yellow
+        color: '#e2fa6b', // Brand Yellow (#e2fa6b)
         label: 'Streetlight',
         iconName: 'Zap',
       };

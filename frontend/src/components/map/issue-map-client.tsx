@@ -65,8 +65,8 @@ export function IssueMapClient({
             center={[selectedIssue.latitude, selectedIssue.longitude]}
             radius={highlightRadiusMeters}
             pathOptions={{
-              color: '#FFD447',
-              fillColor: '#FFD447',
+              color: '#e2fa6b',
+              fillColor: '#e2fa6b',
               fillOpacity: 0.25,
               weight: 2,
               dashArray: '4, 4',

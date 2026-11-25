@@ -14,6 +14,7 @@ import {
   Img,
 } from '@react-email/components';
 import { brand } from './kit';
+import assets from './assets.json';
 
 export interface OneTimeCodeEmailProps {
   code: string;
@@ -27,6 +28,16 @@ export function OneTimeCodeEmail({
   expiresInMinutes = 10,
 }: OneTimeCodeEmailProps) {
   const digits = code.split('');
+
+  // 100% Exact Website CivicPulse Official Logo (Base64 PNG)
+  const realBlueLogoUri = `data:image/png;base64,${assets.realBlueLogo}`;
+  const realWhiteLogoUri = `data:image/png;base64,${assets.realWhiteLogo}`;
+
+  // Flat white social icons
+  const xIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/twitterx.png';
+  const githubIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/github.png';
+  const linkedinIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/linkedin.png';
+  const youtubeIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/youtube-play.png';
 
   return (
     <Html lang="en">
@@ -60,7 +71,7 @@ export function OneTimeCodeEmail({
           {/* TOP SECTION (WHITE CARD BACKGROUND)                            */}
           {/* ============================================================== */}
           <Section style={topSection}>
-            {/* Header: CivicPulse Blue Logo + Name & Open Link */}
+            {/* Header: Exact Official CivicPulse Logo + Name & Open Link */}
             <table width="100%" cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse', marginBottom: '32px' }}>
               <tbody>
                 <tr>
@@ -68,11 +79,11 @@ export function OneTimeCodeEmail({
                     <table cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse' }}>
                       <tbody>
                         <tr>
-                          {/* Official CivicPulse Blue Geometric Logo via Embedded CID */}
+                          {/* Official CivicPulse Blue Geometric Logo Icon */}
                           <td style={{ verticalAlign: 'middle', paddingRight: '12px', lineHeight: 0 }}>
                             <Img
-                              src="cid:logo_blue"
-                              alt="CivicPulse"
+                              src={realBlueLogoUri}
+                              alt="CivicPulse Logo"
                               width="26"
                               height="26"
                               style={{ display: 'block', border: 'none', outline: 'none' }}
@@ -104,43 +115,49 @@ export function OneTimeCodeEmail({
               Enter this code in the window where you started signing in.
             </Text>
 
-            {/* DIGITS SECTION: Exact Halden 1st image pill styling */}
+            {/* DIGITS SECTION: Guaranteed Separation between boxes */}
             <Section style={codeGridSection}>
               <table cellPadding="0" cellSpacing="0" border={0} style={{ margin: '0', borderCollapse: 'separate' }}>
                 <tbody>
                   <tr>
                     {digits.map((digit, index) => (
-                      <td
-                        key={index}
-                        align="center"
-                        valign="middle"
-                        style={{
-                          width: '52px',
-                          height: '66px',
-                          backgroundColor: '#F5F5F3',
-                          border: '1px solid #E5E5E2',
-                          borderRadius: '14px',
-                          textAlign: 'center',
-                          verticalAlign: 'middle',
-                          padding: '0',
-                          paddingRight: index < digits.length - 1 ? '10px' : '0',
-                        }}
-                      >
-                        <span
+                      <React.Fragment key={index}>
+                        <td
+                          align="center"
+                          valign="middle"
                           style={{
-                            display: 'block',
-                            width: '52px',
-                            lineHeight: '66px',
-                            fontSize: '28px',
-                            fontWeight: 700,
-                            fontFamily: brand.fonts.manrope,
-                            color: '#0F172A',
+                            width: '50px',
+                            height: '64px',
+                            backgroundColor: '#F5F5F3',
+                            border: '1px solid #E5E5E2',
+                            borderRadius: '14px',
                             textAlign: 'center',
+                            verticalAlign: 'middle',
+                            padding: '0',
                           }}
                         >
-                          {digit}
-                        </span>
-                      </td>
+                          <span
+                            style={{
+                              display: 'block',
+                              width: '50px',
+                              lineHeight: '64px',
+                              fontSize: '28px',
+                              fontWeight: 700,
+                              fontFamily: brand.fonts.manrope,
+                              color: '#0F172A',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {digit}
+                          </span>
+                        </td>
+                        {/* Explicit Gap spacer cell between boxes */}
+                        {index < digits.length - 1 && (
+                          <td style={{ width: '10px', minWidth: '10px', lineHeight: 0, fontSize: 0 }}>
+                            &nbsp;
+                          </td>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tr>
                 </tbody>
@@ -169,13 +186,13 @@ export function OneTimeCodeEmail({
           {/* BLUE FOOTER SECTION (CIVICPULSE BRAND BLUE #305dff)            */}
           {/* ============================================================== */}
           <Section style={blueFooterSection}>
-            {/* Logo in Footer (White Monochrome Brand Logo via CID) */}
+            {/* Logo in Footer (White Official CivicPulse Logo) */}
             <table cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse', marginBottom: '16px' }}>
               <tbody>
                 <tr>
                   <td style={{ verticalAlign: 'middle', paddingRight: '10px', lineHeight: 0 }}>
                     <Img
-                      src="cid:logo_white"
+                      src={realWhiteLogoUri}
                       alt="CivicPulse"
                       width="20"
                       height="20"
@@ -194,7 +211,7 @@ export function OneTimeCodeEmail({
               {brand.name} is the municipal workspace where citizens and city teams collaborate to report and resolve civic infrastructure issues.
             </Text>
 
-            {/* Social Media Links (X, GitHub, LinkedIn, YouTube) - Exact match to 1st image white flat icons via CID */}
+            {/* Social Media Links (X, GitHub, LinkedIn, YouTube) */}
             <table cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse', marginBottom: '28px' }}>
               <tbody>
                 <tr>
@@ -202,11 +219,11 @@ export function OneTimeCodeEmail({
                   <td style={socialIconCell}>
                     <Link href="https://twitter.com" target="_blank" style={socialIconLink}>
                       <Img
-                        src="cid:icon_x"
+                        src={xIconUrl}
                         alt="X"
                         width="18"
                         height="18"
-                        style={{ display: 'block', border: 'none', outline: 'none' }}
+                        style={{ display: 'block', border: 'none' }}
                       />
                     </Link>
                   </td>
@@ -214,11 +231,11 @@ export function OneTimeCodeEmail({
                   <td style={socialIconCell}>
                     <Link href="https://github.com" target="_blank" style={socialIconLink}>
                       <Img
-                        src="cid:icon_github"
+                        src={githubIconUrl}
                         alt="GitHub"
                         width="18"
                         height="18"
-                        style={{ display: 'block', border: 'none', outline: 'none' }}
+                        style={{ display: 'block', border: 'none' }}
                       />
                     </Link>
                   </td>
@@ -226,11 +243,11 @@ export function OneTimeCodeEmail({
                   <td style={socialIconCell}>
                     <Link href="https://linkedin.com" target="_blank" style={socialIconLink}>
                       <Img
-                        src="cid:icon_linkedin"
+                        src={linkedinIconUrl}
                         alt="LinkedIn"
                         width="18"
                         height="18"
-                        style={{ display: 'block', border: 'none', outline: 'none' }}
+                        style={{ display: 'block', border: 'none' }}
                       />
                     </Link>
                   </td>
@@ -238,11 +255,11 @@ export function OneTimeCodeEmail({
                   <td style={socialIconCell}>
                     <Link href="https://youtube.com" target="_blank" style={socialIconLink}>
                       <Img
-                        src="cid:icon_youtube"
+                        src={youtubeIconUrl}
                         alt="YouTube"
                         width="18"
                         height="18"
-                        style={{ display: 'block', border: 'none', outline: 'none' }}
+                        style={{ display: 'block', border: 'none' }}
                       />
                     </Link>
                   </td>
@@ -275,7 +292,7 @@ export function OneTimeCodeEmail({
 
             {/* Copyright line */}
             <Text style={footerCopyrightText}>
-              &copy; {new Date().getFullYear()} {brand.name} Labs Inc. &bull; 548 Market St, San Francisco, CA 94104
+              &copy; {new Date().getFullYear()} {brand.name} Labs Inc. &bull; Dhaka Smart City Infrastructure
             </Text>
           </Section>
         </Container>

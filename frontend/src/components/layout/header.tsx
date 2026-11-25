@@ -112,34 +112,8 @@ export function Header({ title }: { title?: string }) {
         </div>
       </div>
 
-      {/* Right controls: Demo Switcher + Notification Bell + Theme + User */}
+      {/* Right controls: Notification Bell + Theme + User Profile */}
       <div className="flex items-center gap-2.5 sm:gap-4">
-        {/* Quick Demo Persona Switcher */}
-        <div className="hidden lg:flex items-center gap-1 p-1 rounded-lg bg-surface-secondary border border-border">
-          <span className="text-[11px] font-mono text-text-muted px-2 font-semibold">
-            Role:
-          </span>
-          {personas.map((p) => {
-            const isCurrent = user?.role === p.role;
-            const Icon = p.icon;
-            return (
-              <button
-                key={p.role}
-                onClick={() => dispatch(setDemoPersona(p.role))}
-                className={cn(
-                  'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-all font-medium',
-                  isCurrent
-                    ? 'bg-brand-midnight text-white shadow-sm font-semibold'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface'
-                )}
-                title={`Switch persona to ${p.label}`}
-              >
-                <Icon size={12} />
-                <span>{p.label}</span>
-              </button>
-            );
-          })}
-        </div>
 
         {/* Notifications Center Dropdown */}
         <div className="relative" ref={notifDropdownRef}>

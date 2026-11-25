@@ -10,22 +10,22 @@ import { Check, ArrowRight } from 'lucide-react';
 
 const PORTAL_THEMES = [
   {
-    bg: '#DCECE4', // Soft Sage Mint (matching Main Features Card 01)
+    cardClass: 'bg-[#DCECE4] text-[#142038]', // Soft Sage Mint (matching Main Features Card 01)
     muted: 'text-[#2D4039]',
     checkColor: 'text-[#DCECE4]',
   },
   {
-    bg: '#F2D27A', // Warm Honey Gold (matching Main Features Card 02)
+    cardClass: 'bg-[#F2D27A] text-[#142038]', // Warm Honey Gold (matching Main Features Card 02)
     muted: 'text-[#3D3214]',
     checkColor: 'text-[#F2D27A]',
   },
   {
-    bg: '#DCE6FF', // Soft Periwinkle Ice (matching Main Features Card 03)
+    cardClass: 'bg-[#DCE6FF] text-[#142038]', // Soft Periwinkle Ice (matching Main Features Card 03)
     muted: 'text-[#2B3B5E]',
     checkColor: 'text-[#DCE6FF]',
   },
   {
-    bg: '#E2FB6C', // Soft Lime Volt (matching Main Features Card 04)
+    cardClass: 'bg-[#E2FB6C] text-[#142038]', // Soft Lime Volt (matching Main Features Card 04)
     muted: 'text-[#2D3816]',
     checkColor: 'text-[#E2FB6C]',
   },
@@ -65,8 +65,7 @@ export function RolesPlansSection() {
             return (
               <div
                 key={plan.role}
-                style={{ backgroundColor: theme.bg, color: '#142038' }}
-                className="anim-role-card group relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-[0_8px_28px_rgba(20,32,56,0.06)] hover:shadow-[0_18px_40px_rgba(20,32,56,0.12)] transition-all duration-300 hover:-translate-y-1"
+                className={`anim-role-card group relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-[0_8px_28px_rgba(20,32,56,0.06)] hover:shadow-[0_18px_40px_rgba(20,32,56,0.12)] transition-all duration-300 hover:-translate-y-1 ${theme.cardClass}`}
               >
                 <div>
                   {/* Minimal Eyebrow matching Main Features */}

@@ -53,6 +53,14 @@ export default function LoginPage() {
     submessage?: string;
   } | null>(null);
 
+  // Preload dashboard routes for instantaneous page transitions
+  useEffect(() => {
+    router.prefetch('/citizen');
+    router.prefetch('/admin');
+    router.prefetch('/manager');
+    router.prefetch('/staff');
+  }, [router]);
+
   // Resend Countdown Timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -153,8 +161,6 @@ export default function LoginPage() {
       submessage: `Dispatching 6-digit security code to ${email}...`,
     });
 
-    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await fetch(`${apiUrl}/auth/send-code`, {
@@ -164,12 +170,14 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      const code = data?.code || generatedCode;
-      setServerCode(code);
-      console.info(`[CivicPulse 2FA] Verification code dispatched to ${normalizedEmail}:`, code);
+      if (!response.ok && data?.error) {
+        setCredentialError(data.error);
+        setLazyLoader(null);
+        return;
+      }
+      setServerCode(data?.code || '');
     } catch {
-      setServerCode(generatedCode);
-      console.info(`[CivicPulse 2FA] Fallback verification code for ${normalizedEmail}:`, generatedCode);
+      console.info(`[CivicPulse 2FA] Network request to send-code failed, awaiting manual verification.`);
     }
 
     // Smooth transition to Step 2
@@ -229,7 +237,6 @@ export default function LoginPage() {
       submessage: `Resending to ${email}...`,
     });
 
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${apiUrl}/auth/send-code`, {
@@ -238,12 +245,9 @@ export default function LoginPage() {
         body: JSON.stringify({ email: email.trim().toLowerCase(), role: computedRole }),
       });
       const data = await res.json();
-      const code = data?.code || newCode;
-      setServerCode(code);
-      console.info(`[CivicPulse 2FA] Resent verification code to ${email}:`, code);
+      setServerCode(data?.code || '');
     } catch {
-      setServerCode(newCode);
-      console.info(`[CivicPulse 2FA] Resent fallback code to ${email}:`, newCode);
+      console.info(`[CivicPulse 2FA] Resend failed.`);
     }
 
     setTimeout(() => {
@@ -265,38 +269,17 @@ export default function LoginPage() {
       return;
     }
 
-    const isValid = enteredCode === serverCode || enteredCode === '123456';
-    if (!isValid) {
-      setCodeError('Invalid verification code. Please check your email inbox and try again.');
-      return;
-    }
-
     // Trigger Lazy Loader
     setLazyLoader({
       active: true,
-      message: 'Verification Confirmed!',
+      message: 'Verifying security code...',
       submessage: `Authorizing session and loading ${computedRole.toUpperCase()} workspace...`,
     });
 
     const normalizedEmail = email.trim().toLowerCase();
     const displayName = formatDisplayName(normalizedEmail);
 
-    const realUser = {
-      id: `usr-${Date.now()}`,
-      name: displayName,
-      email: normalizedEmail,
-      role: computedRole,
-      phone: '+8801700000000',
-      avatarUrl: `https://images.unsplash.com/photo-${
-        computedRole === 'admin'
-          ? '1494790108377-be9c29b29330'
-          : computedRole === 'manager'
-          ? '1507003211169-0a1dd7228f2d'
-          : computedRole === 'staff'
-          ? '1500648767791-00dcc994a43e'
-          : '1438761681033-6461ffad8d80'
-      }?w=150`,
-    };
+    const targetDashboard = getDashboardForRole(computedRole);
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -312,6 +295,12 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
+      if (!response.ok) {
+        setLazyLoader(null);
+        setCodeError(data?.error || 'Invalid verification code. Please check your email inbox.');
+        return;
+      }
+
       if (data?.user) {
         dispatch(
           setCredentials({
@@ -319,17 +308,15 @@ export default function LoginPage() {
             token: data.token || `jwt-${Date.now()}`,
           })
         );
-      } else {
-        dispatch(setCredentials({ user: realUser, token: `jwt-${Date.now()}` }));
       }
-    } catch {
-      dispatch(setCredentials({ user: realUser, token: `jwt-${Date.now()}` }));
-    }
 
-    setTimeout(() => {
+      // Instant redirect: immediately route to dashboard with zero artificial delays
+      router.push(targetDashboard);
+    } catch {
       setLazyLoader(null);
-      router.push(getDashboardForRole(computedRole));
-    }, 700);
+      setCodeError('Unable to connect to authorization server. Please try again.');
+      return;
+    }
   };
 
   return (

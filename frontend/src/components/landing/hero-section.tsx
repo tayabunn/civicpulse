@@ -3,12 +3,25 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useMotionValue, useTransform, type MotionValue } from 'motion/react';
 import { Button } from '../ui/button';
 import { Star } from 'lucide-react';
 
-export function HeroSection() {
+interface HeroSectionProps {
+  scrollYProgress?: MotionValue<number>;
+}
+
+export function HeroSection({ scrollYProgress }: HeroSectionProps) {
+  const fallbackProgress = useMotionValue(0);
+  const progress = scrollYProgress ?? fallbackProgress;
+  const scale = useTransform(progress, [0, 1], [1, 0.8]);
+  const rotate = useTransform(progress, [0, 1], [0, -5]);
+
   return (
-    <section className="relative overflow-hidden min-h-screen flex flex-col justify-end text-white">
+    <motion.section
+      style={scrollYProgress ? { scale, rotate } : undefined}
+      className="sticky top-0 z-0 overflow-hidden h-screen min-h-[620px] flex flex-col justify-end text-white will-change-transform"
+    >
       {/* Background Police Assist in Snow Video with Fallback Poster */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <video
@@ -22,11 +35,11 @@ export function HeroSection() {
           <source src="/police-assist-snow.mp4" type="video/mp4" />
         </video>
 
-        {/* Website Brand Yellow (#FFD447) Overlay Layers with Reduced Radius */}
+        {/* Website Brand Yellow (#e2fa6b) Overlay Layers with Reduced Radius */}
         {/* Radial gradient anchored at bottom-left with controlled compact radius */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#FFD447]/90 dark:from-[#0B0F17]/95 via-[#FFD447]/60 dark:via-[#0B0F17]/60 via-30% to-transparent to-60% transition-colors duration-300" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-[#e2fa6b]/90 dark:from-[#0B0F17]/95 via-[#e2fa6b]/60 dark:via-[#0B0F17]/60 via-30% to-transparent to-60% transition-colors duration-300" />
         {/* Soft bottom edge blend */}
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#FFD447] dark:from-[#0B0F17] to-transparent transition-colors duration-300" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#e2fa6b] dark:from-[#0B0F17] to-transparent transition-colors duration-300" />
       </div>
 
       {/* Hero Content - Left Aligned and Bottom Placed matching Verdona (80% Content Width) */}
@@ -103,6 +116,6 @@ export function HeroSection() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
