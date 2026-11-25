@@ -48,8 +48,7 @@ export function FeaturesSection() {
         >
           <path
             d="M0 0H992H937.518C910.429 0 884.499 10.9901 865.66 30.456L859.547 36.772C850.128 46.5049 837.163 52 823.618 52H164.801C150.309 52 136.541 45.6684 127.108 34.6667C108.244 12.6631 80.7071 0 51.7238 0H0Z"
-            fill="#f7f5f0"
-            className="fill-[#f7f5f0]"
+            className="fill-[#f7f5f0] dark:fill-[#0B0F17] transition-colors duration-300"
           />
         </svg>
       </div>
