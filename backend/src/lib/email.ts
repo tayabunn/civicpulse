@@ -4,14 +4,17 @@ import { Resend } from 'resend';
 import { OneTimeCodeEmail } from '../emails/ledger/one-time-code';
 import { brand } from '../emails/ledger/kit';
 
-const resendApiKey = process.env.RESEND_API_KEY;
-export const resend = resendApiKey ? new Resend(resendApiKey) : null;
+const getResendClient = () => {
+  const key = process.env.RESEND_API_KEY;
+  return key ? new Resend(key) : null;
+};
 
 export async function sendVerificationEmail(
   toEmail: string,
   code: string,
   expiresInMinutes = 10
 ): Promise<{ success: boolean; error?: string }> {
+  const resend = getResendClient();
   if (!resend) {
     console.warn('[EMAIL] RESEND_API_KEY is not configured. Verification code:', code);
     return { success: false, error: 'Email service is not configured on server' };
