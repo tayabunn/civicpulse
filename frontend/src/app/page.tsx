@@ -6,8 +6,7 @@ import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { Navbar } from '../components/landing/navbar';
-import { HeroSection } from '../components/landing/hero-section';
-import { AboutSection } from '../components/landing/about-section';
+import { HeroAboutTransition } from '../components/landing/hero-about-transition';
 import { WhatWeOffer } from '../components/landing/what-we-offer';
 import { FeaturesSection } from '../components/landing/features-section';
 import { RolesPlansSection } from '../components/landing/roles-plans-section';
@@ -77,7 +76,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.75,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '#about',
             start: 'top 85%',
@@ -94,7 +93,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.75,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '#about',
             start: 'top 85%',
@@ -174,6 +173,7 @@ export default function LandingPage() {
             scrub: 0.8,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            refreshPriority: 10,
           },
         });
 
@@ -208,28 +208,10 @@ export default function LandingPage() {
             trigger: '#features',
             start: 'top 90%',
             once: true,
+            refreshPriority: 8,
           },
         }
       );
-
-      ScrollTrigger.batch('.anim-feature-card', {
-        start: 'top 92%',
-        once: true,
-        onEnter: (batch) => {
-          gsap.fromTo(
-            batch,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.65,
-              stagger: 0.1,
-              ease: 'power3.out',
-              clearProps: 'all',
-            }
-          );
-        },
-      });
 
       // 5. Dedicated Portals Stagger Reveal on Scroll
       gsap.fromTo(
@@ -245,6 +227,7 @@ export default function LandingPage() {
             trigger: '#portals',
             start: 'top 90%',
             once: true,
+            refreshPriority: 7,
           },
         }
       );
@@ -262,7 +245,7 @@ export default function LandingPage() {
               duration: 0.65,
               stagger: 0.1,
               ease: 'power3.out',
-              clearProps: 'all',
+              clearProps: 'transform,opacity',
             }
           );
         },
@@ -280,7 +263,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.75,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '.anim-testimonial-card',
             start: 'top 85%',
@@ -315,7 +298,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.7,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '#faqs',
             start: 'top 80%',
@@ -334,7 +317,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.7,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '#contact',
             start: 'top 85%',
@@ -351,7 +334,7 @@ export default function LandingPage() {
           y: 0,
           duration: 0.7,
           ease: 'power3.out',
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
           scrollTrigger: {
             trigger: '#contact',
             start: 'top 85%',
@@ -360,30 +343,40 @@ export default function LandingPage() {
         }
       );
 
-      // Refresh ScrollTrigger calculations
-      ScrollTrigger.refresh();
-      const refreshTimer = setTimeout(() => {
+      // Sort and refresh ScrollTrigger calculations strictly in top-to-bottom DOM/priority order
+      const syncScrollTriggers = () => {
+        ScrollTrigger.sort();
         ScrollTrigger.refresh();
-      }, 400);
+      };
+
+      syncScrollTriggers();
+      const refreshTimer = setTimeout(syncScrollTriggers, 400);
 
       if (typeof window !== 'undefined') {
-        window.addEventListener('load', () => ScrollTrigger.refresh());
+        window.addEventListener('load', syncScrollTriggers);
+      }
+
+      if (typeof document !== 'undefined' && document.fonts?.ready) {
+        document.fonts.ready.then(syncScrollTriggers);
       }
 
       // Safety safeguard: Ensure cards are never left invisible under any circumstance
       const safetyTimer = setTimeout(() => {
-        gsap.to('.anim-feature-card, .anim-role-card, .anim-faq-list', {
+        gsap.to('.anim-role-card, .anim-faq-list', {
           opacity: 1,
           y: 0,
           scale: 1,
           duration: 0.3,
-          clearProps: 'all',
+          clearProps: 'transform,opacity',
         });
       }, 1000);
 
       return () => {
         clearTimeout(refreshTimer);
         clearTimeout(safetyTimer);
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('load', syncScrollTriggers);
+        }
       };
     },
     { scope: pageContainerRef }
@@ -396,8 +389,7 @@ export default function LandingPage() {
     >
       <Navbar />
       <main className="flex-1">
-        <HeroSection />
-        <AboutSection />
+        <HeroAboutTransition />
         <WhatWeOffer />
         <FeaturesSection />
         <RolesPlansSection />

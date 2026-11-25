@@ -18,11 +18,11 @@
   --primary: #315CFF;
   --primary-hover: #244BE0;
   --primary-foreground: #FFFFFF;
-  --accent: #FFD447;
+  --accent: #e2fa6b;
   --accent-foreground: #202B45;
   --sidebar-bg: #202B45;
   --sidebar-text: #F7F5EF;
-  --sidebar-active: #FFD447;
+  --sidebar-active: #e2fa6b;
   --sidebar-active-text: #202B45;
 }
 
@@ -40,11 +40,11 @@
   --primary: #7D96FF;
   --primary-hover: #9BAEFF;
   --primary-foreground: #111827;
-  --accent: #FFD447;
+  --accent: #e2fa6b;
   --accent-foreground: #202B45;
   --sidebar-bg: #111827;
   --sidebar-text: #F7F5EF;
-  --sidebar-active: #FFD447;
+  --sidebar-active: #e2fa6b;
   --sidebar-active-text: #202B45;
 }
 
@@ -57,7 +57,7 @@ body {
   background-color: var(--background);
   color: var(--text-primary);
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 button, input, optgroup, select, textarea {
