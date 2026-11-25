@@ -3,13 +3,19 @@
 import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { setCredentials } from '../../store/authSlice';
+import { setCredentials, hydrateAuth } from '../../store/authSlice';
 
 export function AuthSync() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // On first mount: restore session from localStorage so navbar shows user info
+  useEffect(() => {
+    dispatch(hydrateAuth());
+  }, [dispatch]);
+
+  // Handle Google OAuth callback params
   useEffect(() => {
     const googleAuth = searchParams.get('google_auth');
     const token = searchParams.get('token');
