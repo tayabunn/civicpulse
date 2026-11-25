@@ -200,12 +200,79 @@ export default function LoginPage() {
 
     setComputedRole(targetRole);
 
-    // Trigger Lazy Loader
-    setLazyLoader({
-      active: true,
-      message: 'Verifying credentials & sending verification code...',
-      submessage: `Dispatching 6-digit security code to ${email}...`,
-    });
+    // 30-Day Trusted Device Check: If verified on this device within 30 days, skip OTP!
+    const isTrusted = checkDeviceTrust(normalizedEmail);
+
+    if (isTrusted) {
+      setLazyLoader({
+        active: true,
+        message: 'Authenticating trusted device...',
+        submessage: `30-day verified session active. Entering ${targetRole.toUpperCase()} workspace...`,
+      });
+
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const response = await fetch(`${apiUrl}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            password,
+            trustedDevice: true,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok && data?.error && !data?.requires2FA) {
+          setCredentialError(data.error);
+          setLazyLoader(null);
+          return;
+        }
+
+        const authenticatedUser = data?.user || {
+          id: `usr-${Date.now()}`,
+          name: formatDisplayName(normalizedEmail),
+          email: normalizedEmail,
+          role: targetRole,
+        };
+
+        dispatch(
+          setCredentials({
+            user: { ...authenticatedUser, role: targetRole },
+            token: data?.token || `jwt-${Date.now()}`,
+          })
+        );
+
+        // Refresh trust timestamp for 30 more days
+        saveDeviceTrust(normalizedEmail);
+
+        setTimeout(() => {
+          setLazyLoader(null);
+          router.push(getDashboardForRole(targetRole));
+        }, 350);
+        return;
+      } catch {
+        dispatch(
+          setCredentials({
+            user: {
+              id: `usr-${Date.now()}`,
+              name: formatDisplayName(normalizedEmail),
+              email: normalizedEmail,
+              role: targetRole,
+            },
+            token: `jwt-${Date.now()}`,
+          })
+        );
+        saveDeviceTrust(normalizedEmail);
+        setTimeout(() => {
+          setLazyLoader(null);
+          router.push(getDashboardForRole(targetRole));
+        }, 350);
+        return;
+      }
+    }
+
+    // Trigger Lazy Loader for First-time 2FA Code Dispatch
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -356,6 +423,9 @@ export default function LoginPage() {
         );
       }
 
+      // Remember device for 30 days: next login will bypass 2FA on this browser!
+      saveDeviceTrust(normalizedEmail);
+
       // Instant redirect: immediately route to dashboard with zero artificial delays
       router.push(targetDashboard);
     } catch {
@@ -483,20 +553,38 @@ export default function LoginPage() {
                   required
                 />
 
-                <div className="p-2.5 rounded-lg bg-surface-secondary border border-border text-[11px] text-text-muted flex items-start gap-2">
-                  <Lock size={14} className="text-slate-400 shrink-0 mt-0.5" />
-                  <span>
-                    Your credentials determine your municipal access level. Citizens access the Citizen Portal; City Administrators require verified administrative credentials.
-                  </span>
-                </div>
+                {isDeviceTrusted ? (
+                  <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
+                    <span>
+                      <strong>Trusted Device Active:</strong> 30-day security verification is active on this browser. You will sign in directly without a verification code.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-lg bg-surface-secondary border border-border text-[11px] text-text-muted flex items-start gap-2">
+                    <Lock size={14} className="text-slate-400 shrink-0 mt-0.5" />
+                    <span>
+                      First-time sign-in requires a 6-digit email code. Once verified, this device is remembered for 30 days.
+                    </span>
+                  </div>
+                )}
 
                 <Button
                   type="submit"
                   variant="primary"
                   className="w-full font-bold shadow-md gap-2 bg-brand-cobalt text-white hover:bg-brand-cobalt-700 h-11"
                 >
-                  <LogIn size={15} />
-                  <span>Sign In & Receive Email Code</span>
+                  {isDeviceTrusted ? (
+                    <>
+                      <LogIn size={15} />
+                      <span>Sign In to Dashboard</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={15} />
+                      <span>Sign In & Receive Email Code</span>
+                    </>
+                  )}
                 </Button>
               </form>
 
