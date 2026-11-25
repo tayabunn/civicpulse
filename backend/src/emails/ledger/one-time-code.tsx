@@ -14,7 +14,6 @@ import {
   Img,
 } from '@react-email/components';
 import { brand } from './kit';
-import assets from './assets.json';
 
 export interface OneTimeCodeEmailProps {
   code: string;
@@ -29,11 +28,8 @@ export function OneTimeCodeEmail({
 }: OneTimeCodeEmailProps) {
   const digits = code.split('');
 
-  // 100% Exact Website CivicPulse Official Logo (Base64 PNG)
-  const realBlueLogoUri = `data:image/png;base64,${assets.realBlueLogo}`;
-  const realWhiteLogoUri = `data:image/png;base64,${assets.realWhiteLogo}`;
-
-  // Flat white social icons
+  // 100% Reliable Public CDN Images (No attachments, pristine rendering in Gmail)
+  const logoUrl = 'https://i.imgur.com/hhhJ5vh.png';
   const xIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/twitterx.png';
   const githubIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/github.png';
   const linkedinIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/linkedin.png';
@@ -71,7 +67,7 @@ export function OneTimeCodeEmail({
           {/* TOP SECTION (WHITE CARD BACKGROUND)                            */}
           {/* ============================================================== */}
           <Section style={topSection}>
-            {/* Header: Exact Official CivicPulse Logo + Name & Open Link */}
+            {/* Header: Exact Official CivicPulse Logo from Imgur + Name & Open Link */}
             <table width="100%" cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse', marginBottom: '32px' }}>
               <tbody>
                 <tr>
@@ -79,10 +75,10 @@ export function OneTimeCodeEmail({
                     <table cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse' }}>
                       <tbody>
                         <tr>
-                          {/* Official CivicPulse Blue Geometric Logo Icon */}
+                          {/* Official CivicPulse Blue Geometric Logo directly from Imgur */}
                           <td style={{ verticalAlign: 'middle', paddingRight: '12px', lineHeight: 0 }}>
                             <Img
-                              src={realBlueLogoUri}
+                              src={logoUrl}
                               alt="CivicPulse Logo"
                               width="26"
                               height="26"
@@ -115,7 +111,7 @@ export function OneTimeCodeEmail({
               Enter this code in the window where you started signing in.
             </Text>
 
-            {/* DIGITS SECTION: Guaranteed Separation between boxes */}
+            {/* DIGITS SECTION: Exact 1st image pill styling with guaranteed spacing */}
             <Section style={codeGridSection}>
               <table cellPadding="0" cellSpacing="0" border={0} style={{ margin: '0', borderCollapse: 'separate' }}>
                 <tbody>
@@ -151,7 +147,7 @@ export function OneTimeCodeEmail({
                             {digit}
                           </span>
                         </td>
-                        {/* Explicit Gap spacer cell between boxes */}
+                        {/* Explicit Spacer Gap between digit cells */}
                         {index < digits.length - 1 && (
                           <td style={{ width: '10px', minWidth: '10px', lineHeight: 0, fontSize: 0 }}>
                             &nbsp;
@@ -186,17 +182,22 @@ export function OneTimeCodeEmail({
           {/* BLUE FOOTER SECTION (CIVICPULSE BRAND BLUE #305dff)            */}
           {/* ============================================================== */}
           <Section style={blueFooterSection}>
-            {/* Logo in Footer (White Official CivicPulse Logo) */}
+            {/* Logo in Footer */}
             <table cellPadding="0" cellSpacing="0" border={0} style={{ borderCollapse: 'collapse', marginBottom: '16px' }}>
               <tbody>
                 <tr>
                   <td style={{ verticalAlign: 'middle', paddingRight: '10px', lineHeight: 0 }}>
                     <Img
-                      src={realWhiteLogoUri}
-                      alt="CivicPulse"
-                      width="20"
-                      height="20"
-                      style={{ display: 'block', border: 'none', outline: 'none' }}
+                      src={logoUrl}
+                      alt="CivicPulse Logo"
+                      width="22"
+                      height="22"
+                      style={{
+                        display: 'block',
+                        border: 'none',
+                        outline: 'none',
+                        filter: 'brightness(0) invert(1)', // Pure crisp white version for blue footer
+                      }}
                     />
                   </td>
                   <td style={{ verticalAlign: 'middle' }}>
