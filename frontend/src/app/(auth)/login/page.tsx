@@ -38,6 +38,52 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [computedRole, setComputedRole] = useState<UserRole>('citizen');
   const [credentialError, setCredentialError] = useState('');
+  const [isDeviceTrusted, setIsDeviceTrusted] = useState(false);
+
+  // 30-Day Device Trust Duration (30 days in ms)
+  const TRUST_DURATION = 30 * 24 * 60 * 60 * 1000;
+
+  const checkDeviceTrust = (emailStr: string): boolean => {
+    if (typeof window === 'undefined' || !emailStr) return false;
+    try {
+      const key = `civicpulse_trusted_device_${emailStr.trim().toLowerCase()}`;
+      const raw = localStorage.getItem(key);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (data?.expiresAt && Date.now() < data.expiresAt) {
+        return true;
+      }
+      localStorage.removeItem(key);
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const saveDeviceTrust = (emailStr: string) => {
+    if (typeof window === 'undefined' || !emailStr) return;
+    try {
+      const key = `civicpulse_trusted_device_${emailStr.trim().toLowerCase()}`;
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          email: emailStr.trim().toLowerCase(),
+          verifiedAt: Date.now(),
+          expiresAt: Date.now() + TRUST_DURATION,
+          trusted: true,
+        })
+      );
+    } catch {}
+  };
+
+  // Monitor email input to dynamically check 30-day trusted status
+  useEffect(() => {
+    if (email && email.includes('@')) {
+      setIsDeviceTrusted(checkDeviceTrust(email));
+    } else {
+      setIsDeviceTrusted(false);
+    }
+  }, [email]);
 
   // 6-Digit Verification Code State
   const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
