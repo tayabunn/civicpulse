@@ -88,6 +88,22 @@ export default function RegisterPage() {
       dispatch(setCredentials({ user: newUser, token: `token-${Date.now()}` }));
     }
 
+    // Trust this device for 30 days upon registration
+    if (typeof window !== 'undefined') {
+      try {
+        const key = `civicpulse_trusted_device_${email.trim().toLowerCase()}`;
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            email: email.trim().toLowerCase(),
+            verifiedAt: Date.now(),
+            expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+            trusted: true,
+          })
+        );
+      } catch {}
+    }
+
     setTimeout(() => {
       setIsLoading(false);
       router.push(getDashboardForRole(role));
