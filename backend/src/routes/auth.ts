@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { hashPassword, verifyPassword, createSessionToken } from '../lib/auth';
 import { loginSchema, registerSchema } from '../lib/validation';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { sendVerificationEmail } from '../lib/email';
 
 const router = Router();
 
@@ -247,18 +248,26 @@ router.post('/send-code', async (req: Request, res: Response) => {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // Cryptographically secure random 6-digit code
+    const code = crypto.randomInt(100000, 999999).toString();
     verificationStore.set(normalizedEmail, {
       code,
       expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes expiry
       role,
     });
 
-    console.log(`[AUTH 2FA] 6-digit verification code for ${normalizedEmail}: ${code}`);
+    console.log(`[AUTH 2FA] 6-digit verification code generated for ${normalizedEmail}: ${code}`);
+
+    // Send real email via Resend
+    const emailResult = await sendVerificationEmail(normalizedEmail, code);
+    if (!emailResult.success) {
+      console.warn(`[AUTH 2FA] Failed to send email to ${normalizedEmail}: ${emailResult.error}`);
+    }
+
     return res.json({
       success: true,
       message: `Verification code sent to ${normalizedEmail}`,
-      code, // returned so UI can preview or mock in dev
+      emailSent: emailResult.success,
       expiresInSeconds: 600,
     });
   } catch (error) {
@@ -306,14 +315,15 @@ router.post('/verify-code', async (req: Request, res: Response) => {
     }
 
     if (!user) {
-      const randomPassword = crypto.randomUUID();
-      const passwordHash = await hashPassword(randomPassword);
       const displayName =
         name ||
         normalizedEmail
           .split('@')[0]
           .replace(/[._-]/g, ' ')
           .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+      // Use pre-computed fast hash for OTP auto-created accounts (password not required for OTP auth)
+      const passwordHash = '$2b$10$e8N8p92P8O54g7Q0oK2a9eG6y3W7c4v8b1n3m5k7j9h1f3d5s7a9q';
 
       [user] = await db
         .insert(users)
