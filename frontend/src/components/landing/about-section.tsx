@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useMotionValue, useTransform, type MotionValue } from 'motion/react';
 import { Button } from '../ui/button';
 import { Check, ArrowRight, ShieldCheck, Activity } from 'lucide-react';
 import { PartnersTicker } from './partners-ticker';
@@ -95,8 +96,8 @@ function CountUpNumber({
     decimals > 0
       ? displayValue.toFixed(decimals)
       : formatComma
-      ? Math.round(displayValue).toLocaleString()
-      : Math.round(displayValue).toString();
+        ? Math.round(displayValue).toLocaleString()
+        : Math.round(displayValue).toString();
 
   return (
     <span ref={ref} className="inline-block tabular-nums transition-opacity duration-300">
@@ -107,8 +108,16 @@ function CountUpNumber({
   );
 }
 
-export function AboutSection() {
+interface AboutSectionProps {
+  scrollYProgress?: MotionValue<number>;
+}
+
+export function AboutSection({ scrollYProgress }: AboutSectionProps) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const fallbackProgress = useMotionValue(1);
+  const progress = scrollYProgress ?? fallbackProgress;
+  const scale = useTransform(progress, [0, 1], [0.8, 1]);
+  const rotate = useTransform(progress, [0, 1], [5, 0]);
 
   // Auto rotate slides every 5 seconds
   useEffect(() => {
@@ -119,9 +128,10 @@ export function AboutSection() {
   }, []);
 
   return (
-    <section
+    <motion.section
       id="about"
-      className="py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 font-sans"
+      style={scrollYProgress ? { scale, rotate } : undefined}
+      className="relative py-20 lg:py-28 bg-brand-warmWhite dark:bg-[#0B0F17] transition-colors duration-300 font-sans will-change-transform"
     >
       <div className="w-[80%] mx-auto">
         {/* Main 2-Column Split Grid - items-stretch guarantees equal column height */}
@@ -283,11 +293,10 @@ export function AboutSection() {
                       type="button"
                       onClick={() => setActiveSlide(idx)}
                       aria-label={`Go to slide ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        activeSlide === idx
-                          ? 'w-6 bg-brand-yellow'
-                          : 'w-1.5 bg-white/50 hover:bg-white/80'
-                      }`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${activeSlide === idx
+                        ? 'w-6 bg-brand-yellow'
+                        : 'w-1.5 bg-white/50 hover:bg-white/80'
+                        }`}
                     />
                   ))}
                 </div>
@@ -333,6 +342,6 @@ export function AboutSection() {
           <PartnersTicker />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
