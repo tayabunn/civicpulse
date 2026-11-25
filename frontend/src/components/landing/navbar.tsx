@@ -126,12 +126,12 @@ export function Navbar() {
             </button>
 
             {isAuthenticated && user ? (
-              /* ---- LOGGED IN: User Avatar + Dropdown ---- */
+              /* ---- LOGGED IN: User Avatar + Dropdown (no Report Issue) ---- */
               <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen((v) => !v)}
-                  className="flex items-center gap-2 h-11 px-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-all"
+                  className="flex items-center gap-2.5 h-11 px-3.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-all"
                   aria-label="User menu"
                 >
                   {user.avatarUrl ? (
@@ -141,19 +141,19 @@ export function Navbar() {
                       className="w-7 h-7 rounded-full object-cover ring-2 ring-[#305dff]/30"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-[#305dff] text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-7 h-7 rounded-full bg-[#305dff] text-white flex items-center justify-center text-xs font-bold shrink-0">
                       {getInitials(user.name)}
                     </div>
                   )}
-                  <span className="text-sm font-semibold text-slate-800 dark:text-white max-w-[100px] truncate">
+                  <span className="text-sm font-semibold text-slate-800 dark:text-white max-w-[120px] truncate">
                     {user.name.split(' ')[0]}
                   </span>
-                  <ChevronDown size={14} className={`text-slate-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={14} className={`text-slate-400 shrink-0 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] w-52 bg-white dark:bg-[#1B2435] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 overflow-hidden z-50 animate-fadeIn">
+                  <div className="absolute right-0 top-[calc(100%+8px)] w-56 bg-white dark:bg-[#1B2435] rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 overflow-hidden z-50 animate-fadeIn">
                     <div className="px-4 py-3 border-b border-slate-100 dark:border-white/10">
                       <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{user.name}</p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
@@ -170,6 +170,14 @@ export function Navbar() {
                         <LayoutDashboard size={15} className="text-[#305dff]" />
                         Go to Dashboard
                       </Link>
+                      <Link
+                        href="/citizen/create"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <span className="text-[#305dff]">＋</span>
+                        Report an Issue
+                      </Link>
                       <button
                         type="button"
                         onClick={handleLogout}
@@ -183,26 +191,26 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              /* ---- NOT LOGGED IN: Log In button ---- */
-              <Link href="/login">
-                <Button
-                  size="sm"
-                  className="font-medium font-sans bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] transition-all rounded-full px-6 h-11 text-base shadow-md"
-                >
-                  Log In
-                </Button>
-              </Link>
+              /* ---- NOT LOGGED IN: Log In + Report Issue ---- */
+              <>
+                <Link href="/login">
+                  <Button
+                    size="sm"
+                    className="font-medium font-sans bg-[#315CFF] text-white hover:bg-[#244BE0] active:scale-[0.98] transition-all rounded-full px-6 h-11 text-base shadow-md"
+                  >
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/citizen/create">
+                  <Button
+                    size="sm"
+                    className="font-medium font-sans shadow-md bg-brand-midnight dark:bg-white text-white dark:text-brand-midnight hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.98] transition-all rounded-full px-7 h-11 text-base"
+                  >
+                    Report Issue
+                  </Button>
+                </Link>
+              </>
             )}
-
-            {/* Report Issue Button */}
-            <Link href="/citizen/create">
-              <Button
-                size="sm"
-                className="font-medium font-sans shadow-md bg-brand-midnight dark:bg-white text-white dark:text-brand-midnight hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.98] transition-all rounded-full px-7 h-11 text-base"
-              >
-                Report Issue
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
