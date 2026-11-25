@@ -30,6 +30,7 @@ export function OneTimeCodeEmail({
 
   // 100% Reliable Public CDN Images (No attachments, pristine rendering in Gmail)
   const logoUrl = 'https://i.imgur.com/hhhJ5vh.png';
+  const footerWhiteLogoUrl = 'https://i.imgur.com/EYOJRh7.png';
   const xIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/twitterx.png';
   const githubIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/github.png';
   const linkedinIconUrl = 'https://img.icons8.com/ios-filled/50/ffffff/linkedin.png';
@@ -188,7 +189,7 @@ export function OneTimeCodeEmail({
                 <tr>
                   <td style={{ verticalAlign: 'middle', paddingRight: '10px', lineHeight: 0 }}>
                     <Img
-                      src={logoUrl}
+                      src={footerWhiteLogoUrl}
                       alt="CivicPulse Logo"
                       width="22"
                       height="22"
@@ -196,7 +197,6 @@ export function OneTimeCodeEmail({
                         display: 'block',
                         border: 'none',
                         outline: 'none',
-                        filter: 'brightness(0) invert(1)', // Pure crisp white version for blue footer
                       }}
                     />
                   </td>
