@@ -568,4 +568,55 @@ router.post('/:id/feedback', authenticateToken, async (req: AuthenticatedRequest
   }
 });
 
+// POST /api/issues/:id/upvote (Community confirmation / "I see this too")
+router.post('/:id/upvote', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    const id = req.params.id as string;
+
+    const [current] = await db.select().from(issues).where(eq(issues.id, id)).limit(1);
+    if (!current) {
+      return res.status(404).json({ error: 'Issue not found' });
+    }
+
+    const existingUpvotes = await db
+      .select({ id: issueActivities.id })
+      .from(issueActivities)
+      .where(
+        and(
+          eq(issueActivities.issueId, id),
+          eq(issueActivities.userId, user.id),
+          eq(issueActivities.action, 'COMMUNITY_UPVOTE')
+        )
+      )
+      .limit(1);
+
+    if (existingUpvotes.length > 0) {
+      return res.json({ success: true, alreadyUpvoted: true });
+    }
+
+    await logIssueActivity({
+      issueId: id,
+      userId: user.id,
+      action: 'COMMUNITY_UPVOTE',
+      previousStatus: current.status,
+      newStatus: current.status,
+      notes: `Neighbor (${user.name}) confirmed this issue.`,
+    });
+
+    const totalUpvotes = await db
+      .select({ value: count() })
+      .from(issueActivities)
+      .where(and(eq(issueActivities.issueId, id), eq(issueActivities.action, 'COMMUNITY_UPVOTE')));
+
+    return res.json({
+      success: true,
+      upvotes: Number(totalUpvotes[0]?.value || 1),
+    });
+  } catch (error) {
+    console.error('Upvote issue error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

@@ -607,14 +607,24 @@ export default function LoginPage() {
                   required
                 />
 
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="space-y-1.5">
+                  <Input
+                    label="Password"
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <div className="flex justify-end">
+                    <Link
+                      href={email ? `/forgot-password?email=${encodeURIComponent(email.trim())}` : '/forgot-password'}
+                      className="text-xs font-semibold text-[#315CFF] hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
 
                 {isDeviceTrusted ? (
                   <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
