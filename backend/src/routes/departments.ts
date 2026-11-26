@@ -3,10 +3,12 @@ import { db } from '../db';
 import { departments, users, issues } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { authenticateToken, authorizeRole, AuthenticatedRequest } from '../middleware/auth';
+import { logSecurityAudit } from '../lib/audit';
 
 const router = Router();
 
-router.get('/', async (req: AuthenticatedRequest, res: Response) => {
+// GET /api/departments - Accessible to authenticated users
+router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const list = await db
       .select({
@@ -53,7 +55,8 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.post('/', async (req: AuthenticatedRequest, res: Response) => {
+// POST /api/departments - Admin Only
+router.post('/', authenticateToken, authorizeRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { name, code, description, managerId } = req.body;
     if (!name || !code) {
@@ -65,6 +68,13 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       .values({ name, code, description, managerId })
       .returning();
 
+    await logSecurityAudit(req, {
+      action: 'DEPARTMENT_CREATED',
+      resource: 'departments',
+      resourceId: newDept.id,
+      details: { name: newDept.name, code: newDept.code, managerId: newDept.managerId },
+    });
+
     return res.status(201).json({ success: true, department: newDept });
   } catch (error) {
     console.error('Create department error:', error);
@@ -72,7 +82,8 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
+// PATCH /api/departments/:id - Admin Only
+router.patch('/:id', authenticateToken, authorizeRole(['admin']), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = req.params.id as string;
     const { name, description, managerId, isActive } = req.body;
@@ -90,6 +101,13 @@ router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
       .set(updates)
       .where(eq(departments.id, id))
       .returning();
+
+    await logSecurityAudit(req, {
+      action: 'DEPARTMENT_MODIFIED',
+      resource: 'departments',
+      resourceId: updated?.id || id,
+      details: updates,
+    });
 
     return res.json({ success: true, department: updated });
   } catch (error) {

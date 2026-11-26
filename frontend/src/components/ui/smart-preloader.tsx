@@ -1,31 +1,82 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrandLogo } from './brand-logo';
 
-interface SmartPreloaderProps {
-  exitDirection?: 'top' | 'bottom' | 'left' | 'right';
-  duration?: number;
+/**
+ * Exact Slow-Warp timeline calculation from SmartPreloader
+ * Creates an organic pacing that naturally slows down around specified milestones (e.g. 27% and 82%)
+ */
+function createSlowWarp(slowSteps: number[]) {
+  const clamp = (val: number) => Math.max(0, Math.min(1, val));
+  const bell = (val: number) => {
+    const abs = Math.abs(val);
+    return abs >= 8 ? 0 : 0.5 * (1 + Math.cos((Math.PI * abs) / 8));
+  };
+  const stepDensity = (r: number) => {
+    if (r >= 100 || !slowSteps.length) return 1;
+    let max = 0;
+    for (const step of slowSteps) {
+      max = Math.max(max, bell(r - step));
+    }
+    return 1 - 0.88 * clamp(max);
+  };
+
+  const table = new Array(201);
+  table[0] = 0;
+  let accum = 0;
+  for (let i = 1; i <= 200; i++) {
+    const t0 = ((i - 1) / 200) * 100;
+    const t1 = (i / 200) * 100;
+    const mid = (t0 + t1) / 2;
+    const s = Math.max(1e-4, stepDensity(mid));
+    accum += (t1 - t0) / s;
+    table[i] = accum;
+  }
+  const total = accum;
+
+  return (progressRatio: number) => {
+    const target = Math.max(0, Math.min(1, progressRatio)) * total;
+    let low = 0;
+    let high = 200;
+    while (low < high) {
+      const mid = Math.floor((low + high) / 2);
+      if (table[mid] < target) {
+        low = mid + 1;
+      } else {
+        high = mid;
+      }
+    }
+    const idx = Math.max(1, low);
+    const prev = table[idx - 1];
+    const curr = table[idx];
+    const frac = curr > prev ? (target - prev) / (curr - prev) : 0;
+    return (idx - 1 + frac) / 200;
+  };
 }
 
-export function SmartPreloader({
-  exitDirection = 'top',
-  duration = 1350,
-}: SmartPreloaderProps) {
+export function SmartPreloader() {
+  const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [isDone, setIsDone] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [stage, setStage] = useState<'revealing' | 'exiting' | 'done'>('revealing');
+  const [shouldRender, setShouldRender] = useState(true);
+  const counterRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // 1. Smart Session Lock: Show once per session to maintain high retention
-    const hasSeen = sessionStorage.getItem('civicpulse_smart_preloader_seen');
-    if (hasSeen) {
-      setIsVisible(false);
-      return;
+    setMounted(true);
+
+    // 1. Smart Session Lock: Show once per session
+    try {
+      const hasSeen = sessionStorage.getItem('civicpulse_smart_preloader_seen');
+      if (hasSeen) {
+        setShouldRender(false);
+        return;
+      }
+    } catch {
+      // Ignore storage errors if private browsing restricted
     }
 
-    // 2. Bulletproof Scroll Locking (zero layout shift using scrollbar-gutter: stable)
+    // 2. Bulletproof Scroll Locking (zero layout shift)
     const originalOverflow = document.documentElement.style.overflow;
     const originalScrollbarGutter = document.documentElement.style.scrollbarGutter;
 
@@ -39,62 +90,54 @@ export function SmartPreloader({
     window.addEventListener('wheel', preventScroll, { passive: false });
     window.addEventListener('touchmove', preventScroll, { passive: false });
 
-    // 3. Dynamic Counter synced with a Slow-Warp timeline
-    // Fast start (0-38%), smooth steady pacing (38-84%), decisive snap (84-100%)
-    let startTime: number | null = null;
+    // 3. Exact SmartPreloader Animation Parameters from preloader.mp4
+    const totalRevealMs = 1600; // 1.6s reveal duration
+    const fadeMs = 800; // 800ms exit animation
+    const slowWarp = createSlowWarp([27, 82]); // Slow steps at 27% and 82%
+
+    const startTime = performance.now();
     let animationFrameId: number;
 
-    const updateProgress = (currentTime: number) => {
-      if (startTime === null) {
-        startTime = currentTime;
-      }
-
+    const animateProgress = (currentTime: number) => {
       const elapsed = Math.max(0, currentTime - startTime);
-      const t = Math.max(0, Math.min(1, elapsed / duration));
+      const linearRatio = Math.min(1, elapsed / totalRevealMs);
 
-      // Custom Slow-Warp timeline curve: guaranteed strictly non-negative base
-      let easedT = 0;
-      if (t <= 0) {
-        easedT = 0;
-      } else if (t < 0.4) {
-        // Fast opening burst
-        easedT = 0.5 * Math.pow(Math.max(0, t / 0.4), 1.6) * 0.48;
-      } else if (t < 0.82) {
-        // Deliberate linear steady phase
-        const midProgress = Math.max(0, (t - 0.4) / 0.42);
-        easedT = 0.24 + midProgress * 0.62;
-      } else {
-        // Decisive terminal snap
-        const endProgress = Math.max(0, (t - 0.82) / 0.18);
-        easedT = 0.86 + Math.pow(Math.max(0, endProgress), 1.8) * 0.14;
+      // Apply Slow-Warp easing
+      const warpedRatio = slowWarp(linearRatio);
+      const currentPercent = Math.min(100, Math.max(0, Math.round(warpedRatio * 100)));
+
+      setProgress(currentPercent);
+      if (counterRef.current) {
+        counterRef.current.textContent = `${currentPercent}%`;
       }
 
-      const rawPercent = Math.round(easedT * 100);
-      const safePercent = Number.isFinite(rawPercent) ? Math.min(100, Math.max(0, rawPercent)) : 0;
-      setProgress(safePercent);
-
-      if (t < 1) {
-        animationFrameId = requestAnimationFrame(updateProgress);
+      if (linearRatio < 1) {
+        animationFrameId = requestAnimationFrame(animateProgress);
       } else {
         setProgress(100);
-        // Short reveal hold for optical polish before fluid exit
+        if (counterRef.current) {
+          counterRef.current.textContent = '100%';
+        }
+
+        // Brief optical hold before fluid exit transition
         setTimeout(() => {
-          setIsDone(true);
+          setStage('exiting');
           sessionStorage.setItem('civicpulse_smart_preloader_seen', 'true');
 
-          // Release interaction locks smoothly
+          // Release scroll locking and remove component when exit completes
           setTimeout(() => {
             document.documentElement.style.overflow = originalOverflow;
             document.documentElement.style.scrollbarGutter = originalScrollbarGutter;
             window.removeEventListener('wheel', preventScroll);
             window.removeEventListener('touchmove', preventScroll);
-            setIsVisible(false);
-          }, 850);
-        }, 180);
+            setStage('done');
+            setShouldRender(false);
+          }, fadeMs + 50);
+        }, 120);
       }
     };
 
-    animationFrameId = requestAnimationFrame(updateProgress);
+    animationFrameId = requestAnimationFrame(animateProgress);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
@@ -103,90 +146,85 @@ export function SmartPreloader({
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
     };
-  }, [duration]);
+  }, []);
 
-  if (!isVisible) return null;
+  if (!mounted || !shouldRender || stage === 'done') return null;
 
-  // 4-Way Directional Motion Configurations
-  const cubicEase = [0.76, 0, 0.24, 1] as const;
-
-  const exitVariants = {
-    top: { y: '-100%', transition: { duration: 0.82, ease: cubicEase } },
-    bottom: { y: '100%', transition: { duration: 0.82, ease: cubicEase } },
-    left: { x: '-100%', transition: { duration: 0.82, ease: cubicEase } },
-    right: { x: '100%', transition: { duration: 0.82, ease: cubicEase } },
-  };
+  const isExiting = stage === 'exiting';
 
   return (
-    <AnimatePresence>
-      {!isDone && (
-        <motion.div
-          key="civicpulse-smart-preloader"
-          initial={{ y: 0, x: 0 }}
-          exit={exitVariants[exitDirection]}
-          className="fixed inset-0 z-[999999] flex flex-col justify-between bg-[#305dff] text-white p-7 sm:p-12 select-none overflow-hidden"
-          style={{ willChange: 'transform' }}
+    <div
+      className="fixed inset-0 z-[999999] pointer-events-auto select-none overflow-hidden"
+      style={{
+        transform: isExiting ? 'translate3d(0%, -100%, 0)' : 'translate3d(0%, 0%, 0)',
+        transition: isExiting ? 'transform 800ms cubic-bezier(0.83, 0, 0.17, 1)' : 'none',
+        willChange: 'transform',
+      }}
+    >
+      {/* BASE LAYER (Deep Royal Blue - #142878) */}
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{ backgroundColor: '#142878' }}
+      >
+        {/* PROGRESS LAYER (Exact CivicPulse Blue - #305dff) - Scales bottom-to-top */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundColor: '#305dff',
+            transformOrigin: '50% 100%',
+            transform: `scaleY(${progress / 100})`,
+            transition: 'transform 60ms linear',
+            willChange: 'transform',
+          }}
+        />
+      </div>
+
+      {/* TOP HEADER: User Brand Logo & Platform Title */}
+      <header
+        className="absolute top-6 left-6 sm:top-10 sm:left-12 z-[3] flex items-center gap-3 text-white"
+        style={{
+          opacity: isExiting ? 0 : 1,
+          transition: 'opacity 400ms ease-out',
+        }}
+      >
+        <div className="flex items-center gap-2.5">
+          <BrandLogo size={32} className="text-white" />
+          <span className="font-sans font-bold text-lg sm:text-xl tracking-tight text-white block">
+            CivicPulse
+          </span>
+        </div>
+      </header>
+
+      {/* TOP RIGHT METADATA: Minimal Technical System Indicator */}
+      <div
+        className="hidden sm:flex absolute top-10 right-12 z-[3] items-center gap-2 text-xs font-mono tracking-widest uppercase text-white/75"
+        style={{
+          opacity: isExiting ? 0 : 1,
+          transition: 'opacity 400ms ease-out',
+        }}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+        <span>Municipal Infrastructure OS</span>
+      </div>
+
+      {/* BOTTOM-RIGHT COUNTER: Signature SmartPreloader Oversized Percentage Indicator */}
+      <div
+        className="absolute bottom-6 right-6 sm:bottom-12 sm:right-12 z-[3] pointer-events-none flex items-baseline justify-end"
+        style={{
+          color: '#FFFFFF',
+          lineHeight: '1em',
+          letterSpacing: '-0.08em',
+        }}
+      >
+        <span
+          ref={counterRef}
+          className="font-sans font-semibold tracking-[-0.08em] leading-none text-white tabular-nums text-7xl sm:text-9xl md:text-[180px] lg:text-[230px]"
         >
-          {/* Subtle Ambient Radial Lighting in pure brand blue */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-[#1b44de]/60 blur-3xl pointer-events-none" />
-          </div>
-
-          {/* Top Bar: Minimal Brand Identity & Status */}
-          <header className="relative z-10 flex items-center justify-between text-xs tracking-wider uppercase font-mono text-white/80">
-            <div className="flex items-center gap-2.5 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              <span>CivicPulse Platform</span>
-            </div>
-            <div className="hidden sm:block text-white/60">
-              Municipal OS &bull; 2026
-            </div>
-          </header>
-
-          {/* Center Stage: Minimal Logo & Dynamic Counter */}
-          <main className="relative z-10 flex flex-col items-center justify-center text-center my-auto">
-            {/* Minimal Brand Logo */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.45, ease: 'easeOut' }}
-              className="mb-8"
-            >
-              <BrandLogo size={56} className="text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.15)]" />
-            </motion.div>
-
-            {/* Dynamic Percentage Counter */}
-            <div className="flex items-baseline justify-center mb-6">
-              <span className="text-7xl sm:text-8xl md:text-9xl font-bold font-sans tracking-tight text-white tabular-nums">
-                {Number.isFinite(progress) ? progress : 0}
-              </span>
-              <span className="text-2xl sm:text-3xl font-light text-white/70 ml-1 font-mono">
-                %
-              </span>
-            </div>
-
-            {/* Hairline Progress Rule */}
-            <div className="w-48 sm:w-64 h-[2px] bg-white/25 rounded-full overflow-hidden relative">
-              <motion.div
-                className="h-full bg-white rounded-full"
-                style={{ width: `${progress}%` }}
-                transition={{ ease: 'easeOut' }}
-              />
-            </div>
-          </main>
-
-          {/* Bottom Bar: Operational Metadata */}
-          <footer className="relative z-10 flex items-center justify-between text-[11px] font-mono text-white/75 pt-4 border-t border-white/15">
-            <span className="truncate max-w-[200px] sm:max-w-none">
-              Dhaka Smart Infrastructure
-            </span>
-            <span>
-              {progress < 100 ? 'Synchronizing...' : 'Ready'}
-            </span>
-          </footer>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          {progress}%
+        </span>
+      </div>
+    </div>
   );
 }
+
+export default SmartPreloader;

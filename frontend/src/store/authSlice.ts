@@ -62,6 +62,8 @@ export const authSlice = createSlice({
         try {
           localStorage.setItem('civicpulse_user', JSON.stringify(action.payload.user));
           localStorage.setItem('civicpulse_token', action.payload.token);
+          document.cookie = `civicpulse_session=${action.payload.token}; path=/; max-age=2592000; SameSite=Lax`;
+          document.cookie = `civicpulse_role=${action.payload.user.role}; path=/; max-age=2592000; SameSite=Lax`;
         } catch {}
       }
     },
@@ -75,6 +77,8 @@ export const authSlice = createSlice({
           try {
             localStorage.setItem('civicpulse_user', JSON.stringify(demo));
             localStorage.setItem('civicpulse_token', `demo-token-${action.payload}`);
+            document.cookie = `civicpulse_session=demo-token-${action.payload}; path=/; max-age=2592000; SameSite=Lax`;
+            document.cookie = `civicpulse_role=${demo.role}; path=/; max-age=2592000; SameSite=Lax`;
           } catch {}
         }
       }
@@ -85,9 +89,12 @@ export const authSlice = createSlice({
           const storedUser = localStorage.getItem('civicpulse_user');
           const storedToken = localStorage.getItem('civicpulse_token');
           if (storedUser && storedToken) {
-            state.user = JSON.parse(storedUser);
+            const parsedUser = JSON.parse(storedUser);
+            state.user = parsedUser;
             state.token = storedToken;
             state.isAuthenticated = true;
+            document.cookie = `civicpulse_session=${storedToken}; path=/; max-age=2592000; SameSite=Lax`;
+            document.cookie = `civicpulse_role=${parsedUser.role}; path=/; max-age=2592000; SameSite=Lax`;
           }
         } catch {}
       }
@@ -100,6 +107,8 @@ export const authSlice = createSlice({
         try {
           localStorage.removeItem('civicpulse_user');
           localStorage.removeItem('civicpulse_token');
+          document.cookie = 'civicpulse_session=; path=/; max-age=0; SameSite=Lax';
+          document.cookie = 'civicpulse_role=; path=/; max-age=0; SameSite=Lax';
         } catch {}
       }
     },

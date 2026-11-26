@@ -2,19 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
-import { setDemoPersona } from '../../store/authSlice';
+import { logout } from '../../store/authSlice';
 import { toggleTheme, toggleMobileSidebar } from '../../store/uiSlice';
-import { useNotification } from '@/context/notification-context';
-import { UserRole } from '../../types';
+import { useNotification } from '../../context/notification-context';
 import {
   Sun,
   Moon,
-  Sparkles,
-  Shield,
-  HardHat,
-  User,
   Bell,
   Menu,
   CheckCheck,
@@ -26,13 +22,12 @@ import {
   ExternalLink,
   Settings,
   LogOut,
-  LogIn,
-  UserPlus,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export function Header({ title }: { title?: string }) {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { user } = useSelector((state: RootState) => state.auth);
   const { theme } = useSelector((state: RootState) => state.ui);
 
@@ -70,12 +65,11 @@ export function Header({ title }: { title?: string }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const personas: { role: UserRole; label: string; icon: any }[] = [
-    { role: 'citizen', label: 'Citizen', icon: User },
-    { role: 'manager', label: 'Manager', icon: HardHat },
-    { role: 'staff', label: 'Staff', icon: Shield },
-    { role: 'admin', label: 'Admin', icon: Sparkles },
-  ];
+  const handleSignOut = () => {
+    dispatch(logout());
+    setShowUserMenu(false);
+    router.push('/login');
+  };
 
   const getNotifIcon = (type: string) => {
     switch (type) {
@@ -160,7 +154,7 @@ export function Header({ title }: { title?: string }) {
                     No recent notifications.
                   </div>
                 ) : (
-                  notifications.map((n) => (
+                  notifications.map((n: any) => (
                     <div
                       key={n.id}
                       onClick={() => markAsRead(n.id)}
@@ -259,52 +253,37 @@ export function Header({ title }: { title?: string }) {
 
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-56 rounded-xl bg-surface border border-border shadow-2xl z-50 overflow-hidden animate-fadeIn py-1">
+              {/* 1. User Identity Header */}
               <div className="px-3.5 py-2.5 border-b border-border bg-surface-secondary/40">
                 <p className="text-xs font-bold text-text-primary truncate">{user?.name || 'Guest User'}</p>
                 <p className="text-[11px] text-text-muted truncate">{user?.email || 'user@civicpulse.gov'}</p>
-                <span className="mt-1 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-brand-cobalt/10 text-brand-cobalt border border-brand-cobalt/20">
+                <span className="mt-1.5 inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-brand-cobalt/10 text-brand-cobalt border border-brand-cobalt/20">
                   {user?.role || 'citizen'}
                 </span>
               </div>
 
+              {/* 2. Profile Settings */}
               <div className="py-1">
                 <Link
                   href="/profile"
                   onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
                 >
                   <Settings size={14} className="text-brand-cobalt" />
                   <span>Profile Settings</span>
                 </Link>
-
-                <Link
-                  href="/login"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
-                >
-                  <LogIn size={14} className="text-brand-cobalt" />
-                  <span>Log In / Switch Account</span>
-                </Link>
-
-                <Link
-                  href="/register"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-text-secondary hover:text-text-primary hover:bg-surface-secondary transition-colors"
-                >
-                  <UserPlus size={14} className="text-brand-cobalt" />
-                  <span>Register New User</span>
-                </Link>
               </div>
 
+              {/* 3. Sign Out */}
               <div className="border-t border-border pt-1">
-                <Link
-                  href="/login"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
                 >
                   <LogOut size={14} />
                   <span>Sign Out</span>
-                </Link>
+                </button>
               </div>
             </div>
           )}

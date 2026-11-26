@@ -109,6 +109,8 @@ export const apiSlice = createApi({
     // Departments
     getDepartments: builder.query<Department[], void>({
       query: () => '/departments',
+      transformResponse: (response: any) =>
+        Array.isArray(response) ? response : (response?.departments || []),
       providesTags: ['Departments'],
     }),
 
@@ -125,6 +127,8 @@ export const apiSlice = createApi({
         if (params?.status) queryParams.append('status', params.status);
         return `/tasks?${queryParams.toString()}`;
       },
+      transformResponse: (response: any) =>
+        Array.isArray(response) ? response : (response?.tasks || []),
       providesTags: ['Tasks'],
     }),
 

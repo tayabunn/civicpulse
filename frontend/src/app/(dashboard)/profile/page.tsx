@@ -39,7 +39,10 @@ export default function UserProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const dept = departments?.find((d) => d.id === user?.departmentId);
+  const deptList = Array.isArray(departments)
+    ? departments
+    : (departments as any)?.departments || [];
+  const dept = deptList.find((d: any) => d.id === user?.departmentId);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();

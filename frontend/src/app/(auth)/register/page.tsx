@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../../store/authSlice';
 import { Card } from '../../../components/ui/card';
@@ -11,53 +10,32 @@ import { Button } from '../../../components/ui/button';
 import { GoogleButton } from '../../../components/ui/google-button';
 import { BrandLogo } from '../../../components/ui/brand-logo';
 import { LazyLoader } from '../../../components/ui/lazy-loader';
-import { ArrowLeft, UserPlus } from 'lucide-react';
+import { ArrowLeft, UserPlus, Lock, AlertCircle } from 'lucide-react';
 import { UserRole } from '../../../types';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<UserRole>('citizen');
+  const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const getDashboardForRole = (userRole: UserRole) => {
-    switch (userRole) {
-      case 'admin':
-        return '/admin';
-      case 'manager':
-        return '/manager';
-      case 'staff':
-        return '/staff';
-      case 'citizen':
-      default:
-        return '/citizen';
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
     setIsLoading(true);
 
-    const displayName = name.trim() || email.split('@')[0].replace(/[._-]/g, ' ');
+    const normalizedEmail = email.trim().toLowerCase();
+    const displayName = name.trim() || normalizedEmail.split('@')[0].replace(/[._-]/g, ' ');
     const newUser = {
       id: `reg-${Date.now()}`,
       name: displayName,
-      email: email.trim(),
-      role,
+      email: normalizedEmail,
+      role: 'citizen' as UserRole,
       phone: phone.trim() || '+8801700000000',
-      avatarUrl: `https://images.unsplash.com/photo-${
-        role === 'admin'
-          ? '1494790108377-be9c29b29330'
-          : role === 'manager'
-          ? '1507003211169-0a1dd7228f2d'
-          : role === 'staff'
-          ? '1500648767791-00dcc994a43e'
-          : '1438761681033-6461ffad8d80'
-      }?w=150`,
+      avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
     };
 
     try {
@@ -67,37 +45,51 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: displayName,
-          email: email.trim(),
+          email: normalizedEmail,
           password,
           phone: phone.trim() || '+8801700000000',
-          role,
+          role: 'citizen',
         }),
       });
       const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMsg(
+          typeof data?.error === 'string'
+            ? data.error
+            : 'Registration failed. Please check your details and try again.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
       if (data?.user) {
         dispatch(
           setCredentials({
-            user: { ...data.user, role },
-            token: data.token || `token-${Date.now()}`,
+            user: { ...data.user, role: 'citizen' },
+            token: data.token || `jwt-${Date.now()}`,
           })
         );
       } else {
-        dispatch(setCredentials({ user: newUser, token: `token-${Date.now()}` }));
+        dispatch(setCredentials({ user: newUser, token: `jwt-${Date.now()}` }));
       }
     } catch {
-      dispatch(setCredentials({ user: newUser, token: `token-${Date.now()}` }));
+      dispatch(setCredentials({ user: newUser, token: `jwt-${Date.now()}` }));
     }
 
     // Trust this device for 30 days upon registration
     if (typeof window !== 'undefined') {
       try {
-        const key = `civicpulse_trusted_device_${email.trim().toLowerCase()}`;
+        const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+        document.cookie = `civicpulse_trusted_device=true; max-age=2592000; path=/; SameSite=Lax`;
+        localStorage.setItem('civicpulse_device_trusted_until', expiresAt.toString());
+        localStorage.setItem('civicpulse_last_verified_email', normalizedEmail);
         localStorage.setItem(
-          key,
+          `civicpulse_trusted_device_${normalizedEmail}`,
           JSON.stringify({
-            email: email.trim().toLowerCase(),
+            email: normalizedEmail,
             verifiedAt: Date.now(),
-            expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+            expiresAt,
             trusted: true,
           })
         );
@@ -106,8 +98,8 @@ export default function RegisterPage() {
 
     setTimeout(() => {
       setIsLoading(false);
-      router.push(getDashboardForRole(role));
-    }, 600);
+      window.location.href = '/citizen';
+    }, 400);
   };
 
   return (
@@ -115,8 +107,8 @@ export default function RegisterPage() {
       {isLoading && (
         <LazyLoader
           fullScreen
-          message="Creating your verified account..."
-          submessage="Configuring municipal permissions and initializing dashboard..."
+          message="Creating your verified citizen account..."
+          submessage="Configuring security permissions and initializing Citizen Portal..."
         />
       )}
       <div className="w-full max-w-md space-y-6">
@@ -139,25 +131,34 @@ export default function RegisterPage() {
             Register New Account
           </h1>
           <p className="text-xs text-text-muted">
-            Join the smart city municipal platform and access your desired role dashboard.
+            Create your Citizen Portal account to report and track municipal issues.
           </p>
         </div>
 
         <Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {errorMsg && (
+            <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <AlertCircle size={16} className="shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
             <Input
               label="Full Name *"
               placeholder="e.g. Jane Citizen"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
               required
             />
             <Input
               label="Email Address *"
               type="email"
-              placeholder="e.g. citizen.jane@civicpulse.gov"
+              placeholder="e.g. name@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="off"
               required
             />
             <Input
@@ -165,30 +166,23 @@ export default function RegisterPage() {
               placeholder="+880 1700-000000"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              autoComplete="off"
             />
             <Input
               label="Password *"
               type="password"
-              placeholder="••••••••"
+              placeholder="Minimum 6 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               required
             />
 
-            <div>
-              <label className="block text-xs font-semibold text-text-secondary mb-1">
-                Account Role & Desired Dashboard *
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full px-3 py-2 rounded-lg bg-surface border border-border text-xs font-medium text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-cobalt"
-              >
-                <option value="citizen">Citizen — Citizen Portal (/citizen)</option>
-                <option value="manager">Department Manager — Triage Hub (/manager)</option>
-                <option value="staff">Maintenance Staff — Field Orders (/staff)</option>
-                <option value="admin">Administrator — Executive BI (/admin)</option>
-              </select>
+            <div className="p-2.5 rounded-lg bg-surface-secondary border border-border text-[11px] text-text-muted flex items-start gap-2">
+              <Lock size={13} className="shrink-0 mt-0.5 text-slate-400" />
+              <span>
+                Public sign-up creates a <strong>Citizen Portal</strong> account. Municipal Staff, Managers &amp; Admins log in directly with their official credentials.
+              </span>
             </div>
 
             <Button
@@ -198,7 +192,7 @@ export default function RegisterPage() {
               className="w-full font-bold shadow-md gap-2"
             >
               <UserPlus size={15} />
-              Register & Enter Selected Dashboard
+              Register & Enter Citizen Portal
             </Button>
           </form>
 
