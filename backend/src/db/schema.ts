@@ -251,6 +251,30 @@ export const maintenanceTasksRelations = relations(maintenanceTasks, ({ one }) =
   }),
 }));
 
+// 9. Security Audit Logs Table (Tamper-proof system-wide activity trail)
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    actorId: uuid('actor_id'),
+    actorEmail: text('actor_email'),
+    actorRole: text('actor_role'),
+    action: text('action').notNull(),
+    resource: text('resource').notNull(),
+    resourceId: text('resource_id'),
+    details: text('details'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    status: text('status').default('SUCCESS').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_audit_logs_actor').on(table.actorId, table.createdAt),
+    index('idx_audit_logs_action').on(table.action, table.createdAt),
+    index('idx_audit_logs_resource').on(table.resource, table.createdAt),
+  ]
+);
+
 // Export inferred types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -265,3 +289,5 @@ export type NewMaintenanceTask = typeof maintenanceTasks.$inferInsert;
 export type SavedView = typeof savedViews.$inferSelect;
 export type SearchHistory = typeof searchHistory.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;
