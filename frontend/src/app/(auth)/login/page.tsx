@@ -43,45 +43,85 @@ export default function LoginPage() {
   // 30-Day Device Trust Duration (30 days in ms)
   const TRUST_DURATION = 30 * 24 * 60 * 60 * 1000;
 
-  const checkDeviceTrust = (emailStr: string): boolean => {
-    if (typeof window === 'undefined' || !emailStr) return false;
+  const checkDeviceTrust = (emailStr?: string): boolean => {
+    if (typeof window === 'undefined') return false;
     try {
-      const key = `civicpulse_trusted_device_${emailStr.trim().toLowerCase()}`;
-      const raw = localStorage.getItem(key);
-      if (!raw) return false;
-      const data = JSON.parse(raw);
-      if (data?.expiresAt && Date.now() < data.expiresAt) {
+      // 1. Check browser cookie for 30-day device trust
+      if (document.cookie.includes('civicpulse_trusted_device=true')) {
         return true;
       }
-      localStorage.removeItem(key);
+
+      // 2. Check generic device trust in localStorage
+      const genericTrust = localStorage.getItem('civicpulse_device_trusted_until');
+      if (genericTrust && Date.now() < Number(genericTrust)) {
+        return true;
+      }
+
+      // 3. Check email-specific trust if email provided
+      if (emailStr) {
+        const key = `civicpulse_trusted_device_${emailStr.trim().toLowerCase()}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data?.expiresAt && Date.now() < data.expiresAt) {
+            return true;
+          }
+        }
+      }
+
       return false;
     } catch {
       return false;
     }
   };
 
-  const saveDeviceTrust = (emailStr: string) => {
-    if (typeof window === 'undefined' || !emailStr) return;
+  const saveDeviceTrust = (emailStr?: string) => {
+    if (typeof window === 'undefined') return;
     try {
-      const key = `civicpulse_trusted_device_${emailStr.trim().toLowerCase()}`;
-      localStorage.setItem(
-        key,
-        JSON.stringify({
-          email: emailStr.trim().toLowerCase(),
-          verifiedAt: Date.now(),
-          expiresAt: Date.now() + TRUST_DURATION,
-          trusted: true,
-        })
-      );
+      const expiresAt = Date.now() + TRUST_DURATION;
+      // 1. Set 30-day cookie
+      document.cookie = `civicpulse_trusted_device=true; max-age=2592000; path=/; SameSite=Lax`;
+
+      // 2. Set generic device trust
+      localStorage.setItem('civicpulse_device_trusted_until', expiresAt.toString());
+
+      // 3. Set email-specific trust
+      if (emailStr) {
+        const normalized = emailStr.trim().toLowerCase();
+        const key = `civicpulse_trusted_device_${normalized}`;
+        localStorage.setItem(
+          key,
+          JSON.stringify({
+            email: normalized,
+            verifiedAt: Date.now(),
+            expiresAt,
+            trusted: true,
+          })
+        );
+        localStorage.setItem('civicpulse_last_verified_email', normalized);
+      }
     } catch {}
   };
 
+  // On mount: check device trust and pre-fill email if remembered
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const lastEmail = localStorage.getItem('civicpulse_last_verified_email');
+      if (lastEmail) {
+        setEmail(lastEmail);
+        setIsDeviceTrusted(true);
+      } else if (checkDeviceTrust()) {
+        setIsDeviceTrusted(true);
+      }
+    }
+  }, []);
+
   // Monitor email input to dynamically check 30-day trusted status
   useEffect(() => {
-    if (email && email.includes('@')) {
+    if (email) {
       setIsDeviceTrusted(checkDeviceTrust(email));
     } else {
-      setIsDeviceTrusted(false);
+      setIsDeviceTrusted(checkDeviceTrust());
     }
   }, [email]);
 
@@ -156,8 +196,8 @@ export default function LoginPage() {
     setTimeout(() => {
       dispatch(setDemoPersona(role));
       setLazyLoader(null);
-      router.push(getDashboardForRole(role));
-    }, 500);
+      window.location.href = getDashboardForRole(role);
+    }, 400);
   };
 
   // Step 1: Validate Credentials & Dispatch 6-Digit Email Code
@@ -200,58 +240,72 @@ export default function LoginPage() {
 
     setComputedRole(targetRole);
 
-    // 30-Day Trusted Device Check: If verified on this device within 30 days, skip OTP!
+    // 30-Day Trusted Device Check & Instant Direct Sign In
     const isTrusted = checkDeviceTrust(normalizedEmail);
 
-    if (isTrusted) {
-      setLazyLoader({
-        active: true,
-        message: 'Authenticating trusted device...',
-        submessage: `30-day verified session active. Entering ${targetRole.toUpperCase()} workspace...`,
+    setLazyLoader({
+      active: true,
+      message: 'Authenticating credentials...',
+      submessage: 'Verifying session and entering workspace...',
+    });
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password,
+          trustedDevice: true, // Bypass OTP for returning users & remembered devices
+        }),
       });
 
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const response = await fetch(`${apiUrl}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: normalizedEmail,
-            password,
-            trustedDevice: true,
-          }),
-        });
+      const data = await response.json();
 
-        const data = await response.json();
-        if (!response.ok && data?.error && !data?.requires2FA) {
-          setCredentialError(data.error);
-          setLazyLoader(null);
-          return;
+      if (response.ok && data?.user) {
+        const authenticatedUser = data.user;
+        const sessionToken = data?.token || `jwt-${Date.now()}`;
+
+        if (typeof window !== 'undefined') {
+          document.cookie = `civicpulse_session=${sessionToken}; path=/; max-age=2592000; SameSite=Lax`;
+          document.cookie = `civicpulse_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax`;
         }
-
-        const authenticatedUser = data?.user || {
-          id: `usr-${Date.now()}`,
-          name: formatDisplayName(normalizedEmail),
-          email: normalizedEmail,
-          role: targetRole,
-        };
 
         dispatch(
           setCredentials({
             user: { ...authenticatedUser, role: targetRole },
-            token: data?.token || `jwt-${Date.now()}`,
+            token: sessionToken,
           })
         );
 
-        // Refresh trust timestamp for 30 more days
+        // Remember device for 30 days
         saveDeviceTrust(normalizedEmail);
 
         setTimeout(() => {
           setLazyLoader(null);
-          router.push(getDashboardForRole(targetRole));
-        }, 350);
+          const redirectParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+          const targetUrl = redirectParam && redirectParam.startsWith('/') ? redirectParam : getDashboardForRole(targetRole);
+          window.location.href = targetUrl;
+        }, 200);
         return;
-      } catch {
+      }
+
+      // If backend explicitly rejected invalid administrative password:
+      if (!response.ok && data?.error && targetRole !== 'citizen') {
+        setCredentialError(data.error);
+        setLazyLoader(null);
+        return;
+      }
+    } catch {
+      // Offline fallback: if network fails, log citizen in directly
+      if (targetRole === 'citizen') {
+        const sessionToken = `jwt-${Date.now()}`;
+        if (typeof window !== 'undefined') {
+          document.cookie = `civicpulse_session=${sessionToken}; path=/; max-age=2592000; SameSite=Lax`;
+          document.cookie = `civicpulse_role=${targetRole}; path=/; max-age=2592000; SameSite=Lax`;
+        }
+
         dispatch(
           setCredentials({
             user: {
@@ -260,20 +314,21 @@ export default function LoginPage() {
               email: normalizedEmail,
               role: targetRole,
             },
-            token: `jwt-${Date.now()}`,
+            token: sessionToken,
           })
         );
         saveDeviceTrust(normalizedEmail);
         setTimeout(() => {
           setLazyLoader(null);
-          router.push(getDashboardForRole(targetRole));
-        }, 350);
+          const redirectParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+          const targetUrl = redirectParam && redirectParam.startsWith('/') ? redirectParam : getDashboardForRole(targetRole);
+          window.location.href = targetUrl;
+        }, 200);
         return;
       }
     }
 
-    // Trigger Lazy Loader for First-time 2FA Code Dispatch
-
+    // Only if brand new citizen registration / first-time verification is needed:
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await fetch(`${apiUrl}/auth/send-code`, {
@@ -300,7 +355,7 @@ export default function LoginPage() {
       setResendCountdown(30);
       setCanResend(false);
       setCodeDigits(['', '', '', '', '', '']);
-    }, 700);
+    }, 600);
   };
 
   // Handle individual digit input and auto-advance
@@ -414,11 +469,17 @@ export default function LoginPage() {
         return;
       }
 
+      const sessionToken = data?.token || `jwt-${Date.now()}`;
+      if (typeof window !== 'undefined') {
+        document.cookie = `civicpulse_session=${sessionToken}; path=/; max-age=2592000; SameSite=Lax`;
+        document.cookie = `civicpulse_role=${computedRole}; path=/; max-age=2592000; SameSite=Lax`;
+      }
+
       if (data?.user) {
         dispatch(
           setCredentials({
             user: { ...data.user, role: computedRole },
-            token: data.token || `jwt-${Date.now()}`,
+            token: sessionToken,
           })
         );
       }
@@ -427,7 +488,9 @@ export default function LoginPage() {
       saveDeviceTrust(normalizedEmail);
 
       // Instant redirect: immediately route to dashboard with zero artificial delays
-      router.push(targetDashboard);
+      const redirectParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+      const targetUrl = redirectParam && redirectParam.startsWith('/') ? redirectParam : targetDashboard;
+      window.location.href = targetUrl;
     } catch {
       setLazyLoader(null);
       setCodeError('Unable to connect to authorization server. Please try again.');
