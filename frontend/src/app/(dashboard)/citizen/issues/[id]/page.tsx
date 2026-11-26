@@ -8,7 +8,9 @@ import {
   useGetIssueByIdQuery,
   useSubmitFeedbackMutation,
   useUpdateIssueStatusMutation,
+  useUpvoteIssueMutation,
 } from '@/store/apiSlice';
+import { BeforeAfterSlider } from '@/components/issues/before-after-slider';
 import { useNotification } from '@/context/notification-context';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +53,8 @@ export default function IssueDetailPage() {
   const { data: issue, isLoading, refetch } = useGetIssueByIdQuery(id as string);
   const [submitFeedback, { isLoading: isSubmittingFeedback }] = useSubmitFeedbackMutation();
   const [updateIssueStatus, { isLoading: isUpdatingStatus }] = useUpdateIssueStatusMutation();
+  const [upvoteIssue, { isLoading: isUpvoting }] = useUpvoteIssueMutation();
+  const [hasUpvoted, setHasUpvoted] = useState(false);
 
   // Feedback Modal State
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -134,7 +138,7 @@ export default function IssueDetailPage() {
   const currentStepIndex = steps.findIndex((s) => s.key === issue.status);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="w-full space-y-6 transition-all duration-300">
       {/* Official Municipal Printable Header (PDF & Print View) */}
       <div className="hidden print:block border-b-2 border-black pb-4 mb-6">
         <div className="flex justify-between items-start">
@@ -152,13 +156,15 @@ export default function IssueDetailPage() {
           <div className="text-right font-mono text-xs space-y-0.5">
             <p className="font-bold text-sm text-black">{issue.trackingCode}</p>
             <p className="text-slate-600">Printed: {new Date().toLocaleDateString()}</p>
-            <p className="text-slate-600">Status: {getStatusLabel(issue.status).toUpperCase()}</p>
+            <p className="text-slate-600">
+              Status: {(getStatusLabel(issue.status) || issue.status || 'SUBMITTED').toUpperCase()}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Top breadcrumb & tracking header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 !mt-0">
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
@@ -190,6 +196,25 @@ export default function IssueDetailPage() {
           <Badge className={`text-sm px-3 py-1 ${getStatusBadgeClass(issue.status)}`}>
             {getStatusLabel(issue.status)}
           </Badge>
+
+          {/* Community Confirmation (+1 Support) */}
+          <Button
+            type="button"
+            variant={hasUpvoted ? 'primary' : 'outline'}
+            size="sm"
+            disabled={isUpvoting || hasUpvoted}
+            onClick={async () => {
+              try {
+                await upvoteIssue(issue.id).unwrap();
+              } catch {}
+              setHasUpvoted(true);
+              notifySuccess('Your confirmation was added to prioritize this repair.', 'Confirmed');
+            }}
+            className="gap-1.5 font-semibold text-xs h-8 print:hidden"
+          >
+            <CheckCircle2 size={13} />
+            {hasUpvoted ? 'Confirmed (+1)' : 'I See This Too (+1)'}
+          </Button>
 
           {/* Bonus Challenge 7: PDF Issue Report Print Trigger */}
           <Button
@@ -272,41 +297,61 @@ export default function IssueDetailPage() {
               </div>
             </div>
 
-            {/* Evidence Photos */}
-            {issue.imageUrl && (
-              <div className="pt-3 border-t border-border space-y-2">
-                <span className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
-                  <Camera size={14} /> Citizen Evidence Photograph
+            {/* Interactive Before vs After Comparison Slider when both photos exist */}
+            {issue.imageUrl && issue.resolutionImageUrl ? (
+              <div className="pt-3 border-t border-border space-y-3">
+                <span className="text-xs font-semibold text-[#315CFF] dark:text-[#6280FF] flex items-center gap-1.5">
+                  <SlidersHorizontal size={14} /> Before &amp; After Repair Comparison
                 </span>
-                <div className="h-48 sm:h-64 rounded-xl overflow-hidden border border-border">
-                  <img
-                    src={issue.imageUrl}
-                    alt="Citizen evidence"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Repair Completion Proof (Field Staff Upload) */}
-            {issue.resolutionImageUrl && (
-              <div className="pt-3 border-t border-border space-y-2">
-                <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
-                  <CheckCircle2 size={14} /> Field Crew Repair Proof Photograph
-                </span>
-                <div className="h-48 sm:h-64 rounded-xl overflow-hidden border-2 border-emerald-500">
-                  <img
-                    src={issue.resolutionImageUrl}
-                    alt="Resolution evidence"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <BeforeAfterSlider
+                  beforeUrl={issue.imageUrl}
+                  afterUrl={issue.resolutionImageUrl}
+                />
                 {issue.resolutionNotes && (
                   <p className="text-xs text-text-muted italic bg-surface-secondary p-2.5 rounded-lg border border-border">
                     &ldquo;{issue.resolutionNotes}&rdquo;
                   </p>
                 )}
               </div>
+            ) : (
+              <>
+                {/* Evidence Photos */}
+                {issue.imageUrl && (
+                  <div className="pt-3 border-t border-border space-y-2">
+                    <span className="text-xs font-semibold text-text-secondary flex items-center gap-1.5">
+                      <Camera size={14} /> Citizen Evidence Photograph
+                    </span>
+                    <div className="h-48 sm:h-64 rounded-xl overflow-hidden border border-border">
+                      <img
+                        src={issue.imageUrl}
+                        alt="Citizen evidence"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Repair Completion Proof (Field Staff Upload) */}
+                {issue.resolutionImageUrl && (
+                  <div className="pt-3 border-t border-border space-y-2">
+                    <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                      <CheckCircle2 size={14} /> Field Crew Repair Proof Photograph
+                    </span>
+                    <div className="h-48 sm:h-64 rounded-xl overflow-hidden border-2 border-emerald-500">
+                      <img
+                        src={issue.resolutionImageUrl}
+                        alt="Resolution evidence"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {issue.resolutionNotes && (
+                      <p className="text-xs text-text-muted italic bg-surface-secondary p-2.5 rounded-lg border border-border">
+                        &ldquo;{issue.resolutionNotes}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </Card>
 
