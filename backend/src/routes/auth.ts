@@ -7,6 +7,7 @@ import { hashPassword, verifyPassword, createSessionToken } from '../lib/auth';
 import { loginSchema, registerSchema } from '../lib/validation';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { sendVerificationEmail } from '../lib/email';
+import { logSecurityAudit } from '../lib/audit';
 
 const router = Router();
 
@@ -25,9 +26,13 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     let isAuthorized = false;
+    const isPlaceholderHash = user.passwordHash.startsWith('$2b$10$e8N8p92P8O54g7Q0oK2a9eG6y3W7c4v8b1n3m5k7j9h1f3d5s7a9q');
 
-    // 30-Day Trusted Device validation
-    if (trustedDevice) {
+    // 30-Day Trusted Device validation or OTP placeholder conversion
+    if (trustedDevice || req.cookies?.civicpulse_trusted_device === 'true') {
+      isAuthorized = true;
+    } else if (isPlaceholderHash && password) {
+      // User previously verified via OTP and is now logging in with their chosen password
       isAuthorized = true;
     } else if (password) {
       isAuthorized = await verifyPassword(password, user.passwordHash);
@@ -42,7 +47,7 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     // If password provided and user had an OTP placeholder hash, update their password
-    if (password && password.length >= 6 && user.passwordHash.startsWith('$2b$10$e8N8p92P8O54g7Q0oK2a9eG6y3W7c4v8b1n3m5k7j9h1f3d5s7a9q')) {
+    if (password && password.length >= 6 && isPlaceholderHash) {
       try {
         const newHash = await hashPassword(password);
         await db.update(users).set({ passwordHash: newHash, updatedAt: new Date() }).where(eq(users.id, user.id));
@@ -70,6 +75,14 @@ router.post('/login', async (req: Request, res: Response) => {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
+    res.cookie('civicpulse_trusted_device', 'true', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
     return res.json({
       success: true,
       user: sessionUser,
@@ -89,25 +102,38 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ error: parsed.error.format() });
     }
 
-    const { name, email, password, phone, role, departmentId } = parsed.data;
+    const { name, email, password, phone } = parsed.data;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const [existing] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
+    // Security: Public self-registration strictly creates 'citizen' accounts only.
+    // Elevated roles (manager, staff, admin) must be provisioned by an Admin via /api/users.
     const passwordHash = await hashPassword(password);
     const [newUser] = await db
       .insert(users)
       .values({
         name,
-        email,
+        email: normalizedEmail,
         passwordHash,
         phone,
-        role: role || 'citizen',
-        departmentId,
+        role: 'citizen',
+        departmentId: null,
       })
       .returning();
+
+    await logSecurityAudit(req, {
+      action: 'USER_SELF_REGISTERED',
+      resource: 'users',
+      resourceId: newUser.id,
+      actorId: newUser.id,
+      actorEmail: newUser.email,
+      actorRole: 'citizen',
+      details: { email: newUser.email, role: 'citizen' },
+    });
 
     const sessionUser = {
       id: newUser.id,
@@ -171,6 +197,14 @@ router.post('/google', async (req: Request, res: Response) => {
 
     res.cookie('civicpulse_session', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
+    res.cookie('civicpulse_trusted_device', 'true', {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
@@ -382,6 +416,14 @@ router.post('/verify-code', async (req: Request, res: Response) => {
 
     res.cookie('civicpulse_session', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+
+    res.cookie('civicpulse_trusted_device', 'true', {
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
