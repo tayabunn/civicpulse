@@ -11,6 +11,8 @@ import { Button } from '../../../components/ui/button';
 import { GoogleButton } from '../../../components/ui/google-button';
 import { BrandLogo } from '../../../components/ui/brand-logo';
 import { LazyLoader } from '../../../components/ui/lazy-loader';
+import { MotionGrid } from '../../../components/ui/motion-grid';
+import { AuthShowcasePanel } from '../../../components/auth/auth-showcase-panel';
 import {
   User,
   HardHat,
@@ -23,6 +25,8 @@ import {
   RotateCcw,
   AlertCircle,
   Lock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { UserRole } from '../../../types';
 
@@ -36,6 +40,7 @@ export default function LoginPage() {
   // Form Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [computedRole, setComputedRole] = useState<UserRole>('citizen');
   const [credentialError, setCredentialError] = useState('');
   const [isDeviceTrusted, setIsDeviceTrusted] = useState(false);
@@ -100,7 +105,7 @@ export default function LoginPage() {
         );
         localStorage.setItem('civicpulse_last_verified_email', normalized);
       }
-    } catch {}
+    } catch { }
   };
 
   // On mount: check device trust and pre-fill email if remembered
@@ -499,7 +504,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 sm:p-6 relative">
+    <MotionGrid
+      speed="18s"
+      opacity={0.14}
+      enableGlow={true}
+      lineColor="110, 134, 4"
+      className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6"
+    >
       {/* Full Screen LazyLoader Overlay */}
       {lazyLoader?.active && (
         <LazyLoader
@@ -509,95 +520,100 @@ export default function LoginPage() {
         />
       )}
 
-      <div className="w-full max-w-md space-y-6">
-        {/* Back Link */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-brand-cobalt transition-colors"
-          >
-            <ArrowLeft size={14} /> Back to Home
-          </Link>
-          <span className="text-xs font-mono text-text-muted">CivicPulse 2FA Auth</span>
+      {/* Split-Screen Elevated Auth Card matching Reference Mockup */}
+      <div className="w-full max-w-5xl rounded-lg bg-white dark:bg-[#0E1420] border border-[#D5DAE3] dark:border-[#232F46] shadow-2xl p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+        {/* Left Showcase Panel */}
+        <div className="lg:col-span-5 hidden lg:block">
+          <AuthShowcasePanel />
         </div>
 
-        {/* Brand */}
-        <div className="text-center space-y-2">
-          <div className="flex justify-center">
-            <BrandLogo size={44} className="text-[#202B45]" />
+        {/* Right Form Panel */}
+        <div className="lg:col-span-7 flex flex-col justify-center px-3 py-4 sm:px-6 sm:py-6 space-y-5">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-[#315CFF] transition-colors"
+            >
+              <ArrowLeft size={14} /> Back to Home
+            </Link>
+            <span className="text-xs font-mono text-text-muted">CivicPulse 2FA Auth</span>
           </div>
-          <h1 className="text-2xl font-bold font-display text-text-primary tracking-tight">
-            {step === 'credentials' ? 'Log In to CivicPulse' : 'Email Security Verification'}
-          </h1>
-          <p className="text-xs text-text-muted max-w-sm mx-auto">
-            {step === 'credentials'
-              ? 'Access your citizen reporting portal or authorized municipal management hub.'
-              : `A 6-digit verification code has been dispatched to ${email}.`}
-          </p>
-        </div>
 
-        {/* STEP 1: CREDENTIALS INPUT */}
-        {step === 'credentials' && (
-          <>
-            {/* 1-Click Fast Persona Login for testing */}
-            <Card className="p-4 sm:p-5 border-2 border-brand-yellow bg-surface">
-              <p className="text-xs font-mono font-bold text-brand-cobalt uppercase tracking-wider text-center mb-3">
-                Authorized Role Personas (Quick Demo)
-              </p>
-              <div className="grid grid-cols-2 gap-2.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePersonaSelect('citizen')}
-                  className="text-xs justify-start gap-2 hover:border-emerald-500 font-semibold"
-                >
-                  <User size={14} className="text-emerald-600 shrink-0" />
-                  <span className="truncate">Citizen Portal</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePersonaSelect('manager')}
-                  className="text-xs justify-start gap-2 hover:border-amber-500 font-semibold"
-                >
-                  <HardHat size={14} className="text-amber-600 shrink-0" />
-                  <span className="truncate">Dept Manager</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePersonaSelect('staff')}
-                  className="text-xs justify-start gap-2 hover:border-blue-500 font-semibold"
-                >
-                  <Shield size={14} className="text-blue-600 shrink-0" />
-                  <span className="truncate">Field Crew</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePersonaSelect('admin')}
-                  className="text-xs justify-start gap-2 hover:border-purple-500 font-semibold"
-                >
-                  <Sparkles size={14} className="text-purple-600 shrink-0" />
-                  <span className="truncate">City Admin</span>
-                </Button>
+          {/* Heading */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5 lg:hidden mb-2">
+              <BrandLogo size={28} className="text-[#315CFF] dark:text-white" />
+              <span className="font-display font-bold text-lg text-[#202B45] dark:text-white">
+                CivicPulse
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-display text-text-primary tracking-tight">
+              {step === 'credentials' ? 'Log In to CivicPulse' : 'Email Security Verification'}
+            </h1>
+            <p className="text-sm text-text-muted">
+              {step === 'credentials'
+                ? 'Access your citizen reporting portal or authorized municipal management hub.'
+                : `A 6-digit verification code has been dispatched to ${email}.`}
+            </p>
+          </div>
+
+          {/* STEP 1: CREDENTIALS INPUT */}
+          {step === 'credentials' && (
+            <div className="space-y-4">
+              {/* 1-Click Fast Persona Login (Demo Credentials Preserved) */}
+              <div className="p-3.5 rounded-lg border border-[#e2fa6b] bg-[#F7F5EF] dark:bg-[#141B29]">
+                <p className="text-[11px] font-mono font-bold text-[#315CFF] dark:text-[#6280FF] uppercase tracking-wider mb-2.5">
+                  Authorized Role Personas (Quick Demo)
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePersonaSelect('citizen')}
+                    className="text-sm justify-center bg-white dark:bg-[#1B2435] hover:border-emerald-500 font-semibold h-9 rounded-lg"
+                  >
+                    <span className="truncate">Citizen</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePersonaSelect('manager')}
+                    className="text-sm justify-center bg-white dark:bg-[#1B2435] hover:border-amber-500 font-semibold h-9 rounded-lg"
+                  >
+                    <span className="truncate">Manager</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePersonaSelect('staff')}
+                    className="text-sm justify-center bg-white dark:bg-[#1B2435] hover:border-blue-500 font-semibold h-9 rounded-lg"
+                  >
+                    <span className="truncate">Field Crew</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePersonaSelect('admin')}
+                    className="text-sm justify-center bg-white dark:bg-[#1B2435] hover:border-purple-500 font-semibold h-9 rounded-lg"
+                  >
+                    <span className="truncate">City Admin</span>
+                  </Button>
+                </div>
               </div>
-            </Card>
 
-            {/* Standard Credentials Form (No random role selector) */}
-            <Card className="p-6">
               {credentialError && (
-                <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
                   <AlertCircle size={16} className="shrink-0" />
                   <span>{credentialError}</span>
                 </div>
               )}
 
-              <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+              <form onSubmit={handleCredentialsSubmit} className="space-y-3.5">
                 <Input
                   label="Email Address"
                   type="email"
@@ -608,33 +624,37 @@ export default function LoginPage() {
                 />
 
                 <div className="space-y-1.5">
-                  <Input
-                    label="Password"
-                    type="password"
-                    placeholder="••••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      label="Password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      className="absolute right-3 top-[34px] text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                   <div className="flex justify-end">
                     <Link
                       href={email ? `/forgot-password?email=${encodeURIComponent(email.trim())}` : '/forgot-password'}
-                      className="text-xs font-semibold text-[#315CFF] hover:underline"
+                      className="text-xs font-semibold text-[#315CFF] dark:text-[#6280FF] hover:underline"
                     >
                       Forgot password?
                     </Link>
                   </div>
                 </div>
 
-                {isDeviceTrusted ? (
-                  <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                    <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
-                    <span>
-                      <strong>Trusted Device Active:</strong> 30-day security verification is active on this browser. You will sign in directly without a verification code.
-                    </span>
-                  </div>
-                ) : (
-                  <div className="p-2.5 rounded-lg bg-surface-secondary border border-border text-[11px] text-text-muted flex items-start gap-2">
+                {!isDeviceTrusted && (
+                  <div className="p-2.5 rounded-lg bg-surface-secondary border border-border text-xs text-text-muted flex items-start gap-2">
                     <Lock size={14} className="text-slate-400 shrink-0 mt-0.5" />
                     <span>
                       First-time sign-in requires a 6-digit email code. Once verified, this device is remembered for 30 days.
@@ -642,140 +662,136 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                <Button
+                <button
                   type="submit"
-                  variant="primary"
-                  className="w-full font-bold shadow-md gap-2 bg-brand-cobalt text-white hover:bg-brand-cobalt-700 h-11"
+                  className="w-full inline-flex items-center justify-center font-bold shadow-sm gap-2 bg-[#315CFF] text-white dark:bg-[#e2fa6b] dark:text-[#202B45] h-11 rounded-lg text-sm cursor-pointer"
                 >
                   {isDeviceTrusted ? (
                     <>
-                      <LogIn size={15} />
+                      <LogIn size={16} />
                       <span>Sign In to Dashboard</span>
                     </>
                   ) : (
                     <>
-                      <Mail size={15} />
-                      <span>Sign In & Receive Email Code</span>
+                      <Mail size={16} />
+                      <span>Sign In &amp; Receive Email Code</span>
                     </>
                   )}
-                </Button>
+                </button>
               </form>
 
-              <div className="relative my-4">
+              <div className="relative my-3">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-surface px-2 text-text-muted font-mono">Or continue with</span>
+                  <span className="bg-white dark:bg-[#0E1420] px-2 text-text-muted font-mono">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 
               <GoogleButton label="Sign in with Google" />
 
-              <div className="mt-4 text-center text-xs text-text-muted">
+              <div className="pt-1 text-center text-xs text-text-muted">
                 Don&apos;t have an account?{' '}
-                <Link href="/register" className="text-brand-cobalt font-semibold hover:underline">
+                <Link href="/register" className="text-[#315CFF] dark:text-[#6280FF] font-semibold hover:underline">
                   Create an account &rarr;
                 </Link>
               </div>
-            </Card>
-          </>
-        )}
+            </div>
+          )}
 
-        {/* STEP 2: 6-DIGIT VERIFICATION CODE (CODE IS NOT SHOWN ON SCREEN) */}
-        {step === 'verify_code' && (
-          <Card className="p-6 space-y-5 animate-fadeIn">
-            {/* Email Dispatch Notice - CODE IS NOT SHOWN HERE */}
-            <div className="p-4 rounded-xl bg-blue-50/80 border border-blue-200 text-blue-950 text-xs shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-brand-cobalt text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <Mail size={20} />
+          {/* STEP 2: 6-DIGIT VERIFICATION CODE */}
+          {step === 'verify_code' && (
+            <div className="space-y-5 animate-fadeIn">
+              <div className="p-4 rounded-lg bg-blue-50/80 dark:bg-[#141B29] border border-blue-200 dark:border-[#232F46] text-xs">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#315CFF] text-white flex items-center justify-center shrink-0">
+                    <Mail size={20} />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <span className="font-bold text-text-primary text-sm block">
+                      Check Your Email Inbox
+                    </span>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      A 6-digit verification code has been dispatched to{' '}
+                      <strong className="text-text-primary font-mono">{email}</strong>.
+                    </p>
+                    <p className="text-xs text-text-muted pt-1">
+                      Copy the 6-digit code from your email and enter it below. Expires in 10 minutes.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 space-y-1">
-                  <span className="font-bold text-brand-midnight text-sm block">
-                    Check Your Email Inbox
-                  </span>
-                  <p className="text-xs text-[#4B5568] leading-relaxed">
-                    A 6-digit verification code has been dispatched to{' '}
-                    <strong className="text-brand-midnight font-mono">{email}</strong>.
-                  </p>
-                  <p className="text-[11px] text-text-muted pt-1">
-                    Please open your email client, copy the 6-digit code, and enter it below to confirm your identity. The code expires in 10 minutes.
-                  </p>
+              </div>
+
+              {codeError && (
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-shake">
+                  <AlertCircle size={16} className="shrink-0" />
+                  <span>{codeError}</span>
                 </div>
+              )}
+
+              <form onSubmit={handleVerifyCodeSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold text-text-secondary mb-2 text-center">
+                    Enter 6-Digit Code
+                  </label>
+                  <div className="flex items-center justify-center gap-2">
+                    {codeDigits.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        id={`code-digit-${idx}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleDigitChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleDigitKeyDown(idx, e)}
+                        onPaste={idx === 0 ? handlePasteCode : undefined}
+                        className="w-11 h-12 text-center text-lg font-bold font-mono rounded-lg border border-border bg-surface text-text-primary focus:border-[#315CFF] focus:ring-2 focus:ring-[#315CFF]/20 focus:outline-none transition-all shadow-sm"
+                        autoFocus={idx === 0}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full inline-flex items-center justify-center font-bold shadow-sm gap-2 bg-[#315CFF] text-white dark:bg-[#e2fa6b] dark:text-[#202B45] h-11 rounded-lg text-sm cursor-pointer"
+                >
+                  <ShieldCheck size={16} />
+                  <span>Verify &amp; Enter Dashboard</span>
+                </button>
+              </form>
+
+              <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => setStep('credentials')}
+                  className="text-text-muted hover:text-[#315CFF] font-semibold transition-colors flex items-center gap-1"
+                >
+                  <ArrowLeft size={13} /> Change Email
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={!canResend}
+                  className={`font-semibold flex items-center gap-1 ${
+                    canResend
+                      ? 'text-[#315CFF] hover:underline cursor-pointer'
+                      : 'text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  <RotateCcw size={13} />
+                  {canResend ? 'Resend Code' : `Resend in ${resendCountdown}s`}
+                </button>
               </div>
             </div>
-
-            {/* Error Message */}
-            {codeError && (
-              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-shake">
-                <AlertCircle size={16} className="shrink-0" />
-                <span>{codeError}</span>
-              </div>
-            )}
-
-            {/* 6 Digit Input Boxes */}
-            <form onSubmit={handleVerifyCodeSubmit} className="space-y-5">
-              <div>
-                <label className="block text-xs font-semibold text-text-secondary mb-2 text-center">
-                  Enter 6-Digit Code
-                </label>
-                <div className="flex items-center justify-center gap-2">
-                  {codeDigits.map((digit, idx) => (
-                    <input
-                      key={idx}
-                      id={`code-digit-${idx}`}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleDigitChange(idx, e.target.value)}
-                      onKeyDown={(e) => handleDigitKeyDown(idx, e)}
-                      onPaste={idx === 0 ? handlePasteCode : undefined}
-                      className="w-11 h-12 text-center text-lg font-bold font-mono rounded-lg border border-border bg-surface text-brand-midnight focus:border-brand-cobalt focus:ring-2 focus:ring-brand-cobalt/20 focus:outline-none transition-all shadow-sm"
-                      autoFocus={idx === 0}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                className="w-full font-bold shadow-md gap-2 bg-brand-cobalt text-white hover:bg-brand-cobalt-700 h-11"
-              >
-                <ShieldCheck size={16} />
-                <span>Verify & Enter Dashboard</span>
-              </Button>
-            </form>
-
-            {/* Actions: Resend and Change Email */}
-            <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-              <button
-                type="button"
-                onClick={() => setStep('credentials')}
-                className="text-text-muted hover:text-brand-cobalt font-semibold transition-colors flex items-center gap-1"
-              >
-                <ArrowLeft size={13} /> Change Email
-              </button>
-
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={!canResend}
-                className={`font-semibold flex items-center gap-1 ${
-                  canResend
-                    ? 'text-brand-cobalt hover:underline cursor-pointer'
-                    : 'text-slate-400 cursor-not-allowed'
-                }`}
-              >
-                <RotateCcw size={13} />
-                {canResend ? 'Resend Code' : `Resend in ${resendCountdown}s`}
-              </button>
-            </div>
-          </Card>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </MotionGrid>
   );
 }
