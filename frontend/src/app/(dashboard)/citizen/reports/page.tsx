@@ -70,14 +70,10 @@ export default function CitizenReportsPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-[#315CFF]/35 dark:border-[#6280FF]/40 text-[#315CFF] dark:text-[#6280FF] text-[11px] font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#e2fa6b]" />
-            Citizen Submissions
-          </span>
           <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#202B45] dark:text-white tracking-tight">
             My Incident Reports
           </h2>
-          <p className="text-sm text-[#606B7D] dark:text-slate-400">
+          <p className="text-base text-[#606B7D] dark:text-slate-400">
             Track and monitor resolution progress for public infrastructure issues reported to the city.
           </p>
         </div>
@@ -175,24 +171,24 @@ export default function CitizenReportsPage() {
                   <h3 className="font-bold text-base text-[#202B45] dark:text-white group-hover:text-[#315CFF] dark:hover:text-[#6280FF] transition-colors line-clamp-1">
                     {issue.title}
                   </h3>
-                  <p className="text-xs text-[#606B7D] dark:text-slate-400 mt-1 line-clamp-2">
+                  <p className="text-sm text-[#606B7D] dark:text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
                     {issue.description}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-[#606B7D] dark:text-slate-400">
-                  <MapPin size={13} className="shrink-0 text-[#315CFF] dark:text-[#6280FF]" />
+                <div className="flex items-center gap-1.5 text-sm text-[#606B7D] dark:text-slate-400">
+                  <MapPin size={14} className="shrink-0 text-[#315CFF] dark:text-[#6280FF]" />
                   <span className="truncate">{issue.address}</span>
                 </div>
               </div>
 
-              <div className="px-5 py-3 bg-[#F7F5EF] dark:bg-[#1B2435] border-t border-[#D5DAE3] dark:border-[#232F46] flex items-center justify-between text-xs">
-                <span className="font-mono text-[#606B7D] dark:text-slate-400">{formatDate(issue.createdAt)}</span>
+              <div className="px-5 py-3.5 bg-[#F7F5EF] dark:bg-[#1B2435] border-t border-[#D5DAE3] dark:border-[#232F46] flex items-center justify-between text-sm">
+                <span className="font-mono text-xs text-[#606B7D] dark:text-slate-400">{formatDate(issue.createdAt)}</span>
                 <Link
                   href={`/citizen/issues/${issue.id}`}
                   className="inline-flex items-center gap-1 font-semibold text-[#315CFF] dark:text-[#6280FF] hover:underline"
                 >
-                  View Details <ArrowRight size={13} />
+                  View Details <ArrowRight size={14} />
                 </Link>
               </div>
             </Card>
