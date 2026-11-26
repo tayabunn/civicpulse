@@ -13,6 +13,7 @@ export interface LocationPickerProps {
   latitude: number;
   longitude: number;
   onChange: (lat: number, lon: number) => void;
+  onAddressChange?: (address: string) => void;
 }
 
 export function LocationPicker(props: LocationPickerProps) {
