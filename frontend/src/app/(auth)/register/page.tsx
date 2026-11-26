@@ -29,13 +29,13 @@ export default function RegisterPage() {
 
     const normalizedEmail = email.trim().toLowerCase();
     const displayName = name.trim() || normalizedEmail.split('@')[0].replace(/[._-]/g, ' ');
+    const cleanPhone = phone.trim() || undefined;
     const newUser = {
       id: `reg-${Date.now()}`,
       name: displayName,
       email: normalizedEmail,
       role: 'citizen' as UserRole,
-      phone: phone.trim() || '+8801700000000',
-      avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
+      phone: cleanPhone,
     };
 
     try {
@@ -47,7 +47,7 @@ export default function RegisterPage() {
           name: displayName,
           email: normalizedEmail,
           password,
-          phone: phone.trim() || '+8801700000000',
+          phone: cleanPhone,
           role: 'citizen',
         }),
       });
