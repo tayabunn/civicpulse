@@ -210,9 +210,9 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Timeframe Selector Pill */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface border border-border self-start sm:self-auto">
-          <span className="text-[11px] font-mono text-text-muted px-2 hidden sm:inline flex items-center gap-1">
-            <Calendar size={11} /> Range:
+        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-surface border border-border self-start sm:self-auto">
+          <span className="text-[11px] font-mono text-text-muted px-2 hidden sm:inline">
+            Range:
           </span>
           {(
             [
