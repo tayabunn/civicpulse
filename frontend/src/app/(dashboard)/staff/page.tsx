@@ -143,7 +143,7 @@ export default function StaffTasksPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6 transition-all duration-300">
       {/* Top Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-brand-midnight text-white shadow-lg">
         <div>
