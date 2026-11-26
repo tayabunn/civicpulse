@@ -4,8 +4,11 @@ const express_1 = require("express");
 const db_1 = require("../db");
 const schema_1 = require("../db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
+const auth_1 = require("../middleware/auth");
+const audit_1 = require("../lib/audit");
 const router = (0, express_1.Router)();
-router.get('/', async (req, res) => {
+// GET /api/departments - Accessible to authenticated users
+router.get('/', auth_1.authenticateToken, async (req, res) => {
     try {
         const list = await db_1.db
             .select({
@@ -44,7 +47,8 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-router.post('/', async (req, res) => {
+// POST /api/departments - Admin Only
+router.post('/', auth_1.authenticateToken, (0, auth_1.authorizeRole)(['admin']), async (req, res) => {
     try {
         const { name, code, description, managerId } = req.body;
         if (!name || !code) {
@@ -54,6 +58,12 @@ router.post('/', async (req, res) => {
             .insert(schema_1.departments)
             .values({ name, code, description, managerId })
             .returning();
+        await (0, audit_1.logSecurityAudit)(req, {
+            action: 'DEPARTMENT_CREATED',
+            resource: 'departments',
+            resourceId: newDept.id,
+            details: { name: newDept.name, code: newDept.code, managerId: newDept.managerId },
+        });
         return res.status(201).json({ success: true, department: newDept });
     }
     catch (error) {
@@ -61,7 +71,8 @@ router.post('/', async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-router.patch('/:id', async (req, res) => {
+// PATCH /api/departments/:id - Admin Only
+router.patch('/:id', auth_1.authenticateToken, (0, auth_1.authorizeRole)(['admin']), async (req, res) => {
     try {
         const id = req.params.id;
         const { name, description, managerId, isActive } = req.body;
@@ -81,6 +92,12 @@ router.patch('/:id', async (req, res) => {
             .set(updates)
             .where((0, drizzle_orm_1.eq)(schema_1.departments.id, id))
             .returning();
+        await (0, audit_1.logSecurityAudit)(req, {
+            action: 'DEPARTMENT_MODIFIED',
+            resource: 'departments',
+            resourceId: updated?.id || id,
+            details: updates,
+        });
         return res.json({ success: true, department: updated });
     }
     catch (error) {

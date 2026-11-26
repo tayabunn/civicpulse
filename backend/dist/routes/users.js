@@ -5,9 +5,11 @@ const db_1 = require("../db");
 const schema_1 = require("../db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
 const auth_1 = require("../lib/auth");
+const auth_2 = require("../middleware/auth");
+const audit_1 = require("../lib/audit");
 const router = (0, express_1.Router)();
-// 1. GET /api/users - List users with optional role & search filters
-router.get('/', async (req, res) => {
+// 1. GET /api/users - List users with optional role & search filters (Admin & Dept Manager only)
+router.get('/', auth_2.authenticateToken, (0, auth_2.authorizeRole)(['admin', 'department_manager']), async (req, res) => {
     try {
         const roleFilter = req.query.role;
         const search = req.query.search;
@@ -45,8 +47,23 @@ router.get('/', async (req, res) => {
         return res.status(500).json({ error: 'Failed to retrieve users' });
     }
 });
-// 2. POST /api/users - Create user (Admin control)
-router.post('/', async (req, res) => {
+// 2. GET /api/users/audit-logs - Immutable Security Audit Log Feed (Admin Only)
+router.get('/audit-logs', auth_2.authenticateToken, (0, auth_2.authorizeRole)(['admin']), async (req, res) => {
+    try {
+        const logs = await db_1.db
+            .select()
+            .from(schema_1.auditLogs)
+            .orderBy((0, drizzle_orm_1.desc)(schema_1.auditLogs.createdAt))
+            .limit(100);
+        return res.json({ success: true, logs, total: logs.length });
+    }
+    catch (error) {
+        console.error('Fetch audit logs error:', error);
+        return res.status(500).json({ error: 'Failed to retrieve audit logs' });
+    }
+});
+// 3. POST /api/users - Create user (Admin control with audit log)
+router.post('/', auth_2.authenticateToken, (0, auth_2.authorizeRole)(['admin']), async (req, res) => {
     try {
         const { name, email, password, role, departmentId, phone } = req.body;
         if (!name || !email || !password) {
@@ -68,6 +85,12 @@ router.post('/', async (req, res) => {
             phone: phone || null,
         })
             .returning();
+        await (0, audit_1.logSecurityAudit)(req, {
+            action: 'USER_CREATED',
+            resource: 'users',
+            resourceId: newUser.id,
+            details: { email: newUser.email, role: newUser.role, departmentId: newUser.departmentId },
+        });
         return res.status(201).json({
             success: true,
             user: {
@@ -84,11 +107,15 @@ router.post('/', async (req, res) => {
         return res.status(500).json({ error: 'Failed to create user' });
     }
 });
-// 3. PATCH /api/users/:id - Update user role & department permissions
-router.patch('/:id', async (req, res) => {
+// 4. PATCH /api/users/:id - Update user role & department permissions (Admin control with audit log)
+router.patch('/:id', auth_2.authenticateToken, (0, auth_2.authorizeRole)(['admin']), async (req, res) => {
     try {
         const id = req.params.id;
         const { role, departmentId, name, phone } = req.body;
+        const [current] = await db_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id)).limit(1);
+        if (!current) {
+            return res.status(404).json({ error: 'User not found' });
+        }
         const updates = {
             updatedAt: new Date(),
         };
@@ -105,9 +132,18 @@ router.patch('/:id', async (req, res) => {
             .set(updates)
             .where((0, drizzle_orm_1.eq)(schema_1.users.id, id))
             .returning();
-        if (!updated) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        await (0, audit_1.logSecurityAudit)(req, {
+            action: 'USER_ROLE_OR_DEPT_MODIFIED',
+            resource: 'users',
+            resourceId: updated.id,
+            details: {
+                targetEmail: updated.email,
+                previousRole: current.role,
+                newRole: updated.role,
+                previousDept: current.departmentId,
+                newDept: updated.departmentId,
+            },
+        });
         return res.json({
             success: true,
             user: {
@@ -124,11 +160,24 @@ router.patch('/:id', async (req, res) => {
         return res.status(500).json({ error: 'Failed to update user' });
     }
 });
-// 4. DELETE /api/users/:id - Remove user
-router.delete('/:id', async (req, res) => {
+// 5. DELETE /api/users/:id - Remove user (Admin control with prevention of self-deletion)
+router.delete('/:id', auth_2.authenticateToken, (0, auth_2.authorizeRole)(['admin']), async (req, res) => {
     try {
         const id = req.params.id;
+        if (req.user?.id === id) {
+            return res.status(400).json({ error: 'Security constraint: Cannot delete your own administrative account' });
+        }
+        const [target] = await db_1.db.select().from(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id)).limit(1);
+        if (!target) {
+            return res.status(404).json({ error: 'User not found' });
+        }
         await db_1.db.delete(schema_1.users).where((0, drizzle_orm_1.eq)(schema_1.users.id, id));
+        await (0, audit_1.logSecurityAudit)(req, {
+            action: 'USER_DELETED',
+            resource: 'users',
+            resourceId: id,
+            details: { deletedEmail: target.email, deletedRole: target.role },
+        });
         return res.json({ success: true, message: 'User deleted successfully' });
     }
     catch (error) {

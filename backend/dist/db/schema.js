@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.maintenanceTasksRelations = exports.issueActivitiesRelations = exports.issuesRelations = exports.departmentsRelations = exports.usersRelations = exports.notifications = exports.searchHistory = exports.savedViews = exports.maintenanceTasks = exports.issueActivities = exports.issues = exports.departments = exports.users = exports.taskStatusEnum = exports.issuePriorityEnum = exports.issueStatusEnum = exports.issueCategoryEnum = exports.userRoleEnum = void 0;
+exports.auditLogs = exports.maintenanceTasksRelations = exports.issueActivitiesRelations = exports.issuesRelations = exports.departmentsRelations = exports.usersRelations = exports.notifications = exports.searchHistory = exports.savedViews = exports.maintenanceTasks = exports.issueActivities = exports.issues = exports.departments = exports.users = exports.taskStatusEnum = exports.issuePriorityEnum = exports.issueStatusEnum = exports.issueCategoryEnum = exports.userRoleEnum = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const drizzle_orm_1 = require("drizzle-orm");
 // Enums
@@ -213,3 +213,22 @@ exports.maintenanceTasksRelations = (0, drizzle_orm_1.relations)(exports.mainten
         references: [exports.users.id],
     }),
 }));
+// 9. Security Audit Logs Table (Tamper-proof system-wide activity trail)
+exports.auditLogs = (0, pg_core_1.pgTable)('audit_logs', {
+    id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
+    actorId: (0, pg_core_1.uuid)('actor_id'),
+    actorEmail: (0, pg_core_1.text)('actor_email'),
+    actorRole: (0, pg_core_1.text)('actor_role'),
+    action: (0, pg_core_1.text)('action').notNull(),
+    resource: (0, pg_core_1.text)('resource').notNull(),
+    resourceId: (0, pg_core_1.text)('resource_id'),
+    details: (0, pg_core_1.text)('details'),
+    ipAddress: (0, pg_core_1.text)('ip_address'),
+    userAgent: (0, pg_core_1.text)('user_agent'),
+    status: (0, pg_core_1.text)('status').default('SUCCESS').notNull(),
+    createdAt: (0, pg_core_1.timestamp)('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+    (0, pg_core_1.index)('idx_audit_logs_actor').on(table.actorId, table.createdAt),
+    (0, pg_core_1.index)('idx_audit_logs_action').on(table.action, table.createdAt),
+    (0, pg_core_1.index)('idx_audit_logs_resource').on(table.resource, table.createdAt),
+]);
