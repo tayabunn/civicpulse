@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useCreateIssueMutation, useGetIssuesQuery } from '@/store/apiSlice';
@@ -14,8 +14,9 @@ import { calculateDistanceMeters } from '@/lib/geo-client';
 import { AlertTriangle, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { IssueCategory, IssuePriority, Issue } from '@/types';
 
-export default function CreateIssuePage() {
+function CreateIssueFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useSelector((state: RootState) => state.auth);
   const [createIssue, { isLoading: isSubmitting }] = useCreateIssueMutation();
   const { data: existingIssuesData } = useGetIssuesQuery({ limit: 100 });
@@ -24,6 +25,16 @@ export default function CreateIssuePage() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<IssueCategory>('road_damage');
   const [priority, setPriority] = useState<IssuePriority>('medium');
+
+  // Pre-fill from 1-Click Quick Report Templates
+  useEffect(() => {
+    const qCategory = searchParams.get('category') as IssueCategory | null;
+    const qPriority = searchParams.get('priority') as IssuePriority | null;
+    const qTitle = searchParams.get('title');
+    if (qCategory) setCategory(qCategory);
+    if (qPriority) setPriority(qPriority);
+    if (qTitle) setTitle(qTitle);
+  }, [searchParams]);
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('Mirpur Road, Dhanmondi, Dhaka');
   const [latitude, setLatitude] = useState(23.8103);
@@ -105,7 +116,7 @@ export default function CreateIssuePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6 transition-all duration-300">
       <div className="flex items-center gap-3">
         <Button
           type="button"
@@ -120,7 +131,7 @@ export default function CreateIssuePage() {
           <h2 className="text-2xl lg:text-3xl font-bold font-display text-text-primary tracking-tight">
             Report Municipal Infrastructure Issue
           </h2>
-          <p className="text-sm text-text-muted mt-0.5">
+          <p className="text-base text-text-muted mt-0.5">
             Submit geotagged infrastructure defects directly to Dhaka City Corporation triage dispatchers.
           </p>
         </div>
@@ -141,7 +152,7 @@ export default function CreateIssuePage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           {/* Left Column: Details */}
           <Card className="p-6 space-y-4">
             <CardHeader className="p-0">
@@ -244,21 +255,26 @@ export default function CreateIssuePage() {
           </Card>
 
           {/* Right Column: Geolocation & Duplicate Radar */}
-          <div className="space-y-6">
-            <Card className="p-6 space-y-4">
-              <CardHeader className="p-0">
+          <div className="flex flex-col space-y-6 h-full">
+            <Card className="p-6 flex flex-col flex-1 space-y-4">
+              <CardHeader className="p-0 shrink-0">
                 <CardTitle>2. Geolocation Pinpoint</CardTitle>
                 <CardDescription>Precision GPS coordinates for field crews</CardDescription>
               </CardHeader>
 
-              <LocationPicker
-                latitude={latitude}
-                longitude={longitude}
-                onChange={(lat: number, lon: number) => {
-                  setLatitude(lat);
-                  setLongitude(lon);
-                }}
-              />
+              <div className="flex-1 flex flex-col">
+                <LocationPicker
+                  latitude={latitude}
+                  longitude={longitude}
+                  onChange={(lat: number, lon: number) => {
+                    setLatitude(lat);
+                    setLongitude(lon);
+                  }}
+                  onAddressChange={(detectedAddress: string) => {
+                    setAddress(detectedAddress);
+                  }}
+                />
+              </div>
             </Card>
 
             {/* 50m Proximity Radar Alert */}
@@ -310,5 +326,13 @@ export default function CreateIssuePage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CreateIssuePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs font-mono text-text-muted">Loading report form...</div>}>
+      <CreateIssueFormContent />
+    </Suspense>
   );
 }

@@ -87,7 +87,7 @@ export default function NeighborhoodAlertsPage() {
           <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#202B45] dark:text-white tracking-tight">
             Neighborhood Alerts
           </h2>
-          <p className="text-sm text-[#606B7D] dark:text-slate-400">
+          <p className="text-base text-[#606B7D] dark:text-slate-400">
             Live safety advisories, roadwork notices, and active hazards in your area.
           </p>
         </div>
@@ -181,16 +181,16 @@ export default function NeighborhoodAlertsPage() {
                     </Link>
                   </h4>
 
-                  <p className="text-xs text-[#606B7D] dark:text-slate-400 line-clamp-2">
+                  <p className="text-sm text-[#606B7D] dark:text-slate-400 line-clamp-2 leading-relaxed">
                     {issue.description}
                   </p>
 
-                  <div className="flex items-center justify-between pt-1 text-xs text-[#606B7D] dark:text-slate-400">
-                    <span className="flex items-center gap-1 truncate">
-                      <MapPin size={12} className="text-[#315CFF] shrink-0" />
+                  <div className="flex items-center justify-between pt-1 text-sm text-[#606B7D] dark:text-slate-400">
+                    <span className="flex items-center gap-1.5 truncate">
+                      <MapPin size={14} className="text-[#315CFF] shrink-0" />
                       {issue.address}
                     </span>
-                    <span className="font-mono text-[11px] shrink-0">
+                    <span className="font-mono text-xs shrink-0">
                       {formatDate(issue.createdAt)}
                     </span>
                   </div>
