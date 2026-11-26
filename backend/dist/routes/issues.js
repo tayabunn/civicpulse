@@ -489,4 +489,43 @@ router.post('/:id/feedback', auth_1.authenticateToken, async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
+// POST /api/issues/:id/upvote (Community confirmation / "I see this too")
+router.post('/:id/upvote', auth_1.authenticateToken, async (req, res) => {
+    try {
+        const user = req.user;
+        const id = req.params.id;
+        const [current] = await db_1.db.select().from(schema_1.issues).where((0, drizzle_orm_1.eq)(schema_1.issues.id, id)).limit(1);
+        if (!current) {
+            return res.status(404).json({ error: 'Issue not found' });
+        }
+        const existingUpvotes = await db_1.db
+            .select({ id: schema_1.issueActivities.id })
+            .from(schema_1.issueActivities)
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.issueActivities.issueId, id), (0, drizzle_orm_1.eq)(schema_1.issueActivities.userId, user.id), (0, drizzle_orm_1.eq)(schema_1.issueActivities.action, 'COMMUNITY_UPVOTE')))
+            .limit(1);
+        if (existingUpvotes.length > 0) {
+            return res.json({ success: true, alreadyUpvoted: true });
+        }
+        await (0, issue_service_1.logIssueActivity)({
+            issueId: id,
+            userId: user.id,
+            action: 'COMMUNITY_UPVOTE',
+            previousStatus: current.status,
+            newStatus: current.status,
+            notes: `Neighbor (${user.name}) confirmed this issue.`,
+        });
+        const totalUpvotes = await db_1.db
+            .select({ value: (0, drizzle_orm_1.count)() })
+            .from(schema_1.issueActivities)
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.issueActivities.issueId, id), (0, drizzle_orm_1.eq)(schema_1.issueActivities.action, 'COMMUNITY_UPVOTE')));
+        return res.json({
+            success: true,
+            upvotes: Number(totalUpvotes[0]?.value || 1),
+        });
+    }
+    catch (error) {
+        console.error('Upvote issue error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 exports.default = router;
