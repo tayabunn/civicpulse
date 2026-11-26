@@ -13,10 +13,20 @@ import analyticsRoutes from './routes/analytics';
 import savedViewsRoutes from './routes/saved-views';
 import userRoutes from './routes/users';
 import settingsRoutes from './routes/settings';
+import { authRateLimiter, apiRateLimiter } from './middleware/rate-limiter';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+// Global Security Response Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
 
 // Middleware
 const allowedOrigins = [
@@ -74,6 +84,10 @@ const healthHandler = (req: express.Request, res: express.Response) => {
 };
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
+
+// Rate Limiting Guards
+app.use('/api/auth', authRateLimiter);
+app.use('/api', apiRateLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
