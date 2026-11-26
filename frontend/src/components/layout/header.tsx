@@ -100,9 +100,6 @@ export function Header({ title }: { title?: string }) {
           <h1 className="text-lg sm:text-xl font-bold font-display text-text-primary tracking-tight leading-tight">
             {title || 'Infrastructure Operations'}
           </h1>
-          <p className="text-[11px] text-text-muted font-mono hidden sm:block">
-            Dhaka Smart Grid • Real-time Triage
-          </p>
         </div>
       </div>
 
@@ -119,7 +116,7 @@ export function Header({ title }: { title?: string }) {
           >
             <Bell size={18} />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-cobalt text-[10px] font-bold text-white shadow-sm animate-pulse">
+              <span className="absolute -top-1.5 -right-1.5 flex min-w-[18px] h-[18px] px-1 items-center justify-center rounded-full bg-[#315CFF] text-[10px] font-bold text-white ring-2 ring-surface shadow-sm">
                 {unreadCount}
               </span>
             )}
