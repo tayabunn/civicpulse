@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { setCredentials } from '@/store/authSlice';
@@ -32,6 +33,13 @@ export default function UserProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
 
   // Password State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -110,7 +118,7 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6 transition-all duration-300">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-brand-midnight text-white shadow-lg">
         <div>
@@ -137,7 +145,7 @@ export default function UserProfilePage() {
               <h3 className="text-xl font-bold font-display text-text-primary">
                 {user?.name || 'CivicPulse User'}
               </h3>
-              <p className="text-xs text-text-muted font-mono">{user?.email}</p>
+              <p className="text-sm text-text-muted font-mono">{user?.email}</p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge className="bg-brand-cobalt/10 text-brand-cobalt border border-brand-cobalt/20">
                   <Shield size={12} className="mr-1" /> {getRoleLabel(user?.role)}
@@ -227,13 +235,14 @@ export default function UserProfilePage() {
             </div>
           )}
 
-          <form onSubmit={handleUpdatePassword} className="space-y-4">
+          <form onSubmit={handleUpdatePassword} autoComplete="off" className="space-y-4">
             <Input
               label="Current Password *"
               type="password"
               placeholder="••••••••"
               value={currentPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
+              autoComplete="off"
               required
             />
 
@@ -243,6 +252,7 @@ export default function UserProfilePage() {
               placeholder="••••••••"
               value={newPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
               required
             />
 
@@ -252,13 +262,22 @@ export default function UserProfilePage() {
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
               required
             />
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-3">
               <Button type="submit" variant="accent" isLoading={isUpdatingPassword} className="w-full font-bold shadow-sm">
                 Update Password
               </Button>
+              <div className="text-center">
+                <Link
+                  href={user?.email ? `/forgot-password?email=${encodeURIComponent(user.email)}` : '/forgot-password'}
+                  className="text-xs font-semibold text-[#315CFF] hover:underline"
+                >
+                  Forgot current password? Reset via Email &rarr;
+                </Link>
+              </div>
             </div>
           </form>
         </Card>
