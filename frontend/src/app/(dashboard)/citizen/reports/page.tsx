@@ -69,23 +69,30 @@ export default function CitizenReportsPage() {
     <div className="space-y-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold font-display text-text-primary tracking-tight">
+        <div className="space-y-1.5">
+          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full border border-[#315CFF]/35 dark:border-[#6280FF]/40 text-[#315CFF] dark:text-[#6280FF] text-[11px] font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e2fa6b]" />
+            Citizen Submissions
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#202B45] dark:text-white tracking-tight">
             My Incident Reports
           </h2>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-[#606B7D] dark:text-slate-400">
             Track and monitor resolution progress for public infrastructure issues reported to the city.
           </p>
         </div>
         <Link href="/citizen/create">
-          <Button variant="accent" className="gap-2 font-bold shadow-sm">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-full bg-[#e2fa6b] hover:bg-[#d5f055] text-[#202B45] text-sm font-bold shadow-sm transition-colors"
+          >
             <PlusCircle size={16} /> Report Another Issue
-          </Button>
+          </button>
         </Link>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface border border-border w-fit">
+      <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-[#141B29] border border-[#D5DAE3] dark:border-[#232F46] w-fit">
         {(['all', 'active', 'resolved'] as const).map((tab) => (
           <button
             key={tab}
@@ -93,10 +100,10 @@ export default function CitizenReportsPage() {
               setActiveTab(tab);
               setFilters((prev) => ({ ...prev, page: 1 }));
             }}
-            className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors ${
               activeTab === tab
-                ? 'bg-brand-midnight text-white shadow-sm'
-                : 'text-text-secondary hover:bg-surface-secondary'
+                ? 'bg-[#315CFF] text-white shadow-sm'
+                : 'text-[#4B5568] dark:text-slate-300 hover:bg-[#F0F1F5] dark:hover:bg-[#1B2435]'
             }`}
           >
             {tab === 'all' ? 'All Reports' : tab === 'active' ? 'Active Issues' : 'Resolved'}
@@ -131,15 +138,15 @@ export default function CitizenReportsPage() {
             </Card>
           ))
         ) : issues.length === 0 ? (
-          <div className="col-span-full p-12 text-center rounded-xl bg-surface border border-border">
-            <div className="w-12 h-12 rounded-full bg-surface-secondary border border-border flex items-center justify-center text-text-muted mx-auto mb-3">
+          <div className="col-span-full p-12 text-center rounded-3xl bg-white dark:bg-[#141B29] border border-dashed border-[#AAB2BF] dark:border-[#364766]">
+            <div className="w-12 h-12 rounded-2xl bg-[#315CFF]/10 dark:bg-[#315CFF]/20 border border-[#315CFF]/25 flex items-center justify-center text-[#315CFF] dark:text-[#6280FF] mx-auto mb-3">
               <SearchX className="w-6 h-6" />
             </div>
-            <h4 className="text-sm font-bold text-text-primary mb-1">No Incident Reports Found</h4>
-            <p className="text-xs text-text-muted max-w-sm mx-auto mb-4">
+            <h4 className="text-base font-bold text-[#202B45] dark:text-white mb-1">No Incident Reports Found</h4>
+            <p className="text-xs text-[#606B7D] dark:text-slate-400 max-w-sm mx-auto mb-4">
               We couldn&apos;t find any incident reports matching your selected criteria and filters.
             </p>
-            <Button variant="outline" size="sm" onClick={handleReset} className="text-xs">
+            <Button variant="outline" size="sm" onClick={handleReset} className="text-xs rounded-full px-4">
               Clear Filters
             </Button>
           </div>
@@ -147,11 +154,11 @@ export default function CitizenReportsPage() {
           issues.map((issue) => (
             <Card
               key={issue.id}
-              className="flex flex-col justify-between hover:shadow-md transition-all hover:border-brand-cobalt/40 group overflow-hidden"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#141B29] border-[#D5DAE3] dark:border-[#232F46] hover:shadow-sm transition-all hover:border-[#315CFF] dark:hover:border-[#6280FF] group overflow-hidden p-0"
             >
               <div className="p-5 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs font-bold text-brand-cobalt bg-brand-cobalt/10 px-2 py-0.5 rounded">
+                  <span className="font-mono text-xs font-bold text-[#315CFF] dark:text-[#91A5FF] bg-[#315CFF]/10 dark:bg-[#315CFF]/20 px-2.5 py-0.5 rounded-full">
                     {issue.trackingCode}
                   </span>
                   <div className="flex items-center gap-1.5">
@@ -165,25 +172,25 @@ export default function CitizenReportsPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-base text-text-primary group-hover:text-brand-cobalt transition-colors line-clamp-1">
+                  <h3 className="font-bold text-base text-[#202B45] dark:text-white group-hover:text-[#315CFF] dark:hover:text-[#6280FF] transition-colors line-clamp-1">
                     {issue.title}
                   </h3>
-                  <p className="text-xs text-text-muted mt-1 line-clamp-2">
+                  <p className="text-xs text-[#606B7D] dark:text-slate-400 mt-1 line-clamp-2">
                     {issue.description}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                  <MapPin size={13} className="shrink-0 text-brand-cobalt" />
+                <div className="flex items-center gap-1.5 text-xs text-[#606B7D] dark:text-slate-400">
+                  <MapPin size={13} className="shrink-0 text-[#315CFF] dark:text-[#6280FF]" />
                   <span className="truncate">{issue.address}</span>
                 </div>
               </div>
 
-              <div className="px-5 py-3 bg-surface-secondary/50 border-t border-border flex items-center justify-between text-xs">
-                <span className="font-mono text-text-muted">{formatDate(issue.createdAt)}</span>
+              <div className="px-5 py-3 bg-[#F7F5EF] dark:bg-[#1B2435] border-t border-[#D5DAE3] dark:border-[#232F46] flex items-center justify-between text-xs">
+                <span className="font-mono text-[#606B7D] dark:text-slate-400">{formatDate(issue.createdAt)}</span>
                 <Link
                   href={`/citizen/issues/${issue.id}`}
-                  className="inline-flex items-center gap-1 font-semibold text-brand-cobalt hover:underline"
+                  className="inline-flex items-center gap-1 font-semibold text-[#315CFF] dark:text-[#6280FF] hover:underline"
                 >
                   View Details <ArrowRight size={13} />
                 </Link>

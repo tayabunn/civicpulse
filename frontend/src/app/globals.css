@@ -27,25 +27,25 @@
 }
 
 [data-theme="dark"], .dark {
-  /* Signal City Design System — Dark Theme */
-  --background: #111827;
-  --surface: #1B2435;
-  --surface-secondary: #202B45;
-  --surface-elevated: #2B3852;
+  /* Signal City Design System — Dark Theme (Cohesive with Homepage #0B0F17) */
+  --background: #0B0F17;
+  --surface: #141B29;
+  --surface-secondary: #1B2435;
+  --surface-elevated: #202B45;
   --text-primary: #F7F5EF;
-  --text-secondary: #D0D7E3;
-  --text-muted: #AAB5C7;
-  --border: #3C4962;
-  --border-strong: #56647D;
-  --primary: #7D96FF;
-  --primary-hover: #9BAEFF;
-  --primary-foreground: #111827;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --border: #232F46;
+  --border-strong: #364766;
+  --primary: #315CFF;
+  --primary-hover: #244BE0;
+  --primary-foreground: #FFFFFF;
   --accent: #e2fa6b;
   --accent-foreground: #202B45;
-  --sidebar-bg: #111827;
+  --sidebar-bg: #0E1420;
   --sidebar-text: #F7F5EF;
-  --sidebar-active: #e2fa6b;
-  --sidebar-active-text: #202B45;
+  --sidebar-active: #315CFF;
+  --sidebar-active-text: #FFFFFF;
 }
 
 html {

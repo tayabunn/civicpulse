@@ -94,7 +94,7 @@ export function Sidebar() {
       {/* Main Sidebar Element */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-screen transition-all duration-300 flex flex-col justify-between border-r border-[#34415B]',
+          'fixed top-0 left-0 z-50 h-screen transition-all duration-300 flex flex-col justify-between border-r border-[#34415B] dark:border-[#1E293B] bg-[#202B45] dark:bg-[#0E1420] text-[#F7F5EF]',
           // Desktop sizing
           sidebarCollapsed ? 'md:w-[76px]' : 'md:w-[248px]',
           // Mobile drawer slide-in / slide-out
@@ -102,40 +102,45 @@ export function Sidebar() {
             ? 'translate-x-0 w-[280px]'
             : '-translate-x-full md:translate-x-0'
         )}
-        style={{ backgroundColor: '#202B45', color: '#F7F5EF' }}
       >
+        {/* Desktop floating collapse toggle on right border (prevents overlap when collapsed) */}
+        <button
+          onClick={() => dispatch(toggleSidebar())}
+          className="hidden md:flex items-center justify-center absolute -right-3.5 top-[22px] w-7 h-7 rounded-full bg-[#202B45] dark:bg-[#141B29] border border-[#3C4962] dark:border-[#232F46] text-slate-200 hover:text-white hover:border-[#315CFF] shadow-md transition-colors z-50"
+          title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
+
         {/* Top brand header */}
         <div>
-          <div className="h-[72px] flex items-center justify-between px-4 border-b border-[#34415B]">
+          <div
+            className={cn(
+              'h-[72px] flex items-center border-b border-[#34415B] dark:border-[#1E293B]',
+              sidebarCollapsed && !mobileSidebarOpen ? 'justify-center px-0' : 'justify-between px-4'
+            )}
+          >
             <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-lg bg-brand-yellow flex items-center justify-center text-brand-midnight shadow-md shrink-0">
-                <BrandLogo size={20} className="text-brand-midnight" />
+              <div className="w-9 h-9 rounded-xl bg-[#315CFF] flex items-center justify-center text-white shadow-sm shrink-0">
+                <BrandLogo size={20} className="text-white" />
               </div>
               {(!sidebarCollapsed || mobileSidebarOpen) && (
                 <div>
                   <span className="font-display font-bold text-lg tracking-tight text-white block leading-tight">
-                    CIVICPULSE
+                    CivicPulse
                   </span>
-                  <span className="text-[10px] text-brand-yellow font-mono font-medium uppercase tracking-wider block">
+                  <span className="text-[10px] text-[#e2fa6b] font-mono font-semibold uppercase tracking-wider block">
                     Signal City v1.0
                   </span>
                 </div>
               )}
             </Link>
 
-            {/* Desktop collapse toggle */}
-            <button
-              onClick={() => dispatch(toggleSidebar())}
-              className="hidden md:flex p-1 rounded text-slate-300 hover:text-white hover:bg-[#34415B]/50 transition-colors"
-              title="Toggle sidebar"
-            >
-              {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            </button>
-
             {/* Mobile close button */}
             <button
               onClick={() => dispatch(setMobileSidebarOpen(false))}
-              className="md:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-[#34415B]/50"
+              className="md:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10"
               aria-label="Close menu"
             >
               <X size={20} />
@@ -144,13 +149,13 @@ export function Sidebar() {
 
           {/* User Role Badge */}
           {(!sidebarCollapsed || mobileSidebarOpen) && (
-            <div className="mx-4 my-3 px-3 py-2 rounded-lg bg-[#2B3852] border border-[#3C4962] flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div className="mx-4 my-3.5 px-3.5 py-2.5 rounded-xl bg-[#2B3852] dark:bg-[#141B29] border border-[#3C4962] dark:border-[#232F46] flex items-center gap-2.5">
+              <div className="w-2 h-2 rounded-full bg-[#e2fa6b] shrink-0"></div>
               <div className="truncate">
-                <p className="text-[11px] font-mono uppercase text-brand-yellow leading-none">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[#e2fa6b] font-semibold leading-none">
                   Role: {role}
                 </p>
-                <p className="text-xs text-slate-200 truncate font-medium mt-0.5">{user?.name}</p>
+                <p className="text-xs text-slate-100 truncate font-semibold mt-1">{user?.name}</p>
               </div>
             </div>
           )}
@@ -160,24 +165,32 @@ export function Sidebar() {
             {roleLinks.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const isCompact = sidebarCollapsed && !mobileSidebarOpen;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
+                    'flex items-center rounded-xl text-sm font-medium transition-all group',
+                    isCompact ? 'justify-center w-11 h-11 mx-auto px-0' : 'gap-3 px-3.5 py-2.5',
                     isActive
-                      ? 'bg-brand-yellow text-brand-midnight font-bold shadow-md'
-                      : 'text-[#D0D7E3] hover:bg-[#2B3852] hover:text-white',
-                    item.highlight && !isActive ? 'border border-brand-yellow/40 text-brand-yellow' : ''
+                      ? 'bg-[#315CFF] text-white font-semibold shadow-sm'
+                      : 'text-[#D0D7E3] hover:bg-white/10 hover:text-white',
+                    item.highlight && !isActive
+                      ? 'border border-[#e2fa6b]/40 text-[#e2fa6b] hover:bg-[#e2fa6b]/10 hover:text-[#e2fa6b]'
+                      : ''
                   )}
-                  title={sidebarCollapsed && !mobileSidebarOpen ? item.label : undefined}
+                  title={isCompact ? item.label : undefined}
                 >
                   <Icon
                     className={cn(
                       'w-5 h-5 shrink-0 transition-transform group-hover:scale-105',
-                      isActive ? 'text-brand-midnight' : 'text-slate-300'
+                      isActive
+                        ? 'text-white'
+                        : item.highlight
+                        ? 'text-[#e2fa6b]'
+                        : 'text-slate-300'
                     )}
                   />
                   {(!sidebarCollapsed || mobileSidebarOpen) && <span className="truncate">{item.label}</span>}
@@ -188,19 +201,19 @@ export function Sidebar() {
         </div>
 
         {/* Footer / System Status */}
-        <div className="p-4 border-t border-[#34415B]">
+        <div className="p-4 border-t border-[#34415B] dark:border-[#1E293B]">
           {!sidebarCollapsed || mobileSidebarOpen ? (
             <div className="text-[11px] text-slate-400 font-mono space-y-1">
               <div className="flex items-center justify-between text-slate-300">
                 <span>Status</span>
-                <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Online
+                <span className="text-[#e2fa6b] font-semibold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#e2fa6b]"></span> Online
                 </span>
               </div>
               <div>PostgreSQL • Neon Live</div>
             </div>
           ) : (
-            <div className="w-2.5 h-2.5 mx-auto rounded-full bg-emerald-400" title="Online" />
+            <div className="w-2.5 h-2.5 mx-auto rounded-full bg-[#e2fa6b]" title="Online" />
           )}
         </div>
       </aside>
