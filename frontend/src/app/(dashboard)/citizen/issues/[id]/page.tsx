@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -48,7 +48,19 @@ export default function IssueDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useSelector((state: RootState) => state.auth);
+  const theme = useSelector((state: RootState) => state.ui.theme);
   const { notifySuccess, notifyError } = useNotification();
+
+  useEffect(() => {
+    if (
+      user &&
+      user.role !== 'citizen' &&
+      typeof window !== 'undefined' &&
+      window.location.pathname.startsWith('/citizen/issues/')
+    ) {
+      router.replace(`/issues/${id}`);
+    }
+  }, [user, id, router]);
 
   const { data: issue, isLoading, refetch } = useGetIssueByIdQuery(id as string);
   const [submitFeedback, { isLoading: isSubmittingFeedback }] = useSubmitFeedbackMutation();
@@ -256,7 +268,17 @@ export default function IssueDetailPage() {
                     isCompleted
                       ? 'bg-brand-cobalt text-white shadow-md'
                       : 'bg-surface-secondary text-text-muted border border-border'
-                  } ${isCurrent ? 'ring-4 ring-brand-yellow ring-offset-2' : ''}`}
+                  }`}
+                  style={
+                    isCurrent
+                      ? {
+                          boxShadow:
+                            theme === 'dark'
+                              ? '0 0 0 2px #141B29, 0 0 0 6px #e2fa6b'
+                              : '0 0 0 2px #FFFFFF, 0 0 0 6px #202B45',
+                        }
+                      : undefined
+                  }
                 >
                   {isCompleted ? <CheckCircle2 size={16} /> : idx + 1}
                 </div>

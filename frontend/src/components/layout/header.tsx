@@ -18,7 +18,6 @@ import {
   AlertCircle,
   Info,
   AlertTriangle,
-  Zap,
   ExternalLink,
   Settings,
   LogOut,
@@ -37,7 +36,6 @@ export function Header({ title }: { title?: string }) {
     markAsRead,
     markAllAsRead,
     clearNotifications,
-    simulateLiveEvent,
   } = useNotification();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -154,7 +152,13 @@ export function Header({ title }: { title?: string }) {
                   notifications.map((n: any) => (
                     <div
                       key={n.id}
-                      onClick={() => markAsRead(n.id)}
+                      onClick={() => {
+                        markAsRead(n.id);
+                        setShowNotifications(false);
+                        if (n.link) {
+                          router.push(n.link);
+                        }
+                      }}
                       className={cn(
                         'p-3.5 flex items-start gap-3 transition-colors hover:bg-surface-secondary cursor-pointer',
                         !n.read ? 'bg-brand-cobalt/5' : ''
@@ -174,13 +178,9 @@ export function Header({ title }: { title?: string }) {
                           {n.description}
                         </p>
                         {n.link && (
-                          <Link
-                            href={n.link}
-                            onClick={() => setShowNotifications(false)}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-cobalt mt-1 hover:underline"
-                          >
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-cobalt mt-1">
                             View details <ExternalLink size={10} />
-                          </Link>
+                          </span>
                         )}
                       </div>
                       {!n.read && (
@@ -191,25 +191,16 @@ export function Header({ title }: { title?: string }) {
                 )}
               </div>
 
-              <div className="p-2.5 bg-surface-secondary/70 border-t border-border flex justify-between items-center text-xs text-text-muted">
-                <button
-                  type="button"
-                  onClick={() => simulateLiveEvent()}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-brand-cobalt hover:underline"
-                  title="Simulate incoming real-time smart city work order"
-                >
-                  <Zap size={11} className="text-amber-500 fill-amber-500" />
-                  Simulate Live Event
-                </button>
-                {notifications.length > 0 && (
+              {notifications.length > 0 && (
+                <div className="p-2.5 bg-surface-secondary/70 border-t border-border flex justify-end items-center text-xs text-text-muted">
                   <button
                     onClick={clearNotifications}
                     className="text-text-muted hover:text-rose-500 text-[11px]"
                   >
                     Clear all
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>

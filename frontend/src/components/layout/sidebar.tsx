@@ -7,9 +7,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { toggleSidebar, setMobileSidebarOpen } from '../../store/uiSlice';
 import {
+  ArrowLeft,
+  BellRing,
   FilePlus,
   Inbox,
   LayoutDashboard,
+  LifeBuoy,
+  MapPin,
   BarChart3,
   Building2,
   Users,
@@ -17,8 +21,14 @@ import {
   Sliders,
   ChevronLeft,
   ChevronRight,
+  Trophy,
   X,
   User,
+  Wallet,
+  ShieldAlert,
+  Megaphone,
+  ScrollText,
+  HardHat,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BrandLogo } from '../ui/brand-logo';
@@ -43,6 +53,10 @@ export function Sidebar() {
     { label: 'Overview', href: '/citizen', icon: LayoutDashboard },
     { label: 'Report Issue', href: '/citizen/create', icon: FilePlus, highlight: true },
     { label: 'My Reports', href: '/citizen/reports', icon: Inbox },
+    { label: 'Live City Map', href: '/citizen/map', icon: MapPin },
+    { label: 'Neighborhood Alerts', href: '/citizen/alerts', icon: BellRing },
+    { label: 'Civic Impact & Rewards', href: '/citizen/impact', icon: Trophy },
+    { label: 'Emergency Hotlines & Help', href: '/citizen/help', icon: LifeBuoy },
     { label: 'Profile Settings', href: '/profile', icon: User },
   ];
 
@@ -61,6 +75,11 @@ export function Sidebar() {
   const adminLinks: NavLinkItem[] = [
     { label: 'City Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'Executive Analytics', href: '/admin/analytics', icon: BarChart3 },
+    { label: 'Budget & Spending', href: '/admin/budget', icon: Wallet },
+    { label: 'SLA Escalations', href: '/admin/sla', icon: ShieldAlert },
+    { label: 'Public Advisories', href: '/admin/advisories', icon: Megaphone },
+    { label: 'Contractors & Vendors', href: '/admin/contractors', icon: HardHat },
+    { label: 'Audit & Compliance', href: '/admin/audit', icon: ScrollText },
     { label: 'Departments', href: '/admin/departments', icon: Building2 },
     { label: 'User Directory', href: '/admin/users', icon: Users },
     { label: 'System Settings', href: '/admin/settings', icon: Sliders },
@@ -121,19 +140,12 @@ export function Sidebar() {
               sidebarCollapsed && !mobileSidebarOpen ? 'justify-center px-0' : 'justify-between px-4'
             )}
           >
-            <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 overflow-hidden">
-              <div className="w-9 h-9 rounded-xl bg-[#315CFF] flex items-center justify-center text-white shadow-sm shrink-0">
-                <BrandLogo size={20} className="text-white" />
-              </div>
+            <Link href="/" onClick={handleNavClick} className="flex items-center gap-2.5 overflow-hidden">
+              <BrandLogo size={28} className="text-white shrink-0" />
               {(!sidebarCollapsed || mobileSidebarOpen) && (
-                <div>
-                  <span className="font-display font-bold text-lg tracking-tight text-white block leading-tight">
-                    CivicPulse
-                  </span>
-                  <span className="text-[10px] text-[#e2fa6b] font-mono font-semibold uppercase tracking-wider block">
-                    Signal City v1.0
-                  </span>
-                </div>
+                <span className="font-display font-bold text-xl tracking-tight text-white block leading-tight">
+                  CivicPulse
+                </span>
               )}
             </Link>
 
@@ -149,7 +161,7 @@ export function Sidebar() {
 
           {/* User Role Badge */}
           {(!sidebarCollapsed || mobileSidebarOpen) && (
-            <div className="mx-4 my-3.5 px-3.5 py-2.5 rounded-xl bg-[#2B3852] dark:bg-[#141B29] border border-[#3C4962] dark:border-[#232F46] flex items-center gap-2.5">
+            <div className="mx-4 my-3.5 px-3.5 py-2.5 rounded-lg bg-[#2B3852] dark:bg-[#141B29] border border-[#3C4962] dark:border-[#232F46] flex items-center gap-2.5">
               <div className="w-2 h-2 rounded-full bg-[#e2fa6b] shrink-0"></div>
               <div className="truncate">
                 <p className="text-[10px] font-mono uppercase tracking-wider text-[#e2fa6b] font-semibold leading-none">
@@ -172,7 +184,7 @@ export function Sidebar() {
                   href={item.href}
                   onClick={handleNavClick}
                   className={cn(
-                    'flex items-center rounded-xl text-sm font-medium transition-all group',
+                    'flex items-center rounded-lg text-sm font-medium transition-all group',
                     isCompact ? 'justify-center w-11 h-11 mx-auto px-0' : 'gap-3 px-3.5 py-2.5',
                     isActive
                       ? 'bg-[#315CFF] text-white font-semibold shadow-sm'
@@ -200,21 +212,22 @@ export function Sidebar() {
           </nav>
         </div>
 
-        {/* Footer / System Status */}
+        {/* Footer */}
         <div className="p-4 border-t border-[#34415B] dark:border-[#1E293B]">
-          {!sidebarCollapsed || mobileSidebarOpen ? (
-            <div className="text-[11px] text-slate-400 font-mono space-y-1">
-              <div className="flex items-center justify-between text-slate-300">
-                <span>Status</span>
-                <span className="text-[#e2fa6b] font-semibold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#e2fa6b]"></span> Online
-                </span>
-              </div>
-              <div>PostgreSQL • Neon Live</div>
-            </div>
-          ) : (
-            <div className="w-2.5 h-2.5 mx-auto rounded-full bg-[#e2fa6b]" title="Online" />
-          )}
+          <Link
+            href="/"
+            onClick={handleNavClick}
+            className={cn(
+              'flex items-center rounded-lg text-xs font-bold bg-[#e2fa6b] hover:bg-[#d5f055] text-[#202B45] shadow-sm transition-colors',
+              sidebarCollapsed && !mobileSidebarOpen
+                ? 'justify-center w-11 h-10 mx-auto px-0'
+                : 'justify-center gap-2 px-3.5 py-2.5 w-full'
+            )}
+            title={sidebarCollapsed && !mobileSidebarOpen ? 'Back to Homepage' : undefined}
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            {(!sidebarCollapsed || mobileSidebarOpen) && <span>Back to Homepage</span>}
+          </Link>
         </div>
       </aside>
     </>

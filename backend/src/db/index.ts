@@ -11,8 +11,9 @@ const connectionString =
 // Neon requires SSL. This client automatically handles SSL for Neon and standard connections.
 const client = postgres(connectionString, {
   max: 10,
-  idle_timeout: 20,
+  idle_timeout: 60,
   connect_timeout: 10,
+  prepare: false,
   ssl: connectionString.includes('neon.tech') ? 'require' : false,
 });
 

@@ -168,7 +168,7 @@ export default function AdminSlaEscalationsPage() {
                       <BellRing size={14} />
                       {isEscalated ? 'Escalated' : 'Escalate Now'}
                     </Button>
-                    <Link href={`/citizen/issues/${issue.id}`}>
+                    <Link href={`/issues/${issue.id}`}>
                       <Button size="sm" variant="outline" className="rounded-lg gap-1">
                         Inspect <ArrowUpRight size={14} />
                       </Button>

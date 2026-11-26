@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Issue } from '../../types';
@@ -113,7 +114,7 @@ export function IssueMapClient({
                       {getStatusLabel(issue.status)}
                     </Badge>
                     <Link
-                      href={`/citizen/issues/${issue.id}`}
+                      href={`/issues/${issue.id}`}
                       className="text-xs font-semibold text-brand-cobalt hover:underline"
                     >
                       View Details →

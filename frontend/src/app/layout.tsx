@@ -1,7 +1,22 @@
 import type { Metadata } from 'next';
 import React, { Suspense } from 'react';
-import 'leaflet/dist/leaflet.css';
+import { Manrope, Instrument_Serif } from 'next/font/google';
 import './globals.css';
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-manrope',
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-instrument-serif',
+});
 import { StoreProvider } from '../store/provider';
 import { ThemeProvider } from '../components/layout/theme-provider';
 import { AuthSync } from '../components/layout/auth-sync';
@@ -30,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${manrope.variable} ${instrumentSerif.variable}`}>
       <body suppressHydrationWarning className="min-h-screen bg-background text-text-primary font-sans antialiased selection:bg-brand-yellow selection:text-brand-midnight">
         <StoreProvider>
           <ThemeProvider>

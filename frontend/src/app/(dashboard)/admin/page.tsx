@@ -131,7 +131,7 @@ export default function AdminOverviewPage() {
                         </Badge>
                       </div>
                       <h4 className="font-bold text-sm text-text-primary">
-                        <Link href={`/citizen/issues/${issue.id}`} className="hover:underline">
+                        <Link href={`/issues/${issue.id}`} className="hover:underline">
                           {issue.title}
                         </Link>
                       </h4>

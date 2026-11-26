@@ -25,46 +25,49 @@ export default function LandingPage() {
 
   useGSAP(
     () => {
-      // 1. Hero Entrance Timeline (Framer spring / soft ease-out)
-      const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      if (!isMobile) {
+        // 1. Hero Entrance Timeline (Desktop only so mobile LCP paints immediately)
+        const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      heroTl
-        .from('.anim-hero-badge', {
-          y: -22,
-          opacity: 0,
-          duration: 0.7,
-          ease: 'back.out(1.5)',
-        })
-        .from(
-          '.anim-hero-title',
-          {
-            y: 40,
-            opacity: 0,
-            duration: 0.85,
-            ease: 'power3.out',
-          },
-          '-=0.35'
-        )
-        .from(
-          '.anim-hero-desc',
-          {
-            y: 22,
+        heroTl
+          .from('.anim-hero-badge', {
+            y: -22,
             opacity: 0,
             duration: 0.7,
-          },
-          '-=0.45'
-        )
-        .from(
-          '.anim-hero-cta',
-          {
-            y: 18,
-            scale: 0.95,
-            opacity: 0,
-            duration: 0.6,
-            ease: 'back.out(1.2)',
-          },
-          '-=0.3'
-        );
+            ease: 'back.out(1.5)',
+          })
+          .from(
+            '.anim-hero-title',
+            {
+              y: 40,
+              opacity: 0,
+              duration: 0.85,
+              ease: 'power3.out',
+            },
+            '-=0.35'
+          )
+          .from(
+            '.anim-hero-desc',
+            {
+              y: 22,
+              opacity: 0,
+              duration: 0.7,
+            },
+            '-=0.45'
+          )
+          .from(
+            '.anim-hero-cta',
+            {
+              y: 18,
+              scale: 0.95,
+              opacity: 0,
+              duration: 0.6,
+              ease: 'back.out(1.2)',
+            },
+            '-=0.3'
+          );
+      }
 
       // 2.5. About Us Section Stagger Reveal on Scroll
       gsap.fromTo(

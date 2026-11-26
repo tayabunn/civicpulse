@@ -24,7 +24,10 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Issues', 'Departments', 'Tasks', 'Analytics', 'SavedViews', 'Users', 'Settings'],
+  keepUnusedDataFor: 300,
+  refetchOnFocus: false,
+  refetchOnReconnect: false,
+  tagTypes: ['Issues', 'Departments', 'Tasks', 'Analytics', 'SavedViews', 'Users', 'Settings', 'Notifications'],
   endpoints: (builder) => ({
     // Issues
     getIssues: builder.query<IssuesResponse, IssueFilters | void>({
@@ -58,6 +61,26 @@ export const apiSlice = createApi({
 
     getIssueById: builder.query<Issue, string>({
       query: (id) => `/issues/${id}`,
+      transformResponse: (response: any) => {
+        const base = response?.issue || response;
+        if (!base) return response;
+        const tasks = Array.isArray(response?.tasks) ? response.tasks : [];
+        const activities = Array.isArray(response?.activities)
+          ? response.activities
+          : base.activities || [];
+        const taskWithProof = tasks.find((t: any) => t.proofImageUrl) || tasks[0];
+        return {
+          ...base,
+          trackingCode:
+            base.trackingCode ||
+            (base.id ? `CP-${String(base.id).slice(0, 8).toUpperCase()}` : ''),
+          activities,
+          resolutionImageUrl: base.resolutionImageUrl || taskWithProof?.proofImageUrl,
+          resolutionNotes: base.resolutionNotes || taskWithProof?.fieldNotes,
+          citizenRating: base.citizenRating ?? base.feedbackRating,
+          citizenFeedback: base.citizenFeedback ?? base.feedbackComment,
+        };
+      },
       providesTags: (_result, _err, id) => [{ type: 'Issues', id }],
     }),
 
@@ -104,6 +127,17 @@ export const apiSlice = createApi({
         body: { rating, feedback },
       }),
       invalidatesTags: (_res, _err, { id }) => [{ type: 'Issues', id }],
+    }),
+
+    upvoteIssue: builder.mutation<{ success: boolean; upvotes?: number; alreadyUpvoted?: boolean }, string>({
+      query: (id) => ({
+        url: `/issues/${id}/upvote`,
+        method: 'POST',
+      }),
+      invalidatesTags: (_res, _err, id) => [
+        { type: 'Issues', id },
+        { type: 'Issues', id: 'LIST' },
+      ],
     }),
 
     // Departments
@@ -264,6 +298,28 @@ export const apiSlice = createApi({
         body,
       }),
     }),
+
+    // Notifications
+    getNotifications: builder.query<{ items: any[] }, void>({
+      query: () => '/notifications',
+      providesTags: ['Notifications'],
+    }),
+
+    markNotificationRead: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/notifications/${id}/read`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Notifications'],
+    }),
+
+    markAllNotificationsRead: builder.mutation<any, void>({
+      query: () => ({
+        url: '/notifications/read-all',
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Notifications'],
+    }),
   }),
 });
 
@@ -273,6 +329,7 @@ export const {
   useCreateIssueMutation,
   useUpdateIssueStatusMutation,
   useSubmitFeedbackMutation,
+  useUpvoteIssueMutation,
   useGetDepartmentsQuery,
   useGetDepartmentByIdQuery,
   useGetTasksQuery,
@@ -291,4 +348,7 @@ export const {
   useUpdateSettingsMutation,
   useUpdateProfileMutation,
   useUpdatePasswordMutation,
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
 } = apiSlice;

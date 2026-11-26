@@ -13,6 +13,7 @@ import analyticsRoutes from './routes/analytics';
 import savedViewsRoutes from './routes/saved-views';
 import userRoutes from './routes/users';
 import settingsRoutes from './routes/settings';
+import notificationsRoutes from './routes/notifications';
 import { authRateLimiter, apiRateLimiter } from './middleware/rate-limiter';
 
 const app = express();
@@ -98,6 +99,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/saved-views', savedViewsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 // Export for serverless or testing
 export default app;

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform, type MotionValue } from 'motion/react';
@@ -12,6 +12,16 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ scrollYProgress }: HeroSectionProps) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setIsDesktop(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const fallbackProgress = useMotionValue(0);
   const progress = scrollYProgress ?? fallbackProgress;
   const scale = useTransform(progress, [0, 1], [1, 0.8]);
@@ -22,18 +32,30 @@ export function HeroSection({ scrollYProgress }: HeroSectionProps) {
       style={scrollYProgress ? { scale, rotate } : undefined}
       className="sticky top-0 z-0 overflow-hidden h-screen min-h-[620px] flex flex-col justify-end text-white will-change-transform"
     >
-      {/* Background Police Assist in Snow Video with Fallback Poster */}
+      {/* Lightweight Poster Image for Instant Mobile LCP + Desktop Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="https://images.pexels.com/videos/30242881/pexels-photo-30242881.jpeg?auto=compress&cs=tinysrgb&w=1920"
-          className="absolute inset-0 w-full h-full object-cover scale-105"
-        >
-          <source src="/police-assist-snow.mp4" type="video/mp4" />
-        </video>
+        <Image
+          src="https://images.pexels.com/videos/30242881/pexels-photo-30242881.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          alt="Municipal infrastructure response"
+          fill
+          priority
+          sizes="100vw"
+          quality={75}
+          className="object-cover scale-105"
+        />
+        {isDesktop && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster="https://images.pexels.com/videos/30242881/pexels-photo-30242881.jpeg?auto=compress&cs=tinysrgb&w=1920"
+            className="absolute inset-0 w-full h-full object-cover scale-105"
+          >
+            <source src="/police-assist-snow.mp4" type="video/mp4" />
+          </video>
+        )}
 
         {/* Website Brand Yellow (#e2fa6b) Overlay Layers with Reduced Radius */}
         {/* Radial gradient anchored at bottom-left with controlled compact radius */}
@@ -55,6 +77,7 @@ export function HeroSection({ scrollYProgress }: HeroSectionProps) {
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80"
                     alt="Citizen"
                     fill
+                    sizes="24px"
                     className="object-cover"
                   />
                 </div>
@@ -63,6 +86,7 @@ export function HeroSection({ scrollYProgress }: HeroSectionProps) {
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80"
                     alt="Coordinator"
                     fill
+                    sizes="24px"
                     className="object-cover"
                   />
                 </div>
@@ -71,6 +95,7 @@ export function HeroSection({ scrollYProgress }: HeroSectionProps) {
                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80"
                     alt="Technician"
                     fill
+                    sizes="24px"
                     className="object-cover"
                   />
                 </div>

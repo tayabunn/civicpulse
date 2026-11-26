@@ -110,9 +110,6 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       }
     }
 
-    const [countResult] = await db.select({ total: count() }).from(issues).where(whereClause);
-    const total = Number(countResult?.total || 0);
-
     let sortColumn: any = issues.createdAt;
     if (sort === 'priority') sortColumn = issues.priority;
     else if (sort === 'status') sortColumn = issues.status;
@@ -123,37 +120,41 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
     const sortOrder = order === 'asc' ? asc(sortColumn) : desc(sortColumn);
     const offset = (page - 1) * limit;
 
-    const items = await db
-      .select({
-        id: issues.id,
-        title: issues.title,
-        description: issues.description,
-        category: issues.category,
-        status: issues.status,
-        priority: issues.priority,
-        latitude: issues.latitude,
-        longitude: issues.longitude,
-        address: issues.address,
-        imageUrl: issues.imageUrl,
-        reporterId: issues.reporterId,
-        departmentId: issues.departmentId,
-        assignedStaffId: issues.assignedStaffId,
-        duplicateOfId: issues.duplicateOfId,
-        feedbackRating: issues.feedbackRating,
-        feedbackComment: issues.feedbackComment,
-        createdAt: issues.createdAt,
-        updatedAt: issues.updatedAt,
-        resolvedAt: issues.resolvedAt,
-        departmentName: departments.name,
-        reporterName: users.name,
-      })
-      .from(issues)
-      .leftJoin(departments, eq(issues.departmentId, departments.id))
-      .leftJoin(users, eq(issues.reporterId, users.id))
-      .where(whereClause)
-      .orderBy(sortOrder)
-      .limit(limit)
-      .offset(offset);
+    const [[countResult], items] = await Promise.all([
+      db.select({ total: count() }).from(issues).where(whereClause),
+      db
+        .select({
+          id: issues.id,
+          title: issues.title,
+          description: issues.description,
+          category: issues.category,
+          status: issues.status,
+          priority: issues.priority,
+          latitude: issues.latitude,
+          longitude: issues.longitude,
+          address: issues.address,
+          imageUrl: issues.imageUrl,
+          reporterId: issues.reporterId,
+          departmentId: issues.departmentId,
+          assignedStaffId: issues.assignedStaffId,
+          duplicateOfId: issues.duplicateOfId,
+          feedbackRating: issues.feedbackRating,
+          feedbackComment: issues.feedbackComment,
+          createdAt: issues.createdAt,
+          updatedAt: issues.updatedAt,
+          resolvedAt: issues.resolvedAt,
+          departmentName: departments.name,
+          reporterName: users.name,
+        })
+        .from(issues)
+        .leftJoin(departments, eq(issues.departmentId, departments.id))
+        .leftJoin(users, eq(issues.reporterId, users.id))
+        .where(whereClause)
+        .orderBy(sortOrder)
+        .limit(limit)
+        .offset(offset),
+    ]);
+    const total = Number(countResult?.total || 0);
 
     return res.json({
       items,
@@ -244,71 +245,71 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = req.params.id as string;
 
-    const [issue] = await db
-      .select({
-        id: issues.id,
-        title: issues.title,
-        description: issues.description,
-        category: issues.category,
-        status: issues.status,
-        priority: issues.priority,
-        latitude: issues.latitude,
-        longitude: issues.longitude,
-        address: issues.address,
-        imageUrl: issues.imageUrl,
-        reporterId: issues.reporterId,
-        departmentId: issues.departmentId,
-        assignedStaffId: issues.assignedStaffId,
-        duplicateOfId: issues.duplicateOfId,
-        feedbackRating: issues.feedbackRating,
-        feedbackComment: issues.feedbackComment,
-        createdAt: issues.createdAt,
-        updatedAt: issues.updatedAt,
-        resolvedAt: issues.resolvedAt,
-        departmentName: departments.name,
-        reporterName: users.name,
-      })
-      .from(issues)
-      .leftJoin(departments, eq(issues.departmentId, departments.id))
-      .leftJoin(users, eq(issues.reporterId, users.id))
-      .where(eq(issues.id, id))
-      .limit(1);
+    const [[issue], activities, tasks] = await Promise.all([
+      db
+        .select({
+          id: issues.id,
+          title: issues.title,
+          description: issues.description,
+          category: issues.category,
+          status: issues.status,
+          priority: issues.priority,
+          latitude: issues.latitude,
+          longitude: issues.longitude,
+          address: issues.address,
+          imageUrl: issues.imageUrl,
+          reporterId: issues.reporterId,
+          departmentId: issues.departmentId,
+          assignedStaffId: issues.assignedStaffId,
+          duplicateOfId: issues.duplicateOfId,
+          feedbackRating: issues.feedbackRating,
+          feedbackComment: issues.feedbackComment,
+          createdAt: issues.createdAt,
+          updatedAt: issues.updatedAt,
+          resolvedAt: issues.resolvedAt,
+          departmentName: departments.name,
+          reporterName: users.name,
+        })
+        .from(issues)
+        .leftJoin(departments, eq(issues.departmentId, departments.id))
+        .leftJoin(users, eq(issues.reporterId, users.id))
+        .where(eq(issues.id, id))
+        .limit(1),
+      db
+        .select({
+          id: issueActivities.id,
+          action: issueActivities.action,
+          previousStatus: issueActivities.previousStatus,
+          newStatus: issueActivities.newStatus,
+          notes: issueActivities.notes,
+          attachmentUrl: issueActivities.attachmentUrl,
+          createdAt: issueActivities.createdAt,
+          userName: users.name,
+          userRole: users.role,
+        })
+        .from(issueActivities)
+        .leftJoin(users, eq(issueActivities.userId, users.id))
+        .where(eq(issueActivities.issueId, id))
+        .orderBy(desc(issueActivities.createdAt)),
+      db
+        .select({
+          id: maintenanceTasks.id,
+          status: maintenanceTasks.status,
+          fieldNotes: maintenanceTasks.fieldNotes,
+          proofImageUrl: maintenanceTasks.proofImageUrl,
+          assignedAt: maintenanceTasks.assignedAt,
+          startedAt: maintenanceTasks.startedAt,
+          completedAt: maintenanceTasks.completedAt,
+          staffName: users.name,
+        })
+        .from(maintenanceTasks)
+        .leftJoin(users, eq(maintenanceTasks.staffId, users.id))
+        .where(eq(maintenanceTasks.issueId, id)),
+    ]);
 
     if (!issue) {
       return res.status(404).json({ error: 'Issue not found' });
     }
-
-    const activities = await db
-      .select({
-        id: issueActivities.id,
-        action: issueActivities.action,
-        previousStatus: issueActivities.previousStatus,
-        newStatus: issueActivities.newStatus,
-        notes: issueActivities.notes,
-        attachmentUrl: issueActivities.attachmentUrl,
-        createdAt: issueActivities.createdAt,
-        userName: users.name,
-        userRole: users.role,
-      })
-      .from(issueActivities)
-      .leftJoin(users, eq(issueActivities.userId, users.id))
-      .where(eq(issueActivities.issueId, id))
-      .orderBy(desc(issueActivities.createdAt));
-
-    const tasks = await db
-      .select({
-        id: maintenanceTasks.id,
-        status: maintenanceTasks.status,
-        fieldNotes: maintenanceTasks.fieldNotes,
-        proofImageUrl: maintenanceTasks.proofImageUrl,
-        assignedAt: maintenanceTasks.assignedAt,
-        startedAt: maintenanceTasks.startedAt,
-        completedAt: maintenanceTasks.completedAt,
-        staffName: users.name,
-      })
-      .from(maintenanceTasks)
-      .leftJoin(users, eq(maintenanceTasks.staffId, users.id))
-      .where(eq(maintenanceTasks.issueId, id));
 
     return res.json({ issue, activities, tasks });
   } catch (error) {

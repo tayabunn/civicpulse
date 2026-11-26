@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { BrandLogo } from '../ui/brand-logo';
 import { ArrowUpRight, ShieldCheck, Radio } from 'lucide-react';
@@ -18,22 +19,42 @@ const MARQUEE_ITEMS = [
 ];
 
 export function Footer() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setIsDesktop(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   return (
     <footer className="bg-[#0B1221] text-white overflow-hidden font-sans">
       {/* 1. Cinematic Top Action Banner matching footer.mp4 */}
       <div className="relative overflow-hidden min-h-[380px] sm:min-h-[440px] flex items-center py-20 lg:py-24">
-        {/* Background Video / Poster */}
+        {/* Background Video (Desktop only) / Optimized Poster (Mobile) */}
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            poster="/about-gis-dispatch.jpg"
-            className="w-full h-full object-cover"
-          >
-            <source src="/footer-dam.mp4" type="video/mp4" />
-          </video>
+          <Image
+            src="/about-gis-dispatch.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          {isDesktop && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="none"
+              poster="/about-gis-dispatch.jpg"
+              className="relative w-full h-full object-cover"
+            >
+              <source src="/footer-dam.mp4" type="video/mp4" />
+            </video>
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0B1221]/90 via-[#142038]/55 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0B1221] via-[#0B1221]/20 to-[#0B1221]/30" />
         </div>

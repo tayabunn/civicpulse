@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { BrandLogo } from './brand-logo';
 
 /**
@@ -56,13 +57,18 @@ function createSlowWarp(slowSteps: number[]) {
 }
 
 export function SmartPreloader() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState<'revealing' | 'exiting' | 'done'>('revealing');
-  const [shouldRender, setShouldRender] = useState(true);
+  const [shouldRender, setShouldRender] = useState(pathname === '/');
   const counterRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    if (pathname !== '/' || window.innerWidth < 768) {
+      setShouldRender(false);
+      return;
+    }
     setMounted(true);
 
     // 1. Smart Session Lock: Show once per session

@@ -254,7 +254,7 @@ export function DataTable({
                         >
                           <MapPin size={14} />
                         </Button>
-                        <Link href={`/citizen/issues/${issue.id}`}>
+                        <Link href={`/issues/${issue.id}`}>
                           <Button variant="ghost" size="icon" title="View Details" className="h-8 w-8">
                             <Eye size={14} />
                           </Button>
@@ -319,7 +319,7 @@ export function DataTable({
                       {getPriorityLabel(issue.priority)}
                     </Badge>
                   </div>
-                  <Link href={`/citizen/issues/${issue.id}`} onClick={(e) => e.stopPropagation()}>
+                  <Link href={`/issues/${issue.id}`} onClick={(e) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
                       <Eye size={12} /> View
                     </Button>

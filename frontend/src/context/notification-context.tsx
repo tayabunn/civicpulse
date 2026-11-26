@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+} from '../store/apiSlice';
 
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
@@ -30,87 +37,55 @@ interface NotificationContextType {
   notifyError: (message: string, title?: string) => string;
   notifyInfo: (message: string, title?: string) => string;
   notifyWarning: (message: string, title?: string) => string;
-  // Notification Center
   notifications: ActivityNotification[];
   unreadCount: number;
+  isLoadingNotifications: boolean;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
-  // Bonus Challenge 1: Real-time live event simulation
-  simulateLiveEvent: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-const INITIAL_NOTIFICATIONS: ActivityNotification[] = [
-  {
-    id: 'notif-1',
-    title: 'Work Order Dispatched',
-    description: 'Roads & Highways Crew #4 assigned to CP-2024-0042 (Pothole at Dhanmondi 27)',
-    time: '5 mins ago',
-    read: false,
-    type: 'info',
-    link: '/citizen/reports',
-  },
-  {
-    id: 'notif-2',
-    title: 'Issue Resolved & Closed',
-    description: 'Streetlight fault CP-2024-0019 verified repaired by Field Maintenance',
-    time: '24 mins ago',
-    read: false,
-    type: 'success',
-    link: '/citizen/reports',
-  },
-  {
-    id: 'notif-3',
-    title: 'High Severity Escalation',
-    description: 'Severe water main burst reported in Gulshan 2 requires immediate triage',
-    time: '1 hour ago',
-    read: true,
-    type: 'warning',
-    link: '/manager/issues',
-  },
-  {
-    id: 'notif-4',
-    title: 'SLA Milestone Achieved',
-    description: 'Electrical department reached 94.2% on-time resolution this month',
-    time: '3 hours ago',
-    read: true,
-    type: 'info',
-    link: '/admin/analytics',
-  },
-];
-
-const SIMULATED_EVENTS = [
-  {
-    title: 'New High Severity Incident',
-    description: 'Hazardous uncovered manhole reported at Mirpur 10 roundabout.',
-    type: 'warning' as const,
-    link: '/manager/issues',
-  },
-  {
-    title: 'Field Repair Completed',
-    description: 'Faulty sodium vapor streetlight at Banani 11 restored by Electric Crew #2.',
-    type: 'success' as const,
-    link: '/citizen/reports',
-  },
-  {
-    title: 'Triage Queue Update',
-    description: 'Solid Waste Management dispatched sanitation compactor to Badda.',
-    type: 'info' as const,
-    link: '/manager/issues',
-  },
-  {
-    title: 'Urgent SLA Reminder',
-    description: 'Pothole work order #CP-2024-0016 approaching 24h critical threshold.',
-    type: 'warning' as const,
-    link: '/staff',
-  },
-];
+const formatRelativeTime = (isoDate: string) => {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.max(0, Math.floor(diffMs / 60000));
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+};
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const [notifications, setNotifications] = useState<ActivityNotification[]>(INITIAL_NOTIFICATIONS);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [localReadIds, setLocalReadIds] = useState<Record<string, boolean>>({});
+  const [clearedIds, setClearedIds] = useState<Record<string, boolean>>({});
+
+  const { data, isLoading: isLoadingNotifications } = useGetNotificationsQuery(undefined, {
+    skip: !isAuthenticated || !user,
+    pollingInterval: 30000,
+  });
+
+  const [markReadMutation] = useMarkNotificationReadMutation();
+  const [markAllReadMutation] = useMarkAllNotificationsReadMutation();
+
+  const notifications: ActivityNotification[] = useMemo(() => {
+    const items = data?.items || [];
+    return items
+      .filter((item: any) => !clearedIds[item.id])
+      .map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        time: item.createdAt ? formatRelativeTime(item.createdAt) : 'Recent',
+        read: Boolean(item.read) || Boolean(localReadIds[item.id]),
+        type: (item.type as NotificationType) || 'info',
+        link: item.link,
+      }));
+  }, [data, localReadIds, clearedIds]);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -149,42 +124,30 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     addToast({ type: 'warning', title, message });
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setLocalReadIds((prev) => ({ ...prev, [id]: true }));
+    if (isAuthenticated && !id.startsWith('act-')) {
+      markReadMutation(id);
+    }
   };
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const next: Record<string, boolean> = {};
+    notifications.forEach((n) => {
+      next[n.id] = true;
+    });
+    setLocalReadIds((prev) => ({ ...prev, ...next }));
+    if (isAuthenticated) {
+      markAllReadMutation();
+    }
   };
 
   const clearNotifications = () => {
-    setNotifications([]);
-  };
-
-  // Bonus Challenge 1: Real-time Live Event Simulator
-  const simulateLiveEvent = useCallback(() => {
-    const randomEvent = SIMULATED_EVENTS[Math.floor(Math.random() * SIMULATED_EVENTS.length)];
-    const newId = `live-${Date.now()}`;
-
-    const newNotification: ActivityNotification = {
-      id: newId,
-      title: randomEvent.title,
-      description: randomEvent.description,
-      time: 'Just now',
-      read: false,
-      type: randomEvent.type,
-      link: randomEvent.link,
-    };
-
-    setNotifications((prev) => [newNotification, ...prev]);
-    addToast({
-      type: randomEvent.type,
-      title: `⚡ Live Alert: ${randomEvent.title}`,
-      message: randomEvent.description,
-      duration: 5000,
+    const next: Record<string, boolean> = {};
+    notifications.forEach((n) => {
+      next[n.id] = true;
     });
-  }, []);
+    setClearedIds((prev) => ({ ...prev, ...next }));
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -200,10 +163,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         notifyWarning,
         notifications,
         unreadCount,
+        isLoadingNotifications,
         markAsRead,
         markAllAsRead,
         clearNotifications,
-        simulateLiveEvent,
       }}
     >
       {children}
