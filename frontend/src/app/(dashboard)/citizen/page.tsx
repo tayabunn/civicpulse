@@ -167,12 +167,12 @@ export default function CitizenDashboardPage() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#315CFF] dark:text-[#6280FF]">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#315CFF] dark:text-[#6280FF]">
                 Neighborhood Alert
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#e2fa6b]" />
+              <span className="w-2 h-2 rounded-full bg-[#e2fa6b]" />
             </div>
-            <p className="text-xs text-[#202B45] dark:text-slate-200 truncate">
+            <p className="text-sm text-[#202B45] dark:text-slate-200 truncate">
               {wardAlerts.length > 0
                 ? `${wardAlerts.length} active alert${wardAlerts.length > 1 ? 's' : ''} in ${selectedWard}: ${wardAlerts[0].title} (${wardAlerts[0].address})`
                 : `No urgent municipal hazards reported in ${selectedWard} right now.`}
@@ -181,12 +181,12 @@ export default function CitizenDashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[11px] font-medium text-[#606B7D] dark:text-slate-400">Ward:</span>
+          <span className="text-xs font-medium text-[#606B7D] dark:text-slate-400">Ward:</span>
           <select
             value={selectedWard}
             onChange={(e) => handleWardChange(e.target.value)}
             aria-label="Select neighborhood ward"
-            className="px-3 py-1.5 rounded-lg bg-[#F7F5EF] dark:bg-[#1B2435] border border-[#D5DAE3] dark:border-[#232F46] text-xs font-semibold text-[#202B45] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#315CFF]"
+            className="px-3 py-1.5 rounded-lg bg-[#F7F5EF] dark:bg-[#1B2435] border border-[#D5DAE3] dark:border-[#232F46] text-sm font-semibold text-[#202B45] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#315CFF]"
           >
             {DHAKA_WARDS.map((ward) => (
               <option key={ward} value={ward}>
@@ -225,7 +225,7 @@ export default function CitizenDashboardPage() {
                 'Real-Time Status Tracking',
                 'Direct Municipal Triage',
               ].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-xs font-medium text-slate-200">
+                <div key={item} className="flex items-center gap-2 text-sm font-medium text-slate-200">
                   <span className="w-4 h-4 rounded-full bg-[#315CFF] text-white flex items-center justify-center shrink-0">
                     <Check size={10} className="stroke-[3]" />
                   </span>
@@ -260,7 +260,7 @@ export default function CitizenDashboardPage() {
 
         {/* 3. 1-Click Quick Emergency & Hazard Templates */}
         <div className="mt-6 pt-5 border-t border-white/10">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-slate-300 mb-3">
+          <p className="text-xs font-mono uppercase tracking-wider text-slate-300 mb-3">
             1-Click Quick Report Templates
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -275,7 +275,7 @@ export default function CitizenDashboardPage() {
                 <Link
                   key={tpl.label}
                   href={href}
-                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#2B3852] dark:bg-[#1B2435] border border-[#3C4962] dark:border-[#2B3852] hover:border-[#e2fa6b] text-xs font-semibold text-white transition-colors group"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-[#2B3852] dark:bg-[#1B2435] border border-[#3C4962] dark:border-[#2B3852] hover:border-[#e2fa6b] text-sm font-semibold text-white transition-colors group"
                 >
                   <span className="w-7 h-7 rounded-lg bg-[#315CFF] text-white flex items-center justify-center shrink-0 group-hover:bg-[#e2fa6b] group-hover:text-[#202B45] transition-colors">
                     <Icon size={14} />
@@ -308,7 +308,7 @@ export default function CitizenDashboardPage() {
               <ArrowUpRight size={13} /> {activeCount > 0 ? `${activeCount} in queue` : 'No active issues'}
             </span>
           </div>
-          <p className="mt-3 text-xs font-medium text-[#606B7D] dark:text-slate-400">
+          <p className="mt-3 text-sm font-medium text-[#606B7D] dark:text-slate-400">
             Active municipal issues currently in queue
           </p>
         </div>
@@ -331,7 +331,7 @@ export default function CitizenDashboardPage() {
               {resolvedCount > 0 ? 'Verified' : '0 completed'}
             </span>
           </div>
-          <p className="mt-3 text-xs font-medium text-[#606B7D] dark:text-slate-400">
+          <p className="mt-3 text-sm font-medium text-[#606B7D] dark:text-slate-400">
             Completed repairs verified across wards
           </p>
         </div>
@@ -355,7 +355,7 @@ export default function CitizenDashboardPage() {
               All sectors
             </span>
           </div>
-          <p className="mt-3 text-xs font-medium text-[#606B7D] dark:text-slate-400">
+          <p className="mt-3 text-sm font-medium text-[#606B7D] dark:text-slate-400">
             Average dispatch turnaround time
           </p>
         </div>
@@ -375,7 +375,7 @@ export default function CitizenDashboardPage() {
               <h3 className="text-4xl font-normal font-serif text-[#202B45] dark:text-white tracking-tight tabular-nums leading-none">
                 {impactScore} <span className="text-sm font-sans font-semibold text-[#606B7D] dark:text-slate-400">pts</span>
               </h3>
-              <span className="text-[11px] font-mono text-[#315CFF] dark:text-[#6280FF] font-semibold">
+              <span className="text-xs font-mono text-[#315CFF] dark:text-[#6280FF] font-semibold">
                 {tierProgress}% to next
               </span>
             </div>
@@ -386,7 +386,7 @@ export default function CitizenDashboardPage() {
               />
             </div>
           </div>
-          <p className="mt-3 text-xs font-medium text-[#606B7D] dark:text-slate-400">
+          <p className="mt-3 text-sm font-medium text-[#606B7D] dark:text-slate-400">
             {resolvedCount} hazards resolved • {totalConfirmations} neighbor confirms
           </p>
         </div>
@@ -462,42 +462,42 @@ export default function CitizenDashboardPage() {
                             {getCategoryLabel(issue.category)}
                           </Badge>
                         </div>
-                        <h4 className="font-bold text-sm sm:text-base text-[#202B45] dark:text-white hover:text-[#315CFF] dark:hover:text-[#6280FF] transition-colors line-clamp-1">
-                          <Link href={`/citizen/issues/${issue.id}`}>{issue.title}</Link>
-                        </h4>
-                        <p className="text-xs text-[#606B7D] dark:text-slate-400 flex items-center gap-1.5">
-                          <MapPin size={12} className="text-[#315CFF] dark:text-[#6280FF] shrink-0" />
-                          <span className="truncate">{issue.address}</span>
-                        </p>
-                      </div>
+                      <h4 className="font-bold text-base text-[#202B45] dark:text-white hover:text-[#315CFF] dark:hover:text-[#6280FF] transition-colors line-clamp-1">
+                        <Link href={`/citizen/issues/${issue.id}`}>{issue.title}</Link>
+                      </h4>
+                      <p className="text-sm text-[#606B7D] dark:text-slate-400 flex items-center gap-1.5">
+                        <MapPin size={14} className="text-[#315CFF] dark:text-[#6280FF] shrink-0" />
+                        <span className="truncate">{issue.address}</span>
+                      </p>
+                    </div>
 
-                      <div className="text-right shrink-0 space-y-2 flex flex-col items-end">
-                        <Badge className={getStatusBadgeClass(issue.status)}>
-                          {getStatusLabel(issue.status)}
-                        </Badge>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleUpvote(issue.id)}
-                            disabled={isUpvoted}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
-                              isUpvoted
-                                ? 'bg-[#e2fa6b] text-[#202B45] cursor-default'
-                                : 'bg-[#F0F1F5] dark:bg-[#1B2435] text-[#4B5568] dark:text-slate-300 hover:bg-[#315CFF] hover:text-white'
-                            }`}
-                            title="Confirm you also see this issue nearby"
-                          >
-                            <ThumbsUp size={11} />
-                            <span>{isUpvoted ? 'Confirmed' : 'Confirm'}</span>
-                            {(extraCount > 0 || isUpvoted) && (
-                              <span className="font-mono">({Math.max(1, extraCount)})</span>
-                            )}
-                          </button>
-                          <span className="text-[11px] text-[#606B7D] dark:text-slate-400 font-mono">
-                            {formatDate(issue.createdAt)}
-                          </span>
-                        </div>
+                    <div className="text-right shrink-0 space-y-2 flex flex-col items-end">
+                      <Badge className={getStatusBadgeClass(issue.status)}>
+                        {getStatusLabel(issue.status)}
+                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleUpvote(issue.id)}
+                          disabled={isUpvoted}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                            isUpvoted
+                              ? 'bg-[#e2fa6b] text-[#202B45] cursor-default'
+                              : 'bg-[#F0F1F5] dark:bg-[#1B2435] text-[#4B5568] dark:text-slate-300 hover:bg-[#315CFF] hover:text-white'
+                          }`}
+                          title="Confirm you also see this issue nearby"
+                        >
+                          <ThumbsUp size={12} />
+                          <span>{isUpvoted ? 'Confirmed' : 'Confirm'}</span>
+                          {(extraCount > 0 || isUpvoted) && (
+                            <span className="font-mono">({Math.max(1, extraCount)})</span>
+                          )}
+                        </button>
+                        <span className="text-xs text-[#606B7D] dark:text-slate-400 font-mono">
+                          {formatDate(issue.createdAt)}
+                        </span>
                       </div>
+                    </div>
                     </div>
 
                     {/* 4-Step Live Progress Bar & SLA Countdown */}
