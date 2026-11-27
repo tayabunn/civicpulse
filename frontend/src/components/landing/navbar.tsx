@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import { toggleTheme } from '../../store/uiSlice';
@@ -13,6 +14,7 @@ import { Menu, X, Sun, Moon, LogOut, ChevronDown, LayoutDashboard } from 'lucide
 
 export function Navbar() {
   const dispatch = useDispatch();
+  const pathname = usePathname();
   const theme = useSelector((state: RootState) => state.ui.theme);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -97,15 +99,20 @@ export function Navbar() {
 
           {/* Desktop Navigation Links */}
           <nav className="flex items-center gap-6 xl:gap-8 text-base font-medium font-sans text-slate-700 dark:text-slate-200">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="hover:text-brand-cobalt dark:hover:text-brand-yellow transition-colors duration-150 py-1"
-              >
-                {link.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={`hover:text-brand-cobalt dark:hover:text-brand-yellow transition-colors duration-150 py-1 ${
+                    isActive ? 'text-[#315CFF] dark:text-[#e2fa6b] font-semibold' : ''
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Action Controls */}
@@ -281,16 +288,21 @@ export function Navbar() {
             )}
 
             <div className="flex flex-col space-y-2 text-sm font-semibold text-slate-800 dark:text-white/90">
-              {NAV_LINKS.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors font-medium font-sans"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {NAV_LINKS.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors font-medium font-sans ${
+                      isActive ? 'bg-slate-100 dark:bg-white/10 text-[#315CFF] dark:text-[#e2fa6b] font-semibold' : ''
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
             <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-white/10">
               {isAuthenticated && user ? (
