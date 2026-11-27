@@ -9,12 +9,12 @@ import {
 } from './types';
 
 export const NAV_LINKS: NavLink[] = [
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'Features', href: '#features' },
-  { label: 'Portals', href: '#portals' },
-  { label: 'FAQs', href: '#faqs' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About', href: '/about' },
+  { label: 'Services', href: '/services' },
+  { label: 'Features', href: '/features' },
+  { label: 'Portals', href: '/portals' },
+  { label: 'FAQs', href: '/faqs' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export const HERO_STATS: HeroStat[] = [
